@@ -1,15 +1,22 @@
 import { AuthProvider } from "@/contexts/authContext";
 import { Stack } from "expo-router";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 const StackLayout = () => {
-  return (<Stack screenOptions={{ headerShown: false }}>
+  return (
+      <Stack screenOptions={{ headerShown: false }}>
     <Stack.Screen
       name="(modals)/profileModal"
       options={{
         presentation: "modal"
       }}
+    />
+    <Stack.Screen
+        name="(modals)/walletModal"
+        options={{
+            presentation: "modal",
+            }}
     />
   </Stack>
   );
