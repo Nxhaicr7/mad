@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/contexts/authContext";
+import { ThemeProvider } from "@/contexts/themeContext"; // 1. IMPORT THÊM DÒNG NÀY
 import { Stack } from "expo-router";
 import React from "react";
 import { StyleSheet } from "react-native";
@@ -9,7 +10,7 @@ const StackLayout = () => {
       <Stack.Screen
         name="(modals)/profileModal"
         options={{
-          presentation: "modal",
+          presentation: "modal"
         }}
       />
       <Stack.Screen
@@ -18,8 +19,9 @@ const StackLayout = () => {
           presentation: "modal",
         }}
       />
+      {/* 2. THÊM ROUTE CHO SETTINGS MODAL VÀO ĐÂY */}
       <Stack.Screen
-        name="(modals)/transactionModal"
+        name="(modals)/settingsModal"
         options={{
           presentation: "modal",
         }}
@@ -31,7 +33,10 @@ const StackLayout = () => {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <StackLayout />
+      {/* 3. BỌC THEMEPROVIDER QUANH GIAO DIỆN APP */}
+      <ThemeProvider>
+        <StackLayout />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
