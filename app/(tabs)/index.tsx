@@ -3,8 +3,9 @@ import HomeCard from "@/components/HomeCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
-import { colors, spacingX, spacingY } from "@/constants/theme";
+import { spacingX, spacingY } from "@/constants/theme"; // Đã bỏ import colors tĩnh
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext"; // Thêm dòng này
 import useFetchData from "@/hooks/useFetchData";
 import { TransactionType } from "@/types";
 import { verticalScale } from "@/utils/styling";
@@ -17,6 +18,7 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 const Home = () => {
   const { user } = useAuth();
   const router = useRouter();
+  const { colors } = useTheme(); // Lấy bảng màu động
 
   const constraints = [
     where("uid", "==", user?.uid),
@@ -36,25 +38,28 @@ const Home = () => {
         {/* header */}
         <View style={styles.header}>
           <View style={{ gap: 4 }}>
-            <Typo size={16} color={colors.neutral400}>
+            {/* Truyền màu chữ phụ (textLight) cho chữ Hello */}
+            <Typo size={16} color={colors.textLight}>
               Hello,
             </Typo>
+            {/* Không truyền màu => Tự động lấy chữ chính (text) từ Typo.tsx */}
             <Typo size={20} fontWeight="500">
               {user?.name || "Guest"}
             </Typo>
           </View>
 
-          <TouchableOpacity style={styles.searchIcon}>
+          {/* Cập nhật màu động cho nút tìm kiếm */}
+          <TouchableOpacity style={[styles.searchIcon, { backgroundColor: colors.neutral300 }]}>
             <Icons.MagnifyingGlass
               size={verticalScale(22)}
-              color={colors.neutral200}
+              color={colors.text}
               weight="bold"
             />
           </TouchableOpacity>
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollViewStyle} // sửa tên style cho khớp
+          contentContainerStyle={styles.scrollViewStyle}
           showsVerticalScrollIndicator={false}
         >
           {/* card */}
@@ -69,15 +74,15 @@ const Home = () => {
             title="Recent Transactions"
           />
 
-          {/* thêm các phần khác nếu có */}
         </ScrollView>
 
         <Button
           style={styles.floatingButton}
           onPress={() => router.push("/(modals)/transactionModal")}
         >
+          {/* Icon dấu + giữ màu đen vì nút thêm thường giữ nguyên một màu nền sáng */}
           <Icons.Plus
-            color={colors.black}
+            color={"#000"}
             weight="bold"
             size={verticalScale(24)}
           />
@@ -104,7 +109,6 @@ const styles = StyleSheet.create({
   },
 
   searchIcon: {
-    backgroundColor: colors.neutral700,
     padding: spacingX._10,
     borderRadius: 50,
   },

@@ -2,8 +2,9 @@ import Header from '@/components/Header'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import Typo from '@/components/Typo'
 import { auth } from '@/config/firebase'
-import { colors, radius, spacingX, spacingY } from '@/constants/theme'
+import { radius, spacingX, spacingY } from '@/constants/theme' // Bỏ import colors tĩnh ở đây
 import { useAuth } from '@/contexts/authContext'
+import { useTheme } from '@/contexts/themeContext' // Thêm hook theme
 import { getProfileImage } from '@/services/imageServices'
 import { accountOptionType } from '@/types'
 import { verticalScale } from '@/utils/styling'
@@ -15,9 +16,9 @@ import React from 'react'
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 
-
 const Profile = () => {
     const { user } = useAuth();
+    const { colors } = useTheme(); // Lấy bảng màu động từ ThemeContext
 
     const accountOptions: accountOptionType[] = [
         {
@@ -29,7 +30,7 @@ const Profile = () => {
         {
             title: "Settings",
             icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
-            // routeName: "/(modals)/profileModal",
+            routeName: "/(modals)/settingsModal", // Đã mở comment để trỏ tới Settings Modal
             bgColor: "#059669",
         },
         {
@@ -45,9 +46,11 @@ const Profile = () => {
             bgColor: "#e11d48",
         },
     ];
+
     const handleLogout = async () => {
         await signOut(auth);
     };
+
     const showLogoutAlert = () => {
         Alert.alert("Confirm", "Are you sure you want to logout?", [
             {
@@ -67,11 +70,13 @@ const Profile = () => {
         if (item.title == 'Logout') {
             showLogoutAlert();
         }
-        if(item.routeName) router.push(item.routeName);
+        if (item.routeName) router.push(item.routeName);
     };
+
     return (
         <ScreenWrapper>
-            <View style={styles.container}>
+            {/* Nếu ScreenWrapper chưa tự đổi màu nền, bạn có thể thêm style={{ backgroundColor: colors.background }} vào View container */}
+            <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
 
                 {/* user info */}
@@ -81,7 +86,7 @@ const Profile = () => {
                         {/* user image */}
                         <Image
                             source={getProfileImage(user?.image)}
-                            style={styles.avatar}
+                            style={[styles.avatar, { backgroundColor: colors.neutral300 }]}
                             contentFit="cover"
                             transition={100}
                         />
@@ -89,11 +94,12 @@ const Profile = () => {
 
                     {/* name & email */}
                     <View style={styles.nameContainer}>
-                        <Typo size={24} fontWeight={"600"} color={colors.neutral100}>
+                        {/* Đổi màu chữ theo theme */}
+                        <Typo size={24} fontWeight={"600"} color={colors.text}>
                             {user?.name}
                         </Typo>
 
-                        <Typo size={15} color={colors.neutral400}>
+                        <Typo size={15} color={colors.textLight}>
                             {user?.email}
                         </Typo>
                     </View>
@@ -123,14 +129,15 @@ const Profile = () => {
                                         {item.icon && item.icon}
                                     </View>
 
-                                    <Typo size={16} style={{ flex: 1 }} fontWeight={"500"}>
+                                    {/* Đổi màu chữ tuỳ chọn theo theme */}
+                                    <Typo size={16} style={{ flex: 1 }} fontWeight={"500"} color={colors.text}>
                                         {item.title}
                                     </Typo>
 
                                     <Icons.CaretRight
                                         size={verticalScale(20)}
                                         weight="bold"
-                                        color={colors.white}
+                                        color={colors.textLight}
                                     />
                                 </TouchableOpacity>
                             </Animated.View>
@@ -153,27 +160,21 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: spacingY._15,
     },
-
     avatarContainer: {
         position: "relative",
         alignSelf: "center",
     },
     avatar: {
         alignSelf: "center",
-        backgroundColor: colors.neutral300,
         height: verticalScale(135),
         width: verticalScale(135),
         borderRadius: 200,
-        // overflow: "hidden",
-        // position: "relative",
     },
     editIcon: {
         position: "absolute",
         bottom: 5,
         right: 8,
         borderRadius: 50,
-        backgroundColor: colors.neutral100,
-        shadowColor: colors.black,
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.25,
         shadowRadius: 10,
@@ -187,7 +188,6 @@ const styles = StyleSheet.create({
     listIcon: {
         height: verticalScale(44),
         width: verticalScale(44),
-        backgroundColor: colors.neutral500,
         alignItems: "center",
         justifyContent: "center",
         borderRadius: radius._15,
