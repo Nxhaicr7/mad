@@ -22,8 +22,10 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { useTranslation } from "react-i18next"; // 1. Thêm import
 
 const ProfileModal = () => {
+    const { t } = useTranslation(); // 2. Khai báo hàm t
 
     // hooks
     const { user, updateUserData } = useAuth();
@@ -57,7 +59,8 @@ const ProfileModal = () => {
         let { name } = userData;
 
         if (!name.trim()) {
-            Alert.alert("User", "Please fill all the fields");
+            // Dùng t() cho Alert
+            Alert.alert(t("User"), t("Please fill all the fields"));
             return;
         }
 
@@ -71,7 +74,7 @@ const ProfileModal = () => {
             updateUserData(user?.uid as string);
             router.back();
         } else {
-            Alert.alert("User", res.msg);
+            Alert.alert(t("User"), res.msg);
         }
     };
 
@@ -88,7 +91,7 @@ const ProfileModal = () => {
         <ModalWrapper>
             <View style={styles.container}>
                 <Header
-                    title="Update Profile"
+                    title={t("Update Profile")} // Dùng t() cho Header
                     leftIcon={<BackButton />}
                     style={{ marginBottom: spacingY._10 }}
                 />
@@ -111,9 +114,9 @@ const ProfileModal = () => {
                     </View>
 
                     <View style={styles.inputContainer}>
-                        <Typo color={colors.neutral200}>Name</Typo>
+                        <Typo color={colors.neutral200}>{t("Name")}</Typo>
                         <Input
-                            placeholder="Name"
+                            placeholder={t("Name")} // t() cho placeholder
                             value={userData.name}
                             onChangeText={(value) =>
                                 setUserData({ ...userData, name: value })
@@ -126,7 +129,7 @@ const ProfileModal = () => {
             <View style={styles.footer}>
                 <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
                     <Typo color={colors.black} fontWeight={"700"}>
-                        Update
+                        {t("Update")}
                     </Typo>
                 </Button>
             </View>
@@ -198,4 +201,3 @@ const styles = StyleSheet.create({
         gap: spacingY._10,
     },
 });
-

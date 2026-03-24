@@ -31,8 +31,10 @@ import {
   View,
 } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import { useTranslation } from "react-i18next"; // <-- Thêm dòng này
 
 const TransactionModal = () => {
+  const { t } = useTranslation(); // <-- Khai báo t
   const { user } = useAuth();
   const { colors, isDarkMode } = useTheme(); // 2. Lấy màu động
 
@@ -97,7 +99,7 @@ const TransactionModal = () => {
     const { type, amount, description, category, date, walletId, image } =
       transaction;
     if (!walletId || !date || !amount || (type == "expense" && !category)) {
-      Alert.alert("Transaction", "Please fill all the fields");
+      Alert.alert(t("Transaction"), t("Please fill all the fields"));
       return;
     }
     let transactionData: TransactionType = {
@@ -117,7 +119,7 @@ const TransactionModal = () => {
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Transaction", res.msg);
+      Alert.alert(t("Transaction"), res.msg);
     }
   };
 
@@ -132,17 +134,17 @@ const TransactionModal = () => {
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Transaction", res.msg);
+      Alert.alert(t("Transaction"), res.msg);
     }
   };
 
   const showDeleteAlert = () => {
     Alert.alert(
-      "Confirm",
-      "Are you sure you want to delete this transaction?",
+      t("Confirm"),
+      t("Are you sure you want to delete this transaction?"),
       [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", onPress: () => onDelete(), style: "destructive" },
+        { text: t("Cancel"), style: "cancel" },
+        { text: t("Delete"), onPress: () => onDelete(), style: "destructive" },
       ],
     );
   };
@@ -151,7 +153,7 @@ const TransactionModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title={oldTransaction?.id ? "Update Transaction" : "New Transaction"}
+          title={oldTransaction?.id ? t("Update Transaction") : t("New Transaction")}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -163,7 +165,7 @@ const TransactionModal = () => {
           {/* Type Dropdown */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>
-              Type
+              {t("Type")}
             </Typo>
             <Dropdown
               style={[styles.dropdownContainer, { borderColor: colors.border }]}
@@ -196,7 +198,7 @@ const TransactionModal = () => {
           {/* Wallet Dropdown */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>
-              Wallet
+              {t("Wallet")}
             </Typo>
             <Dropdown
               style={[styles.dropdownContainer, { borderColor: colors.border }]}
@@ -222,7 +224,7 @@ const TransactionModal = () => {
                   borderColor: colors.border,
                 },
               ]}
-              placeholder="Select wallet"
+              placeholder={t("Select wallet")}
               value={transaction.walletId}
               onChange={(item) =>
                 setTransaction({ ...transaction, walletId: item.value || "" })
@@ -233,7 +235,7 @@ const TransactionModal = () => {
           {/* Category Dropdown */}
           {transaction.type === "expense" && (
             <View style={styles.inputContainer}>
-              <Typo color={colors.textLight}>Expense Category</Typo>
+              <Typo color={colors.textLight}>{t("Expense Category")}</Typo>
               <Dropdown
                 style={[
                   styles.dropdownContainer,
@@ -261,7 +263,7 @@ const TransactionModal = () => {
                     borderColor: colors.border,
                   },
                 ]}
-                placeholder="Select category"
+                placeholder={t("Select category")}
                 value={transaction.category}
                 onChange={(item) =>
                   setTransaction({ ...transaction, category: item.value || "" })
@@ -273,7 +275,7 @@ const TransactionModal = () => {
           {/* Date Picker */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>
-              Date
+              {t("Date")}
             </Typo>
             {!showDatePicker && (
               <Pressable
@@ -304,7 +306,7 @@ const TransactionModal = () => {
                     onPress={() => setShowDatePicker(false)}
                   >
                     <Typo size={15} fontWeight={"500"} color={colors.text}>
-                      Ok
+                      {t("Ok")}
                     </Typo>
                   </TouchableOpacity>
                 )}
@@ -315,7 +317,7 @@ const TransactionModal = () => {
           {/* Amount Input */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>
-              Amount
+              {t("Amount")}
             </Typo>
             <Input
               keyboardType="numeric"
@@ -333,10 +335,10 @@ const TransactionModal = () => {
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.textLight} size={16}>
-                Description
+                {t("Description")}
               </Typo>
               <Typo color={colors.neutral500} size={14}>
-                (optional)
+                {t("(optional)")}
               </Typo>
             </View>
             <Input
@@ -357,10 +359,10 @@ const TransactionModal = () => {
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.textLight} size={16}>
-                Receipt
+                {t("Receipt")}
               </Typo>
               <Typo color={colors.neutral500} size={14}>
-                (optional)
+                {t("(optional)")}
               </Typo>
             </View>
             <ImageUpload
@@ -369,7 +371,7 @@ const TransactionModal = () => {
               onSelect={(file) =>
                 setTransaction({ ...transaction, image: file })
               }
-              placeholder="Upload Image"
+              placeholder={t("Upload Image")}
             />
           </View>
         </ScrollView>
@@ -393,7 +395,7 @@ const TransactionModal = () => {
         )}
         <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            {oldTransaction?.id ? "Update" : "Submit"}
+            {oldTransaction?.id ? t("Update") : t("Submit")}
           </Typo>
         </Button>
       </View>

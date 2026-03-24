@@ -21,8 +21,10 @@ import {
     StyleSheet,
     View
 } from "react-native";
+import { useTranslation } from "react-i18next"; // 1. Import hook dịch
 
 const WalletModal = () => {
+    const { t } = useTranslation(); // 2. Khai báo hàm t
     const { user, updateUserData } = useAuth();
     const router = useRouter();
     const { colors } = useTheme(); // Lấy bảng màu động
@@ -61,7 +63,7 @@ const WalletModal = () => {
     const onSubmit = async () => {
         let { name, image } = wallet;
         if (!name.trim()) {
-            Alert.alert("Wallet", "Please enter a wallet name");
+            Alert.alert(t("Wallet"), t("Please enter a wallet name"));
             return;
         }
 
@@ -77,7 +79,7 @@ const WalletModal = () => {
         if (res.success) {
             router.back();
         } else {
-            Alert.alert("Wallet", res.msg);
+            Alert.alert(t("Wallet"), res.msg);
         }
     };
 
@@ -89,22 +91,22 @@ const WalletModal = () => {
         if (res.success) {
             router.back();
         } else {
-            Alert.alert("Wallet", res.msg);
+            Alert.alert(t("Wallet"), res.msg);
         }
     };
 
     const showDeleteAlert = () => {
         Alert.alert(
-            "Confirm",
-            "Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet",
+            t("Confirm"),
+            t("Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet"),
             [
                 {
-                    text: "Cancel",
+                    text: t("Cancel"),
                     onPress: () => console.log("cancel delete"),
                     style: "cancel"
                 },
                 {
-                    text: "Delete",
+                    text: t("Delete"),
                     onPress: () => onDelete(),
                     style: "destructive"
                 }
@@ -117,16 +119,16 @@ const WalletModal = () => {
         <ModalWrapper>
             <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <Header
-                    title={oldWallet?.id ? "Update Wallet" : "New Wallet"}
+                    title={oldWallet?.id ? t("Update Wallet") : t("New Wallet")}
                     leftIcon={<BackButton />}
                     style={{ marginBottom: spacingY._10 }}
                 />
 
                 <ScrollView contentContainerStyle={styles.form}>
                     <View style={styles.inputContainer}>
-                        <Typo color={colors.text}>Wallet Name</Typo>
+                        <Typo color={colors.text}>{t("Wallet Name")}</Typo>
                         <Input
-                            placeholder="Salary"
+                            placeholder={t("Salary")}
                             value={wallet.name}
                             onChangeText={(value) =>
                                 setWallet({ ...wallet, name: value })
@@ -134,12 +136,12 @@ const WalletModal = () => {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Typo color={colors.text}>Wallet Icon</Typo>
+                        <Typo color={colors.text}>{t("Wallet Icon")}</Typo>
                         <ImageUpload
                             file={wallet.image}
                             onClear={() => setWallet({ ...wallet, image: null })}
                             onSelect={file => setWallet({ ...wallet, image: file })}
-                            placeholder="Upload Image" />
+                            placeholder={t("Upload Image")} />
                     </View>
                 </ScrollView>
             </View>
@@ -160,7 +162,7 @@ const WalletModal = () => {
                 )}
                 <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
                     <Typo color={colors.black} fontWeight={"700"}>
-                        {oldWallet?.id ? "Update Wallet" : "Add Wallet"}
+                        {oldWallet?.id ? t("Update Wallet") : t("Add Wallet")}
                     </Typo>
                 </Button>
             </View>

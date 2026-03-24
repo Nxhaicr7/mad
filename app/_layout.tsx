@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/contexts/themeContext"; // 1. IMPORT THÊM DÒN
 import { Stack } from "expo-router";
 import React from "react";
 import { StyleSheet } from "react-native";
+import "@/services/i18n";
 
 const StackLayout = () => {
   return (

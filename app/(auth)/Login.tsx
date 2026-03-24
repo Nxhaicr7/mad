@@ -10,7 +10,10 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useRef, useState } from "react";
 import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next"; // 1. Thêm import
+
 const Login = () => {
+    const { t } = useTranslation(); // 2. Khai báo hàm t
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +22,8 @@ const Login = () => {
 
     const handleSubmit = async () => {
         if (!emailRef.current || !passwordRef.current) {
-            Alert.alert("Login", "Please fill all the fields");
+            // Dùng t() cho thông báo lỗi
+            Alert.alert(t("Login"), t("Please fill all the fields"));
             return;
         }
 
@@ -28,7 +32,7 @@ const Login = () => {
         setIsLoading(false);
 
         if (!res.success) {
-            Alert.alert("Login", res.msg);
+            Alert.alert(t("Login"), res.msg);
         }
     };
 
@@ -39,20 +43,20 @@ const Login = () => {
 
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
                     <Typo size={30} fontWeight={"800"}>
-                        Hey,
+                        {t("Hey,")}
                     </Typo>
                     <Typo size={30} fontWeight={"800"}>
-                        Welcome Back
+                        {t("Welcome Back")}
                     </Typo>
                 </View>
 
                 <View style={styles.form}>
                     <Typo size={16} color={colors.textLighter}>
-                        Login now to track all your expenses
+                        {t("Login now to track all your expenses")}
                     </Typo>
 
                     <Input
-                        placeholder="Enter your email"
+                        placeholder={t("Enter your email")} // t() cho placeholder
                         onChangeText={(value) => (emailRef.current = value)}
                         icon={
                             <Icons.At
@@ -64,7 +68,7 @@ const Login = () => {
                     />
 
                     <Input
-                        placeholder="Enter your password"
+                        placeholder={t("Enter your password")} // t() cho placeholder
                         secureTextEntry
                         onChangeText={(value) => (passwordRef.current = value)}
                         icon={
@@ -77,22 +81,22 @@ const Login = () => {
                     />
 
                     <Typo size={14} color={colors.text} style={{ alignSelf: "flex-end" }}>
-                        Forgot Password
+                        {t("Forgot Password")}
                     </Typo>
 
                     <Button loading={isLoading} onPress={handleSubmit}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
-                            Login
+                            {t("Login")}
                         </Typo>
                     </Button>
                 </View>
 
                 <View style={styles.footer}>
-                    <Typo size={15}>Don't have an account?</Typo>
+                    <Typo size={15}>{t("Don't have an account?")}</Typo>
 
                     <Pressable onPress={() => router.navigate("/(auth)/Register")}>
                         <Typo size={15} fontWeight={"700"} color={colors.primary}>
-                            Sign up
+                            {t("Sign up")}
                         </Typo>
                     </Pressable>
                 </View>

@@ -13,8 +13,10 @@ import { orderBy, where } from 'firebase/firestore';
 import * as Icons from 'phosphor-react-native';
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from "react-i18next"; // 1. Import hook dịch
 
 const Wallet = () => {
+    const { t } = useTranslation(); // 2. Khai báo hàm t
     const router = useRouter();
     const { user } = useAuth();
     const { colors } = useTheme(); // Lấy bảng màu động
@@ -31,28 +33,28 @@ const Wallet = () => {
         }, 0);
 
     return (
-        // 1. Đổi nền ngoài cùng thành nền động
+
         <ScreenWrapper style={{ backgroundColor: colors.background }}>
             <View style={styles.container}>
-                {/* 2. Đổi nền khu vực số dư */}
+                { }
                 <View style={[styles.balanceView, { backgroundColor: colors.background }]}>
                     <View style={{ alignItems: "center" }}>
-                        {/* Thêm color động để chữ tự đổi màu đen/trắng */}
+                        { }
                         <Typo size={45} fontWeight={"500"} color={colors.text}>
                             ${getTotalBalance()?.toFixed(2)}
                         </Typo>
                         <Typo size={16} color={colors.textLight}>
-                            Total Balance
+                            {t("Total Balance")}
                         </Typo>
                     </View>
                 </View>
 
-                {/* 3. Đổi nền khu vực danh sách ví */}
+                { }
                 <View style={[styles.wallets, { backgroundColor: colors.surface || colors.neutral100 }]}>
                     <View style={styles.flexRow}>
                         {/* Đổi màu chữ */}
                         <Typo size={20} fontWeight={"500"} color={colors.text}>
-                            My Wallets
+                            {t("My Wallets")}
                         </Typo>
                         <TouchableOpacity onPress={() => router.push("/(modals)/walletModal")}>
                             <Icons.PlusCircle
@@ -85,7 +87,7 @@ const styles = StyleSheet.create({
     },
     balanceView: {
         height: verticalScale(160),
-        // Đã xoá backgroundColor tĩnh ở đây, thay bằng màu động bên trên
+
         justifyContent: "center",
         alignItems: "center",
     },
@@ -97,7 +99,7 @@ const styles = StyleSheet.create({
     },
     wallets: {
         flex: 1,
-        // Đã xoá backgroundColor tĩnh ở đây, thay bằng màu động bên trên
+
         borderTopRightRadius: radius?._30 || 30,
         borderTopLeftRadius: radius?._30 || 30,
         padding: spacingX?._20 || 20,

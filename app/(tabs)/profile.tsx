@@ -15,32 +15,34 @@ import * as Icons from 'phosphor-react-native'
 import React from 'react'
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeInDown } from 'react-native-reanimated'
+import { useTranslation } from "react-i18next"; // 1. Import hook dịch
 
 const Profile = () => {
+    const { t } = useTranslation(); // 2. Khai báo hàm t
     const { user } = useAuth();
     const { colors } = useTheme(); // Lấy bảng màu động từ ThemeContext
 
     const accountOptions: accountOptionType[] = [
         {
-            title: "Edit Profile",
+            title: t("Edit Profile"), // Bọc t() vào title
             icon: <Icons.User size={26} color={colors.white} weight="fill" />,
             routeName: "/(modals)/profileModal",
             bgColor: "#6366f1",
         },
         {
-            title: "Settings",
+            title: t("Settings"), // Bọc t() vào title
             icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
             routeName: "/(modals)/settingsModal", // Đã mở comment để trỏ tới Settings Modal
             bgColor: "#059669",
         },
         {
-            title: "Privacy Policy",
+            title: t("Privacy Policy"), // Bọc t() vào title
             icon: <Icons.Lock size={26} color={colors.white} weight="fill" />,
             // routeName: "/(modals)/profileModal",
             bgColor: colors.neutral600,
         },
         {
-            title: "Logout",
+            title: t("Logout"), // Bọc t() vào title
             icon: <Icons.Power size={26} color={colors.white} weight="fill" />,
             // routeName: "/(modals)/profileModal",
             bgColor: "#e11d48",
@@ -52,14 +54,14 @@ const Profile = () => {
     };
 
     const showLogoutAlert = () => {
-        Alert.alert("Confirm", "Are you sure you want to logout?", [
+        Alert.alert(t("Confirm"), t("Are you sure you want to logout?"), [
             {
-                text: "Cancel",
+                text: t("Cancel"),
                 onPress: () => console.log('cancel logout'),
                 style: 'cancel'
             },
             {
-                text: "Logout",
+                text: t("Logout"),
                 onPress: () => handleLogout(),
                 style: 'destructive'
             }
@@ -67,7 +69,7 @@ const Profile = () => {
     }
 
     const handlePress = (item: accountOptionType) => {
-        if (item.title == 'Logout') {
+        if (item.title == t('Logout')) {
             showLogoutAlert();
         }
         if (item.routeName) router.push(item.routeName);
@@ -75,9 +77,9 @@ const Profile = () => {
 
     return (
         <ScreenWrapper>
-            {/* Nếu ScreenWrapper chưa tự đổi màu nền, bạn có thể thêm style={{ backgroundColor: colors.background }} vào View container */}
+
             <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
+                <Header title={t("Profile")} style={{ marginVertical: spacingY._10 }} />
 
                 {/* user info */}
                 <View style={styles.userInfo}>
@@ -94,7 +96,7 @@ const Profile = () => {
 
                     {/* name & email */}
                     <View style={styles.nameContainer}>
-                        {/* Đổi màu chữ theo theme */}
+
                         <Typo size={24} fontWeight={"600"} color={colors.text}>
                             {user?.name}
                         </Typo>
@@ -117,7 +119,7 @@ const Profile = () => {
                                 }
                                 style={styles.listItem}>
                                 <TouchableOpacity style={styles.flexRow} onPress={() => handlePress(item)}>
-                                    {/* icon */}
+                                    { }
                                     <View
                                         style={[
                                             styles.listIcon,
@@ -129,7 +131,7 @@ const Profile = () => {
                                         {item.icon && item.icon}
                                     </View>
 
-                                    {/* Đổi màu chữ tuỳ chọn theo theme */}
+
                                     <Typo size={16} style={{ flex: 1 }} fontWeight={"500"} color={colors.text}>
                                         {item.title}
                                     </Typo>

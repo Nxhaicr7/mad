@@ -1,26 +1,26 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { useTheme } from '@/contexts/themeContext'; // 1. Gọi hook theme
+import { useTheme } from '@/contexts/themeContext';
 import * as Icons from 'phosphor-react-native';
 
 export default function TabLayout() {
-    const { colors } = useTheme(); // 2. Lấy bảng màu động
+    const { colors } = useTheme();
 
     return (
         <Tabs
             screenOptions={{
                 headerShown: false,
-                // 3. Truyền màu động vào thanh Tab Bar
+
                 tabBarStyle: {
-                    backgroundColor: colors.background, // Màu nền của thanh điều hướng
-                    borderTopColor: colors.border,      // Viền trên
+                    backgroundColor: colors.background,
+                    borderTopColor: colors.border,
                 },
-                tabBarActiveTintColor: colors.primary,      // Màu khi icon được chọn
-                tabBarInactiveTintColor: colors.textLight,  // Màu khi icon chưa chọn
-                tabBarShowLabel: false, // Ẩn chữ bên dưới icon nếu muốn
+                tabBarActiveTintColor: colors.primary,
+                tabBarInactiveTintColor: colors.textLight,
+                tabBarShowLabel: false,
             }}
         >
-            {/* Cấu hình các màn hình của bạn ở đây, ví dụ: */}
+
             <Tabs.Screen
                 name="index"
                 options={{

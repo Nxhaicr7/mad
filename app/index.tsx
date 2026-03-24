@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // Xóa backgroundColor: colors.neutral900 ở đây vì đã dùng màu động ở trên
+
   },
   logo: {
     height: "20%",
