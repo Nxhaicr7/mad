@@ -43,9 +43,11 @@ const ScanInvoiceModal = () => {
             return;
         }
         const res = await ImagePicker.launchCameraAsync({
-            quality: 0.8,
+            quality: 0.5,
             allowsEditing: false,
-        });
+            maxWidth: 1024,
+            maxHeight: 1024,
+        } as any);
         if (!res.canceled && res.assets?.length > 0) {
             setImageUri(res.assets[0].uri);
             setResult(null);
@@ -55,10 +57,12 @@ const ScanInvoiceModal = () => {
     // Upload từ thư viện ảnh
     const handleUpload = async () => {
         const res = await ImagePicker.launchImageLibraryAsync({
-            quality: 0.8,
+            quality: 0.5,
             allowsEditing: false,
             mediaTypes: ['images'],
-        });
+            maxWidth: 1024,
+            maxHeight: 1024,
+        } as any);
         if (!res.canceled && res.assets?.length > 0) {
             setImageUri(res.assets[0].uri);
             setResult(null);
