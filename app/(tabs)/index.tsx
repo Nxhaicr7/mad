@@ -30,10 +30,11 @@ const Home = () => {
 
   const {
     data: recentTransactions,
-    error,
     loading: transactionsLoading,
-  } = useFetchData<TransactionType>("transactions", constraints);
-
+  } = useFetchData<TransactionType>(
+    user?.uid ? "transactions" : "", // 👈 Chỉ truyền tên collection khi đã có UID
+    constraints
+  );
   return (
     <ScreenWrapper>
       <View style={styles.container}>

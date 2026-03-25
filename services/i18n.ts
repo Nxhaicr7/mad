@@ -58,8 +58,29 @@ const resources = {
       "Recent Transactions": "Recent Transactions",
       "Privacy Policy": "Privacy Policy",
       Statistics: "Statistics",
+      Or: "Or",
+      "Continue with Google": "Continue with Google",
+      "Continue with Facebook": "Continue with Facebook",
 
       "My Wallets": "My Wallets",
+      Login: "Login",
+      "Please fill all the fields": "Please fill all the fields",
+      "Hey,": "Hey,",
+      "Welcome Back": "Welcome Back",
+      "Login now to track all your expenses":
+        "Login now to track all your expenses",
+      "Enter your email": "Enter your email",
+      "Enter your password": "Enter your password",
+      "Forgot Password": "Forgot Password",
+      "Let's": "Let's",
+      "Get started": "Get started",
+      "Create an account to track your expense":
+        "Create an account to track your expense",
+      "Enter your name": "Enter your name",
+      "Already have an account?": "Already have an account?",
+
+      "Don't have an account?": "Don't have an account?",
+      "Sign up": "Sign up",
     }, // Đóng translation của en
   }, // Đóng en
 
@@ -67,6 +88,26 @@ const resources = {
     // Mở vi ngay sau dấu phẩy của en
     translation: {
       "Total Balance": "Tổng số dư",
+      Login: "Đăng nhập",
+      "Please fill all the fields": "Vui lòng nhập đầy đủ thông tin",
+      "Hey,": "Chào bạn,",
+      "Welcome Back": "Mừng bạn trở lại",
+      "Login now to track all your expenses":
+        "Đăng nhập ngay để quản lý chi tiêu",
+      "Enter your email": "Nhập email của bạn",
+      "Enter your password": "Nhập mật khẩu",
+      "Forgot Password": "Quên mật khẩu?",
+      Or: "Hoặc",
+      "Let's": "Cùng nhau",
+      "Get started": "Bắt đầu nào",
+      "Create an account to track your expense":
+        "Tạo tài khoản để theo dõi chi tiêu",
+      "Enter your name": "Nhập tên của bạn",
+      "Already have an account?": "Đã có tài khoản?",
+      "Continue with Google": "Tiếp tục với Google",
+      "Continue with Facebook": "Tiếp tục với Facebook",
+      "Don't have an account?": "Chưa có tài khoản?",
+      "Sign up": "Đăng ký",
       Income: "Thu nhập",
       Expense: "Chi tiêu",
       "Sign in": "Đăng nhập",
@@ -80,8 +121,10 @@ const resources = {
       "Dark Mode": "Chế độ tối",
       Language: "Ngôn ngữ",
       Notifications: "Thông báo",
+
       "Change Password": "Đổi mật khẩu",
       "Edit Profile": "Chỉnh sửa hồ sơ",
+
       Settings: "Cài đặt",
       Logout: "Đăng xuất",
       User: "Người dùng",

@@ -9,11 +9,12 @@ import * as Icons from "phosphor-react-native";
 import React, { useState } from "react";
 import { StyleSheet, Switch, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
 
 const SettingsModal = () => {
     const { isDarkMode, toggleTheme, colors } = useTheme();
     const { t, i18n } = useTranslation();
-
+    const router = useRouter(); // Phải có câu lệnh này ở đầu hàm thì nó mới hiểu 'router' là gì
 
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
 
@@ -83,7 +84,11 @@ const SettingsModal = () => {
                     </View>
 
                     {/* 4. Đổi mật khẩu */}
-                    <TouchableOpacity style={[styles.row, { borderBottomColor: colors.border }]}>
+                    <TouchableOpacity
+                        style={[styles.row, { borderBottomColor: colors.border }]}
+                        // 👇 CHỈ CẦN THÊM ĐÚNG DÒNG NÀY LÀ NÚT SẼ SỐNG DẬY 👇
+                        onPress={() => router.push("/(auth)/changePasswordModal")}
+                    >
                         <View style={styles.rowLeft}>
                             <Icons.LockKey size={verticalScale(24)} color={colors.text} />
                             <Typo color={colors.text} style={{ marginLeft: scale(10) }}>

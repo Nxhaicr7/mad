@@ -3,26 +3,27 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
-import { colors, spacingX, spacingY } from "@/constants/theme";
+import { spacingX, spacingY } from "@/constants/theme"; // ⚠️ Đã bỏ import colors tĩnh
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext"; // 👈 Thêm dòng này
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useRef, useState } from "react";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next"; // 1. Thêm import
+import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
-    const { t } = useTranslation(); // 2. Khai báo hàm t
+    const { t } = useTranslation();
+    const { colors } = useTheme(); // 👈 Lấy bảng màu ĐỘNG từ ThemeContext
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { login: loginUser } = useAuth();
+    const { login: loginUser, loginWithGoogle } = useAuth(); // Gộp vào 1 dòng cho gọn
 
     const handleSubmit = async () => {
         if (!emailRef.current || !passwordRef.current) {
-            // Dùng t() cho thông báo lỗi
             Alert.alert(t("Login"), t("Please fill all the fields"));
             return;
         }
@@ -36,12 +37,24 @@ const Login = () => {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        const res = await loginWithGoogle();
+        if (!res.success) {
+            alert(res.msg);
+        }
+    };
+
+    const handleFacebookLogin = async () => {
+        console.log("Login with Facebook pressed");
+    };
+
     return (
         <ScreenWrapper>
             <View style={styles.container}>
                 <BackButton iconSize={28} />
 
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
+                    {/* Typo mặc định đã lấy colors.text rồi nên không cần truyền color */}
                     <Typo size={30} fontWeight={"800"}>
                         {t("Hey,")}
                     </Typo>
@@ -51,24 +64,24 @@ const Login = () => {
                 </View>
 
                 <View style={styles.form}>
-                    <Typo size={16} color={colors.textLighter}>
+                    <Typo size={16} color={colors.textLight}>
                         {t("Login now to track all your expenses")}
                     </Typo>
 
                     <Input
-                        placeholder={t("Enter your email")} // t() cho placeholder
+                        placeholder={t("Enter your email")}
                         onChangeText={(value) => (emailRef.current = value)}
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.neutral300} // Icon màu nhạt
                                 weight="fill"
                             />
                         }
                     />
 
                     <Input
-                        placeholder={t("Enter your password")} // t() cho placeholder
+                        placeholder={t("Enter your password")}
                         secureTextEntry
                         onChangeText={(value) => (passwordRef.current = value)}
                         icon={
@@ -80,9 +93,12 @@ const Login = () => {
                         }
                     />
 
-                    <Typo size={14} color={colors.text} style={{ alignSelf: "flex-end" }}>
-                        {t("Forgot Password")}
-                    </Typo>
+                    {/* Quên mật khẩu - Đã căn lề phải */}
+                    <TouchableOpacity onPress={() => router.push("/(auth)/forgotPassword")}>
+                        <Typo size={14} color={colors.textLight} fontWeight={"500"} style={{ textAlign: 'right' }}>
+                            {t("Forgot Password")}
+                        </Typo>
+                    </TouchableOpacity>
 
                     <Button loading={isLoading} onPress={handleSubmit}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
@@ -91,8 +107,44 @@ const Login = () => {
                     </Button>
                 </View>
 
+                {/* --- Chữ HOẶC --- */}
+                <View style={styles.dividerContainer}>
+                    <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
+                    <Typo size={14} color={colors.textLight} style={{ paddingHorizontal: 10 }}>
+                        {t("Or")}
+                    </Typo>
+                    <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
+                </View>
+
+                {/* --- Social Login Buttons --- */}
+                <View style={styles.socialContainer}>
+                    <TouchableOpacity
+                        // Dùng mảng style để ghi đè borderColor động
+                        style={[styles.socialButton, { borderColor: colors.neutral300 }]}
+                        onPress={handleGoogleLogin}
+                    >
+                        <Icons.GoogleLogo size={verticalScale(24)} color={colors.text} weight="bold" />
+                        <Typo size={16} fontWeight={"600"} color={colors.text}>
+                            {t("Continue with Google")}
+                        </Typo>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.socialButton, { borderColor: colors.neutral300 }]}
+                        onPress={handleFacebookLogin}
+                    >
+                        <Icons.FacebookLogo size={verticalScale(24)} color="#1877F2" weight="fill" />
+                        <Typo size={16} fontWeight={"600"} color={colors.text}>
+                            {t("Continue with Facebook")}
+                        </Typo>
+                    </TouchableOpacity>
+                </View>
+
+                {/* --- Footer "Chưa có tài khoản" --- */}
                 <View style={styles.footer}>
-                    <Typo size={15}>{t("Don't have an account?")}</Typo>
+                    <Typo size={15} color={colors.textLight}>
+                        {t("Don't have an account?")}
+                    </Typo>
 
                     <Pressable onPress={() => router.navigate("/(auth)/Register")}>
                         <Typo size={15} fontWeight={"700"} color={colors.primary}>
@@ -113,28 +165,38 @@ const styles = StyleSheet.create({
         gap: spacingY._30,
         paddingHorizontal: spacingX._20,
     },
-    welcomeText: {
-        fontSize: verticalScale(20),
-        fontWeight: "bold",
-        color: colors.text,
-    },
     form: {
         gap: spacingY._20,
-    },
-    forgotPassword: {
-        textAlign: "right",
-        fontWeight: "500",
-        color: colors.text,
     },
     footer: {
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         gap: 5,
+        marginTop: verticalScale(10), // Đẩy footer xuống dưới một tí
     },
-    footerText: {
-        textAlign: "center",
-        color: colors.text,
-        fontSize: verticalScale(15),
+    dividerContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: verticalScale(5),
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+        // Bỏ backgroundColor ở đây, chuyển lên inline style ở trên để dùng colors động
+    },
+    socialContainer: {
+        gap: spacingY._15,
+    },
+    socialButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        height: verticalScale(50),
+        borderWidth: 1,
+        borderRadius: 12,
+        backgroundColor: "transparent",
+        // Bỏ borderColor tĩnh ở đây
     },
 });

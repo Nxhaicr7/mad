@@ -15,36 +15,37 @@ import * as Icons from 'phosphor-react-native'
 import React from 'react'
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeInDown } from 'react-native-reanimated'
-import { useTranslation } from "react-i18next"; // 1. Import hook dịch
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
-    const { t } = useTranslation(); // 2. Khai báo hàm t
-    const { user } = useAuth();
-    const { colors } = useTheme(); // Lấy bảng màu động từ ThemeContext
+    const { t } = useTranslation();
+
+    const { colors } = useTheme();
+    const { user, logout } = useAuth();
 
     const accountOptions: accountOptionType[] = [
         {
-            title: t("Edit Profile"), // Bọc t() vào title
+            title: t("Edit Profile"),
             icon: <Icons.User size={26} color={colors.white} weight="fill" />,
             routeName: "/(modals)/profileModal",
             bgColor: "#6366f1",
         },
         {
-            title: t("Settings"), // Bọc t() vào title
+            title: t("Settings"),
             icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
-            routeName: "/(modals)/settingsModal", // Đã mở comment để trỏ tới Settings Modal
+            routeName: "/(modals)/settingsModal",
             bgColor: "#059669",
         },
         {
-            title: t("Privacy Policy"), // Bọc t() vào title
+            title: t("Privacy Policy"),
             icon: <Icons.Lock size={26} color={colors.white} weight="fill" />,
-            // routeName: "/(modals)/profileModal",
-            bgColor: colors.neutral600,
+            routeName: "/(modals)/privacyModal",
+            bgColor: '#9ca3af'
         },
         {
-            title: t("Logout"), // Bọc t() vào title
+            title: t("Logout"),
             icon: <Icons.Power size={26} color={colors.white} weight="fill" />,
-            // routeName: "/(modals)/profileModal",
+
             bgColor: "#e11d48",
         },
     ];
@@ -54,25 +55,33 @@ const Profile = () => {
     };
 
     const showLogoutAlert = () => {
-        Alert.alert(t("Confirm"), t("Are you sure you want to logout?"), [
-            {
-                text: t("Cancel"),
-                onPress: () => console.log('cancel logout'),
-                style: 'cancel'
-            },
-            {
-                text: t("Logout"),
-                onPress: () => handleLogout(),
-                style: 'destructive'
-            }
-        ])
-    }
+        Alert.alert(
+            t('Confirm Logout'),
+            t('Are you sure you want to log out?'),
+            [
+                {
+                    text: t('Cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('Logout'),
+                    style: 'destructive',
+
+                    onPress: async () => {
+                        await logout();
+
+                    },
+                },
+            ]
+        );
+    };
 
     const handlePress = (item: accountOptionType) => {
         if (item.title == t('Logout')) {
             showLogoutAlert();
+        } else if (item.routeName) {
+            router.push(item.routeName);
         }
-        if (item.routeName) router.push(item.routeName);
     };
 
     return (
