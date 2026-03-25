@@ -156,6 +156,13 @@ export type ResponseType = {
   msg?: string;
 };
 
+export type ScanResult = {
+  totalAmount: number;
+  date: string;
+  description: string;
+  category: string;
+};
+
 export type WalletType = {
   id?: string;
   name: string;

@@ -65,9 +65,37 @@ const TransactionModal = () => {
     image?: any;
     uid?: string;
     walletId: string;
+    // params từ AI scan
+    scanned?: string;
   };
 
   const oldTransaction: paramType = useLocalSearchParams();
+
+  // Map category tiếng Việt từ AI → value của app
+  const mapAICategory = (aiCategory: string): string => {
+    const map: Record<string, string> = {
+      "Ăn uống": "dining",
+      "Di chuyển": "transportation",
+      "Mua sắm": "groceries",
+      "Y tế": "health",
+      "Giải trí": "entertainment",
+      "Giáo dục": "personal",
+      "Hóa đơn": "utilities",
+      "Khác": "others",
+    };
+    return map[aiCategory] || "others";
+  };
+
+  // Parse date từ "DD/MM/YYYY HH:mm" hoặc "DD/MM/YYYY"
+  const parseScannedDate = (dateStr: string): Date => {
+    try {
+      const [datePart] = dateStr.split(" ");
+      const [day, month, year] = datePart.split("/");
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    } catch {
+      return new Date();
+    }
+  };
 
   const onDateChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || transaction.date;
@@ -82,6 +110,7 @@ const TransactionModal = () => {
 
   useEffect(() => {
     if (oldTransaction?.id) {
+      // Chỉnh sửa giao dịch cũ
       setTransaction({
         type: oldTransaction?.type,
         amount: Number(oldTransaction.amount),
@@ -91,6 +120,15 @@ const TransactionModal = () => {
         walletId: oldTransaction.walletId,
         image: oldTransaction?.image ?? null,
       });
+    } else if (oldTransaction?.scanned === "true") {
+      // Điền từ kết quả AI scan
+      setTransaction((prev) => ({
+        ...prev,
+        amount: Number(oldTransaction.amount) || 0,
+        description: oldTransaction.description || "",
+        category: mapAICategory(oldTransaction.category || ""),
+        date: parseScannedDate(oldTransaction.date || ""),
+      }));
     }
   }, []);
 
@@ -163,6 +201,20 @@ const TransactionModal = () => {
         <Header
           title={oldTransaction?.id ? "Update Transaction" : "New Transaction"}
           leftIcon={<BackButton />}
+          rightIcon={
+            !oldTransaction?.id ? (
+              <TouchableOpacity
+                onPress={() => router.push("/(modals)/scanInvoiceModal")}
+                style={styles.scanIcon}
+              >
+                <Icons.Scan
+                  size={verticalScale(22)}
+                  color={colors.primary}
+                  weight="bold"
+                />
+              </TouchableOpacity>
+            ) : undefined
+          }
           style={{ marginBottom: spacingY._10 }}
         />
 
@@ -370,6 +422,24 @@ const TransactionModal = () => {
               placeholder="Upload Image"
             />
           </View>
+
+          {/* AI Scan button */}
+          {!oldTransaction?.id && (
+            <TouchableOpacity
+              style={styles.aiScanButton}
+              onPress={() => router.push("/(modals)/scanInvoiceModal")}
+              activeOpacity={0.8}
+            >
+              <Icons.Robot
+                size={verticalScale(20)}
+                color={colors.primary}
+                weight="fill"
+              />
+              <Typo size={15} fontWeight="700" color={colors.primary}>
+                AI SCAN RECEIPT
+              </Typo>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
 
@@ -506,5 +576,22 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     height: verticalScale(30),
     tintColor: colors.neutral300,
+  },
+  scanIcon: {
+    backgroundColor: colors.neutral700,
+    padding: spacingY._7,
+    borderRadius: radius._10,
+  },
+  aiScanButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacingX._10,
+    backgroundColor: colors.neutral800,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: radius._15,
+    paddingVertical: spacingY._12,
+    borderStyle: "dashed",
   },
 });
