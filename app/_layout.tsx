@@ -25,6 +25,12 @@ const StackLayout = () => {
         }}
       />
       <Stack.Screen
+        name="(modals)/scanInvoiceModal"
+        options={{
+          presentation: "modal",
+        }}
+      />
+      <Stack.Screen
         name="(modals)/searchModal"
         options={{
           presentation: "modal",
