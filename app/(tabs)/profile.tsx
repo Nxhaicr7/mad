@@ -29,7 +29,7 @@ const Profile = () => {
         {
             title: "Settings",
             icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
-            // routeName: "/(modals)/profileModal",
+            routeName: "/(modals)/settingsModal",
             bgColor: "#059669",
         },
         {

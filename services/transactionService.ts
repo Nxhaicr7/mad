@@ -1,5 +1,11 @@
 import { firestore } from "@/config/firebase";
-import { ResponseType, TransactionType, WalletType } from "@/types";
+import {
+  BudgetType,
+  ExpenseLimitPeriod,
+  ResponseType,
+  TransactionType,
+  WalletType,
+} from "@/types";
 import {
   collection,
   deleteDoc,
@@ -37,6 +43,125 @@ const getMonthYearKey = (date: Date) => {
   const monthName = MONTHS_SHORT[date.getMonth()];
   const shortYear = date.getFullYear().toString().slice(-2);
   return `${monthName} ${shortYear}`;
+};
+
+const getTransactionDate = (value: TransactionType["date"]): Date | null => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (value instanceof Timestamp) return value.toDate();
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed;
+};
+
+const getPeriodRange = (date: Date, period: ExpenseLimitPeriod) => {
+  const start = new Date(date);
+  const end = new Date(date);
+
+  if (period === "day") {
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+  }
+
+  if (period === "week") {
+    const daysSinceMonday = (date.getDay() + 6) % 7;
+    start.setDate(date.getDate() - daysSinceMonday);
+    start.setHours(0, 0, 0, 0);
+
+    end.setDate(start.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+  }
+
+  start.setDate(1);
+  start.setHours(0, 0, 0, 0);
+
+  end.setMonth(start.getMonth() + 1, 0);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};
+
+export type ExpenseLimitExceededItem = {
+  type: ExpenseLimitPeriod;
+  limitAmount: number;
+  currentSpent: number;
+  nextSpent: number;
+};
+
+export const getExceededExpenseLimits = async (
+  walletId: string,
+  expenseAmount: number,
+  date: Date,
+  transactionIdToIgnore?: string,
+): Promise<ResponseType> => {
+  try {
+    if (!walletId || !expenseAmount || expenseAmount <= 0) {
+      return { success: true, data: [] };
+    }
+
+    const budgetQuery = query(
+      collection(firestore, "budget"),
+      where("walletId", "==", walletId),
+    );
+    const budgetSnapshot = await getDocs(budgetQuery);
+    const budgetItems = budgetSnapshot.docs
+      .map((item) => ({ id: item.id, ...item.data() }) as BudgetType)
+      .filter((item) => !!item.type && !!item.amount)
+      .filter((item) => ["day", "week", "month"].includes(item.type));
+
+    if (!budgetItems.length) {
+      return { success: true, data: [] };
+    }
+
+    const transactionsQuery = query(
+      collection(firestore, "transactions"),
+      where("walletId", "==", walletId),
+      where("type", "==", "expense"),
+    );
+    const transactionsSnapshot = await getDocs(transactionsQuery);
+    const expenseTransactions = transactionsSnapshot.docs.map((item) => {
+      return { id: item.id, ...item.data() } as TransactionType;
+    });
+
+    const exceededItems: ExpenseLimitExceededItem[] = [];
+
+    budgetItems.forEach((budgetItem) => {
+      const { start, end } = getPeriodRange(date, budgetItem.type);
+
+      const currentSpent = expenseTransactions.reduce((total, transaction) => {
+        if (transactionIdToIgnore && transaction.id === transactionIdToIgnore) {
+          return total;
+        }
+
+        const transactionDate = getTransactionDate(transaction.date);
+        if (!transactionDate) return total;
+
+        if (transactionDate < start || transactionDate > end) {
+          return total;
+        }
+
+        return total + Number(transaction.amount || 0);
+      }, 0);
+
+      const nextSpent = currentSpent + expenseAmount;
+      if (nextSpent > budgetItem.amount) {
+        exceededItems.push({
+          type: budgetItem.type,
+          limitAmount: Number(budgetItem.amount),
+          currentSpent,
+          nextSpent,
+        });
+      }
+    });
+
+    return { success: true, data: exceededItems };
+  } catch (err: any) {
+    console.log("error checking expense limit warnings: ", err);
+    return { success: false, msg: err.message };
+  }
 };
 
 export const createOrUpdateTransaction = async (

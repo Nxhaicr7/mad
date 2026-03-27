@@ -9,8 +9,11 @@ import { expenseCategories, transactionTypes } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
-import { createOrUpdateTransaction, deleteTransaction } from "@/services/transactionService";
-import { deleteWallet } from "@/services/walletService";
+import {
+  createOrUpdateTransaction,
+  deleteTransaction,
+  getExceededExpenseLimits,
+} from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -141,27 +144,77 @@ const TransactionModal = () => {
       return;
     }
 
-    let transactionData: TransactionType = {
-      type,
-      amount,
-      description,
-      category,
-      date,
-      walletId,
-      image: image ? image : null,
-      uid: user?.uid,
+    const submitTransaction = async () => {
+      let transactionData: TransactionType = {
+        type,
+        amount,
+        description,
+        category,
+        date,
+        walletId,
+        image: image ? image : null,
+        uid: user?.uid,
+      };
+
+      if (oldTransaction?.id) transactionData.id = oldTransaction.id;
+      setLoading(true);
+      const res = await createOrUpdateTransaction(transactionData);
+      setLoading(false);
+
+      if (res.success) {
+        router.back();
+      } else {
+        Alert.alert("Transaction", res.msg);
+      }
     };
 
-    if (oldTransaction?.id) transactionData.id = oldTransaction.id;
-    setLoading(true);
-    const res = await createOrUpdateTransaction(transactionData);
-    setLoading(false);
+    if (type === "expense") {
+      const warningRes = await getExceededExpenseLimits(
+        walletId,
+        amount,
+        date as Date,
+        oldTransaction?.id,
+      );
 
-    if (res.success) {
-      router.back();
-    } else {
-      Alert.alert("Transaction", res.msg);
+      if (!warningRes.success) {
+        Alert.alert("Transaction", warningRes.msg);
+        return;
+      }
+
+      const periodLabel: Record<string, string> = {
+        day: "Ngày",
+        week: "Tuần",
+        month: "Tháng",
+      };
+
+      const exceededItems = warningRes.data || [];
+      if (exceededItems.length) {
+        const warningText = exceededItems
+          .map(
+            (item: any) =>
+              `${periodLabel[item.type]}: giới hạn $${item.limitAmount}, sau giao dịch là $${item.nextSpent}`,
+          )
+          .join("\n");
+
+        Alert.alert(
+          "Expense Limit Warning",
+          `Đã vượt giới hạn chi tiêu của ví.\n${warningText}\n\nBạn có đồng ý thêm giao dịch này không?`,
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "OK",
+              onPress: () => submitTransaction(),
+            },
+          ],
+        );
+        return;
+      }
     }
+
+    await submitTransaction();
   };
 
   const onDelete = async () => {

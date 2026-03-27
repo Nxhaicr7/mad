@@ -156,6 +156,15 @@ export type ResponseType = {
   msg?: string;
 };
 
+export type ExpenseLimitPeriod = "day" | "week" | "month";
+
+export type BudgetType = {
+  id?: string;
+  type: ExpenseLimitPeriod;
+  amount: number;
+  walletId: string;
+};
+
 export type ScanResult = {
   totalAmount: number;
   date: string;
