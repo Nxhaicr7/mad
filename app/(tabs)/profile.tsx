@@ -29,7 +29,7 @@ const Profile = () => {
         {
             title: "Settings",
             icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
-            // routeName: "/(modals)/profileModal",
+            routeName: "/(modals)/settingsModal",
             bgColor: "#059669",
         },
         {
@@ -72,7 +72,11 @@ const Profile = () => {
     return (
         <ScreenWrapper>
             <View style={styles.container}>
-                <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
+                <Header
+                    title="Profile"
+                    showNotification
+                    style={{ marginVertical: spacingY._10 }}
+                />
 
                 {/* user info */}
                 <View style={styles.userInfo}>

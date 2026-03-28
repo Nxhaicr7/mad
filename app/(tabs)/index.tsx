@@ -3,6 +3,7 @@ import HomeCard from "@/components/HomeCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
+import NotificationBell from "@/components/NotificationBell";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
@@ -44,16 +45,19 @@ const Home = () => {
             </Typo>
           </View>
 
-          <TouchableOpacity
-            onPress={() => router.push("/(modals)/searchModal")}
-            style={styles.searchIcon}
-          >
-            <Icons.MagnifyingGlass
-              size={verticalScale(22)}
-              color={colors.neutral200}
-              weight="bold"
-            />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              onPress={() => router.push("/(modals)/searchModal")}
+              style={styles.searchIcon}
+            >
+              <Icons.MagnifyingGlass
+                size={verticalScale(22)}
+                color={colors.neutral200}
+                weight="bold"
+              />
+            </TouchableOpacity>
+            <NotificationBell />
+          </View>
         </View>
 
         <ScrollView
@@ -110,6 +114,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral700,
     padding: spacingX._10,
     borderRadius: 50,
+  },
+
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX._10,
   },
 
   floatingButton: {
