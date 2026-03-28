@@ -74,7 +74,7 @@ const Statistics = () => {
     <ScreenWrapper>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Header title="Statistics" />
+          <Header title="Statistics" showNotification />
         </View>
         {/* Thanh weekly/monthlt/yearly */}
         <ScrollView

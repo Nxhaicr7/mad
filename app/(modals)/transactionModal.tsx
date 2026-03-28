@@ -13,7 +13,9 @@ import {
   createOrUpdateTransaction,
   deleteTransaction,
   getExceededExpenseLimits,
+  ExpenseLimitExceededItem,
 } from "@/services/transactionService";
+import { createNotification } from "@/services/notificationService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -144,6 +146,33 @@ const TransactionModal = () => {
       return;
     }
 
+    const notifyBudgetStatus = async (
+      items: ExpenseLimitExceededItem[],
+      statusType: "near-limit" | "exceeded-limit",
+    ) => {
+      if (!user?.uid || !items.length) return;
+
+      const periodLabel: Record<string, string> = {
+        day: "day",
+        week: "week",
+        month: "month",
+      };
+
+      await Promise.all(
+        items.map((item) =>
+          createNotification({
+            uid: user.uid as string,
+            type: statusType,
+            title: "Expense limit warning",
+            description:
+              statusType === "near-limit"
+                ? `Your wallet is about to exceed ${periodLabel[item.type]} limit ($${item.nextSpent}/$${item.limitAmount}).`
+                : `Your wallet has exceeded ${periodLabel[item.type]} limit ($${item.nextSpent}/$${item.limitAmount}).`,
+          }),
+        ),
+      );
+    };
+
     const submitTransaction = async () => {
       let transactionData: TransactionType = {
         type,
@@ -161,11 +190,11 @@ const TransactionModal = () => {
       const res = await createOrUpdateTransaction(transactionData);
       setLoading(false);
 
-      if (res.success) {
-        router.back();
-      } else {
+      if (!res.success) {
         Alert.alert("Transaction", res.msg);
       }
+
+      return res;
     };
 
     if (type === "expense") {
@@ -187,7 +216,9 @@ const TransactionModal = () => {
         month: "Tháng",
       };
 
-      const exceededItems = warningRes.data || [];
+      const exceededItems = warningRes.data?.exceededItems || [];
+      const nearLimitItems = warningRes.data?.nearLimitItems || [];
+
       if (exceededItems.length) {
         const warningText = exceededItems
           .map(
@@ -206,15 +237,33 @@ const TransactionModal = () => {
             },
             {
               text: "OK",
-              onPress: () => submitTransaction(),
+              onPress: async () => {
+                const submitRes = await submitTransaction();
+                if (submitRes.success) {
+                  await notifyBudgetStatus(exceededItems, "exceeded-limit");
+                  router.back();
+                }
+              },
             },
           ],
         );
         return;
       }
+
+      const submitRes = await submitTransaction();
+      if (submitRes.success) {
+        if (nearLimitItems.length) {
+          await notifyBudgetStatus(nearLimitItems, "near-limit");
+        }
+        router.back();
+      }
+      return;
     }
 
-    await submitTransaction();
+    const submitRes = await submitTransaction();
+    if (submitRes.success) {
+      router.back();
+    }
   };
 
   const onDelete = async () => {

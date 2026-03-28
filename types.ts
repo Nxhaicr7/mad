@@ -56,6 +56,7 @@ export type HeaderProps = {
   style?: ViewStyle;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  showNotification?: boolean;
 };
 
 export type BackButtonProps = {
@@ -163,6 +164,15 @@ export type BudgetType = {
   type: ExpenseLimitPeriod;
   amount: number;
   walletId: string;
+};
+
+export type NotificationType = {
+  id?: string;
+  uid: string;
+  title: string;
+  description: string;
+  type: "near-limit" | "exceeded-limit";
+  created: Date | Timestamp | string;
 };
 
 export type ScanResult = {

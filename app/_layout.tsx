@@ -48,6 +48,12 @@ const StackLayout = () => {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="(modals)/notificationModal"
+        options={{
+          presentation: "modal",
+        }}
+      />
     </Stack>
   );
 };

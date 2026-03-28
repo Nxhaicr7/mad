@@ -91,6 +91,11 @@ export type ExpenseLimitExceededItem = {
   nextSpent: number;
 };
 
+export type ExpenseBudgetStatus = {
+  exceededItems: ExpenseLimitExceededItem[];
+  nearLimitItems: ExpenseLimitExceededItem[];
+};
+
 export const getExceededExpenseLimits = async (
   walletId: string,
   expenseAmount: number,
@@ -107,13 +112,35 @@ export const getExceededExpenseLimits = async (
       where("walletId", "==", walletId),
     );
     const budgetSnapshot = await getDocs(budgetQuery);
-    const budgetItems = budgetSnapshot.docs
-      .map((item) => ({ id: item.id, ...item.data() }) as BudgetType)
-      .filter((item) => !!item.type && !!item.amount)
-      .filter((item) => ["day", "week", "month"].includes(item.type));
+    const budgetByType: Partial<Record<ExpenseLimitPeriod, BudgetType>> = {};
+
+    budgetSnapshot.docs.forEach((item) => {
+      const budget = { id: item.id, ...item.data() } as BudgetType;
+      if (!budget?.type || !["day", "week", "month"].includes(budget.type)) {
+        return;
+      }
+
+      const amount = Number(budget.amount);
+      if (!amount || amount <= 0) return;
+
+      budgetByType[budget.type] = {
+        ...budget,
+        amount,
+      };
+    });
+
+    const budgetItems = (Object.keys(budgetByType) as ExpenseLimitPeriod[]).map(
+      (type) => budgetByType[type] as BudgetType,
+    );
 
     if (!budgetItems.length) {
-      return { success: true, data: [] };
+      return {
+        success: true,
+        data: {
+          exceededItems: [],
+          nearLimitItems: [],
+        },
+      };
     }
 
     const transactionsQuery = query(
@@ -127,6 +154,7 @@ export const getExceededExpenseLimits = async (
     });
 
     const exceededItems: ExpenseLimitExceededItem[] = [];
+    const nearLimitItems: ExpenseLimitExceededItem[] = [];
 
     budgetItems.forEach((budgetItem) => {
       const { start, end } = getPeriodRange(date, budgetItem.type);
@@ -147,17 +175,30 @@ export const getExceededExpenseLimits = async (
       }, 0);
 
       const nextSpent = currentSpent + expenseAmount;
-      if (nextSpent > budgetItem.amount) {
+      const limitAmount = Number(budgetItem.amount);
+      if (nextSpent > limitAmount) {
         exceededItems.push({
           type: budgetItem.type,
-          limitAmount: Number(budgetItem.amount),
+          limitAmount,
+          currentSpent,
+          nextSpent,
+        });
+      } else if (nextSpent >= limitAmount * 0.9) {
+        nearLimitItems.push({
+          type: budgetItem.type,
+          limitAmount,
           currentSpent,
           nextSpent,
         });
       }
     });
 
-    return { success: true, data: exceededItems };
+    const statusData: ExpenseBudgetStatus = {
+      exceededItems,
+      nearLimitItems,
+    };
+
+    return { success: true, data: statusData };
   } catch (err: any) {
     console.log("error checking expense limit warnings: ", err);
     return { success: false, msg: err.message };

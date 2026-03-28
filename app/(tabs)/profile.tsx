@@ -72,7 +72,11 @@ const Profile = () => {
     return (
         <ScreenWrapper>
             <View style={styles.container}>
-                <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
+                <Header
+                    title="Profile"
+                    showNotification
+                    style={{ marginVertical: spacingY._10 }}
+                />
 
                 {/* user info */}
                 <View style={styles.userInfo}>
