@@ -13,13 +13,13 @@ import { orderBy, where } from 'firebase/firestore';
 import * as Icons from 'phosphor-react-native';
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useTranslation } from "react-i18next"; // 1. Import hook dịch
+import { useTranslation } from "react-i18next";
 
 const Wallet = () => {
-    const { t } = useTranslation(); // 2. Khai báo hàm t
+    const { t } = useTranslation(); t
     const router = useRouter();
     const { user } = useAuth();
-    const { colors } = useTheme(); // Lấy bảng màu động
+    const { colors } = useTheme();
 
     const { data: wallets, error, loading } = useFetchData<WalletType>("wallets", [
         where("uid", "==", user?.uid),
