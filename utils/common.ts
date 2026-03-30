@@ -1,5 +1,5 @@
 export const getLast7Days = () => {
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysOfWeek = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const result = [];
 
   for (let i = 6; i >= 0; i--) {
@@ -19,18 +19,18 @@ export const getLast7Days = () => {
 
 export const getLast12Months = () => {
   const monthsOfYear = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    "Tháng 1",
+    "Tháng 2",
+    "Tháng 3",
+    "Tháng 4",
+    "Tháng 5",
+    "Tháng 6",
+    "Tháng 7",
+    "Tháng 8",
+    "Tháng 9",
+    "Tháng 10",
+    "Tháng 11",
+    "Tháng 12",
   ];
 
   const result = [];

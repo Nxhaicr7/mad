@@ -20,56 +20,82 @@ import {
     ScrollView,
     StyleSheet,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 import { useTranslation } from "react-i18next"; // 1. Thêm import
 
 const ProfileModal = () => {
+<<<<<<< HEAD
     const { t } = useTranslation(); // 2. Khai báo hàm t
+=======
+  // hooks
+  const { user, updateUserData } = useAuth();
+  const router = useRouter();
+>>>>>>> origin/main
 
-    // hooks
-    const { user, updateUserData } = useAuth();
-    const router = useRouter();
+  // state
+  const [userData, setUserData] = useState<UserDataType>({
+    name: "",
+    image: null,
+  });
 
-    // state
-    const [userData, setUserData] = useState<UserDataType>({
-        name: "",
-        image: null,
+  const [loading, setLoading] = useState(false);
+
+  // functions
+  const onPickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      aspect: [4, 3],
+      quality: 0.5,
     });
 
-    const [loading, setLoading] = useState(false);
+    if (!result.canceled && result.assets?.length > 0) {
+      setUserData({
+        ...userData,
+        image: result.assets[0].uri,
+      });
+    }
+  };
 
-    // functions
-    const onPickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            aspect: [4, 3],
-            quality: 0.5,
-        });
+  const onSubmit = async () => {
+    let { name } = userData;
 
-        if (!result.canceled && result.assets?.length > 0) {
-            setUserData({
-                ...userData,
-                image: result.assets[0].uri
-            });
-        }
-    };
+    if (!name.trim()) {
+      Alert.alert("Người dùng", "Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
 
-    const onSubmit = async () => {
-        let { name } = userData;
+    setLoading(true);
 
+<<<<<<< HEAD
         if (!name.trim()) {
             // Dùng t() cho Alert
             Alert.alert(t("User"), t("Please fill all the fields"));
             return;
         }
+=======
+    const res = await updateUser(user?.uid as string, userData);
+>>>>>>> origin/main
 
-        setLoading(true);
+    setLoading(false);
 
-        const res = await updateUser(user?.uid as string, userData);
+    if (res.success) {
+      updateUserData(user?.uid as string);
+      router.back();
+    } else {
+      Alert.alert("Người dùng", res.msg);
+    }
+  };
 
-        setLoading(false);
+  // effects
+  useEffect(() => {
+    setUserData({
+      name: user?.name || "",
+      image: user?.image || null,
+    });
+  }, [user]);
 
+<<<<<<< HEAD
         if (res.success) {
             updateUserData(user?.uid as string);
             router.back();
@@ -77,15 +103,28 @@ const ProfileModal = () => {
             Alert.alert(t("User"), res.msg);
         }
     };
+=======
+  // UI
+  return (
+    <ModalWrapper>
+      <View style={styles.container}>
+        <Header
+          title="Cập nhật hồ sơ"
+          leftIcon={<BackButton />}
+          style={{ marginBottom: spacingY._10 }}
+        />
+>>>>>>> origin/main
 
-    // effects
-    useEffect(() => {
-        setUserData({
-            name: user?.name || "",
-            image: user?.image || null,
-        });
-    }, [user]);
+        <ScrollView contentContainerStyle={styles.form}>
+          <View style={styles.avatarContainer}>
+            <Image
+              style={styles.avatar}
+              source={getProfileImage(userData.image)}
+              contentFit="cover"
+              transition={100}
+            />
 
+<<<<<<< HEAD
     // UI
     return (
         <ModalWrapper>
@@ -95,16 +134,30 @@ const ProfileModal = () => {
                     leftIcon={<BackButton />}
                     style={{ marginBottom: spacingY._10 }}
                 />
+=======
+            <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
+              <Icons.Pencil
+                size={verticalScale(20)}
+                color={colors.neutral800}
+              />
+            </TouchableOpacity>
+          </View>
+>>>>>>> origin/main
 
-                <ScrollView contentContainerStyle={styles.form}>
-                    <View style={styles.avatarContainer}>
-                        <Image
-                            style={styles.avatar}
-                            source={getProfileImage(userData.image)}
-                            contentFit="cover"
-                            transition={100}
-                        />
+          <View style={styles.inputContainer}>
+            <Typo color={colors.neutral200}>Tên</Typo>
+            <Input
+              placeholder="Tên của bạn"
+              value={userData.name}
+              onChangeText={(value) =>
+                setUserData({ ...userData, name: value })
+              }
+            />
+          </View>
+        </ScrollView>
+      </View>
 
+<<<<<<< HEAD
                         <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
                             <Icons.Pencil
                                 size={verticalScale(20)}
@@ -135,45 +188,54 @@ const ProfileModal = () => {
             </View>
         </ModalWrapper>
     );
+=======
+      <View style={styles.footer}>
+        <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
+          <Typo color={colors.black} fontWeight={"700"}>
+            Cập nhật
+          </Typo>
+        </Button>
+      </View>
+    </ModalWrapper>
+  );
+>>>>>>> origin/main
 };
 
-
-
-export default ProfileModal
-
+export default ProfileModal;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "space-between",
-        paddingHorizontal: spacingY._20,
-        // paddingVertical: spacingY._30,
-    },
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+    paddingHorizontal: spacingY._20,
+    // paddingVertical: spacingY._30,
+  },
 
-    footer: {
-        alignItems: "center",
-        flexDirection: "row",
-        justifyContent: "center",
-        paddingHorizontal: spacingX._20,
-        gap: scale(12),
-        paddingTop: spacingY._15,
-        borderTopColor: colors.neutral700,
-        marginBottom: spacingY._5,
-        borderTopWidth: 1,
-    },
-    form: {
-        gap: spacingY._30,
-        marginTop: spacingY._15,
-    },
-    avatarContainer: {
-        position: "relative",
-        alignSelf: "center",
-    },
-    avatar: {
-        alignSelf: "center",
-        backgroundColor: colors.neutral300,
-        height: verticalScale(135),
+  footer: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingHorizontal: spacingX._20,
+    gap: scale(12),
+    paddingTop: spacingY._15,
+    borderTopColor: colors.neutral700,
+    marginBottom: spacingY._5,
+    borderTopWidth: 1,
+  },
+  form: {
+    gap: spacingY._30,
+    marginTop: spacingY._15,
+  },
+  avatarContainer: {
+    position: "relative",
+    alignSelf: "center",
+  },
+  avatar: {
+    alignSelf: "center",
+    backgroundColor: colors.neutral300,
+    height: verticalScale(135),
 
+<<<<<<< HEAD
 
 
 
@@ -201,3 +263,29 @@ const styles = StyleSheet.create({
         gap: spacingY._10,
     },
 });
+=======
+    width: verticalScale(135),
+    borderRadius: 200,
+    borderWidth: 1,
+    borderColor: colors.neutral500,
+    // overflow: "hidden",
+    // position: "relative",
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: spacingY._5,
+    right: spacingY._7,
+    borderRadius: 100,
+    backgroundColor: colors.neutral100,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
+    padding: spacingY._7,
+  },
+  inputContainer: {
+    gap: spacingY._10,
+  },
+});
+>>>>>>> origin/main

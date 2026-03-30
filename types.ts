@@ -190,6 +190,75 @@ export type ScanResult = {
   category: string;
 };
 
+export type AISummaryTone = "positive" | "warning" | "neutral";
+
+export type AISummaryHighlight = {
+  text: string;
+  tone: AISummaryTone;
+};
+
+export type AISummarySuggestion = {
+  title: string;
+  description: string;
+  tone: AISummaryTone;
+};
+
+export type AISummaryResult = {
+  summary: string;
+  highlights: AISummaryHighlight[];
+  suggestions: AISummarySuggestion[];
+};
+
+export type MonthlyCategoryBreakdownType = {
+  key: string;
+  label: string;
+  amount: number;
+  percent: number;
+  color: string;
+};
+
+export type MonthlySummaryAIPayloadType = {
+  monthLabel: string;
+  hasPreviousExpenseData: boolean;
+  totalExpense: number;
+  totalIncome: number;
+  savings: number;
+  savingsRate: number;
+  expenseChangePercent: number;
+  transactionCount: number;
+  transactionCountChangePercent: number;
+  topCategoryLabel: string;
+  topCategoryAmount: number;
+  topCategoryPercent: number;
+  previousTopCategoryAverage: number;
+  categories: {
+    label: string;
+    amount: number;
+    percent: number;
+  }[];
+};
+
+export type MonthlyInsightStatsType = {
+  monthLabel: string;
+  hasMonthlyBudget: boolean;
+  hasPreviousExpenseData: boolean;
+  totalExpense: number;
+  totalIncome: number;
+  savings: number;
+  savingsRate: number;
+  expenseChangePercent: number;
+  transactionCount: number;
+  transactionCountChangePercent: number;
+  budgetLimit: number;
+  budgetUsedPercent: number;
+  budgetRemaining: number;
+  topCategoryLabel: string;
+  topCategoryAmount: number;
+  topCategoryPercent: number;
+  categories: MonthlyCategoryBreakdownType[];
+  aiPayload: MonthlySummaryAIPayloadType;
+};
+
 export type WalletType = {
   id?: string;
   name: string;

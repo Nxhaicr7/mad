@@ -3,9 +3,9 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
-import { spacingX, spacingY } from "@/constants/theme"; // ⚠️ Đã bỏ import colors tĩnh
+import { spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { useTheme } from "@/contexts/themeContext"; // 👈 Thêm dòng này
+import { useTheme } from "@/contexts/themeContext";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
@@ -15,12 +15,12 @@ import { useTranslation } from "react-i18next";
 
 const Login = () => {
     const { t } = useTranslation();
-    const { colors } = useTheme(); // 👈 Lấy bảng màu ĐỘNG từ ThemeContext
+    const { colors } = useTheme();
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { login: loginUser, loginWithGoogle } = useAuth(); // Gộp vào 1 dòng cho gọn
+    const { login: loginUser, loginWithGoogle } = useAuth();
 
     const handleSubmit = async () => {
         if (!emailRef.current || !passwordRef.current) {
@@ -54,7 +54,7 @@ const Login = () => {
                 <BackButton iconSize={28} />
 
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
-                    {/* Typo mặc định đã lấy colors.text rồi nên không cần truyền color */}
+
                     <Typo size={30} fontWeight={"800"}>
                         {t("Hey,")}
                     </Typo>
@@ -74,7 +74,7 @@ const Login = () => {
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.neutral300} // Icon màu nhạt
+                                color={colors.neutral300}
                                 weight="fill"
                             />
                         }
@@ -93,7 +93,7 @@ const Login = () => {
                         }
                     />
 
-                    {/* Quên mật khẩu - Đã căn lề phải */}
+
                     <TouchableOpacity onPress={() => router.push("/(auth)/forgotPassword")}>
                         <Typo size={14} color={colors.textLight} fontWeight={"500"} style={{ textAlign: 'right' }}>
                             {t("Forgot Password")}
@@ -107,7 +107,7 @@ const Login = () => {
                     </Button>
                 </View>
 
-                {/* --- Chữ HOẶC --- */}
+
                 <View style={styles.dividerContainer}>
                     <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
                     <Typo size={14} color={colors.textLight} style={{ paddingHorizontal: 10 }}>
@@ -116,10 +116,10 @@ const Login = () => {
                     <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
                 </View>
 
-                {/* --- Social Login Buttons --- */}
+
                 <View style={styles.socialContainer}>
                     <TouchableOpacity
-                        // Dùng mảng style để ghi đè borderColor động
+
                         style={[styles.socialButton, { borderColor: colors.neutral300 }]}
                         onPress={handleGoogleLogin}
                     >
@@ -140,7 +140,7 @@ const Login = () => {
                     </TouchableOpacity>
                 </View>
 
-                {/* --- Footer "Chưa có tài khoản" --- */}
+
                 <View style={styles.footer}>
                     <Typo size={15} color={colors.textLight}>
                         {t("Don't have an account?")}
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         gap: 5,
-        marginTop: verticalScale(10), // Đẩy footer xuống dưới một tí
+        marginTop: verticalScale(10),
     },
     dividerContainer: {
         flexDirection: "row",
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     dividerLine: {
         flex: 1,
         height: 1,
-        // Bỏ backgroundColor ở đây, chuyển lên inline style ở trên để dùng colors động
+
     },
     socialContainer: {
         gap: spacingY._15,
@@ -197,6 +197,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 12,
         backgroundColor: "transparent",
-        // Bỏ borderColor tĩnh ở đây
+
     },
 });

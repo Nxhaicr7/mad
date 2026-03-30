@@ -16,7 +16,7 @@ export const updateUser = async (
       if (!imageUploadRes.success) {
         return {
           success: false,
-          msg: imageUploadRes.msg || "Failed to upload image",
+          msg: imageUploadRes.msg || "Không thể tải ảnh lên",
         };
       }
       updatedData.image = imageUploadRes.data;
@@ -25,7 +25,7 @@ export const updateUser = async (
     const userRef = doc(firestore, "users", uid);
     await updateDoc(userRef, updatedData);
 
-    return { success: true, msg: "updated successfully" };
+    return { success: true, msg: "Cập nhật thành công" };
   } catch (error: any) {
     console.log("error updating user: ", error);
     return { success: false, msg: error?.message };

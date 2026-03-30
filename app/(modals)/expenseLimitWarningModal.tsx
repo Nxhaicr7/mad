@@ -28,15 +28,15 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 
 const periodOptions: { label: string; value: ExpenseLimitPeriod }[] = [
-  { label: "Day", value: "day" },
-  { label: "Week", value: "week" },
-  { label: "Month", value: "month" },
+  { label: "Ngày", value: "day" },
+  { label: "Tuần", value: "week" },
+  { label: "Tháng", value: "month" },
 ];
 
 const periodLabel: Record<ExpenseLimitPeriod, string> = {
-  day: "Day",
-  week: "Week",
-  month: "Month",
+  day: "Ngày",
+  week: "Tuần",
+  month: "Tháng",
 };
 
 const periodOrder: Record<ExpenseLimitPeriod, number> = {
@@ -74,12 +74,13 @@ const ExpenseLimitWarningModal = () => {
 
     const res = await getBudgetByWalletId(walletId);
     if (!res.success) {
-      Alert.alert("Expense Limit", res.msg);
+      Alert.alert("Giới hạn chi tiêu", res.msg);
       return;
     }
 
     const sortedBudgets = (res.data || []).sort(
-      (a: BudgetType, b: BudgetType) => periodOrder[a.type] - periodOrder[b.type],
+      (a: BudgetType, b: BudgetType) =>
+        periodOrder[a.type] - periodOrder[b.type],
     );
     setBudgets(sortedBudgets);
   };
@@ -90,13 +91,13 @@ const ExpenseLimitWarningModal = () => {
 
   const onAddBudget = async () => {
     if (!selectedWalletId) {
-      Alert.alert("Expense Limit", "Please select wallet");
+      Alert.alert("Giới hạn chi tiêu", "Vui lòng chọn ví");
       return;
     }
 
     const amount = Number(budgetAmount.replace(/[^0-9]/g, ""));
     if (!amount || amount <= 0) {
-      Alert.alert("Expense Limit", "Please enter a valid amount");
+      Alert.alert("Giới hạn chi tiêu", "Vui lòng nhập số tiền hợp lệ");
       return;
     }
 
@@ -109,7 +110,7 @@ const ExpenseLimitWarningModal = () => {
     setLoading(false);
 
     if (!res.success) {
-      Alert.alert("Expense Limit", res.msg);
+      Alert.alert("Giới hạn chi tiêu", res.msg);
       return;
     }
 
@@ -127,7 +128,7 @@ const ExpenseLimitWarningModal = () => {
     setLoading(false);
 
     if (!res.success) {
-      Alert.alert("Expense Limit", res.msg);
+      Alert.alert("Giới hạn chi tiêu", res.msg);
       return;
     }
 
@@ -138,15 +139,18 @@ const ExpenseLimitWarningModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Expense Limit Warning"
+          title="Cảnh báo giới hạn chi tiêu"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
 
-        <ScrollView contentContainerStyle={styles.form} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.form}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>
-              Select wallet
+              Chọn ví
             </Typo>
 
             <Dropdown
@@ -165,7 +169,7 @@ const ExpenseLimitWarningModal = () => {
               itemTextStyle={styles.dropdownItemText}
               itemContainerStyle={styles.dropdownItemContainer}
               containerStyle={styles.dropdownListContainer}
-              placeholder="Select wallet"
+              placeholder="Chọn ví"
               value={selectedWalletId}
               onChange={(item) => {
                 setSelectedWalletId(item.value || "");
@@ -175,7 +179,7 @@ const ExpenseLimitWarningModal = () => {
 
           <View style={styles.flexRow}>
             <Typo color={colors.neutral200} size={16}>
-              Expnse Limit Warning
+              Danh sách cảnh báo
             </Typo>
           </View>
 
@@ -183,7 +187,8 @@ const ExpenseLimitWarningModal = () => {
             {budgets.map((item) => (
               <View style={styles.warningItem} key={item.id || item.type}>
                 <Typo size={14} color={colors.neutral100}>
-                  ${item.amount} - Type: {periodLabel[item.type]}
+                  {item.amount.toLocaleString("vi-VN")}đ - Loại:{" "}
+                  {periodLabel[item.type]}
                 </Typo>
 
                 <TouchableOpacity
@@ -191,7 +196,11 @@ const ExpenseLimitWarningModal = () => {
                   onPress={() => onDeleteBudget(item.id)}
                   activeOpacity={0.85}
                 >
-                  <Icons.Trash size={verticalScale(14)} color={colors.white} weight="bold" />
+                  <Icons.Trash
+                    size={verticalScale(14)}
+                    color={colors.white}
+                    weight="bold"
+                  />
                 </TouchableOpacity>
               </View>
             ))}
@@ -199,7 +208,7 @@ const ExpenseLimitWarningModal = () => {
             {!budgets.length && (
               <View style={styles.emptyBox}>
                 <Typo color={colors.neutral400} size={14}>
-                  No warning added yet
+                  Chưa có cảnh báo nào
                 </Typo>
               </View>
             )}
@@ -213,8 +222,8 @@ const ExpenseLimitWarningModal = () => {
           loading={loading}
           style={{ flex: 1 }}
         >
-          <Typo color={colors.black} fontWeight={"700"}>
-            +
+          <Typo color={colors.white} fontWeight={"700"} size={24}>
+            Thêm cảnh báo mới
           </Typo>
         </Button>
       </View>
@@ -228,12 +237,12 @@ const ExpenseLimitWarningModal = () => {
         <View style={styles.overlay}>
           <View style={styles.addModalCard}>
             <Typo size={16} fontWeight={"700"}>
-              Add Expense Limit
+              Thêm giới hạn chi tiêu
             </Typo>
 
             <View style={styles.inputContainer}>
               <Typo color={colors.neutral300} size={14}>
-                Type
+                Loại
               </Typo>
               <Dropdown
                 style={styles.dropdownContainer}
@@ -248,19 +257,23 @@ const ExpenseLimitWarningModal = () => {
                 itemContainerStyle={styles.dropdownItemContainer}
                 containerStyle={styles.dropdownListContainer}
                 value={budgetType}
-                onChange={(item) => setBudgetType(item.value as ExpenseLimitPeriod)}
+                onChange={(item) =>
+                  setBudgetType(item.value as ExpenseLimitPeriod)
+                }
               />
             </View>
 
             <View style={styles.inputContainer}>
               <Typo color={colors.neutral300} size={14}>
-                Amount
+                Số tiền
               </Typo>
               <Input
                 keyboardType="numeric"
-                placeholder="$20"
+                placeholder="Nhập số tiền..."
                 value={budgetAmount}
-                onChangeText={(value) => setBudgetAmount(value.replace(/[^0-9]/g, ""))}
+                onChangeText={(value) =>
+                  setBudgetAmount(value.replace(/[^0-9]/g, ""))
+                }
               />
             </View>
 
@@ -271,7 +284,7 @@ const ExpenseLimitWarningModal = () => {
                 activeOpacity={0.85}
               >
                 <Typo size={14} color={colors.white}>
-                  Cancel
+                  Hủy
                 </Typo>
               </TouchableOpacity>
 
@@ -281,7 +294,7 @@ const ExpenseLimitWarningModal = () => {
                 activeOpacity={0.85}
               >
                 <Typo size={14} color={colors.black} fontWeight={"700"}>
-                  Save
+                  Lưu
                 </Typo>
               </TouchableOpacity>
             </View>

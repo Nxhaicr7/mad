@@ -9,13 +9,13 @@ import { expenseCategories, transactionTypes } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
+import { createNotification } from "@/services/notificationService";
 import {
   createOrUpdateTransaction,
   deleteTransaction,
-  getExceededExpenseLimits,
   ExpenseLimitExceededItem,
+  getExceededExpenseLimits,
 } from "@/services/transactionService";
-import { createNotification } from "@/services/notificationService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -86,7 +86,7 @@ const TransactionModal = () => {
       "Giải trí": "entertainment",
       "Giáo dục": "personal",
       "Hóa đơn": "utilities",
-      "Khác": "others",
+      Khác: "others",
     };
     return map[aiCategory] || "others";
   };
@@ -142,7 +142,7 @@ const TransactionModal = () => {
       transaction;
 
     if (!walletId || !date || !amount || (type == "expense" && !category)) {
-      Alert.alert("Transaction", "Please fill all the fields");
+      Alert.alert("Giao dịch", "Vui lòng điền đầy đủ thông tin");
       return;
     }
 
@@ -153,9 +153,9 @@ const TransactionModal = () => {
       if (!user?.uid || !items.length) return;
 
       const periodLabel: Record<string, string> = {
-        day: "day",
-        week: "week",
-        month: "month",
+        day: "ngày",
+        week: "tuần",
+        month: "tháng",
       };
 
       await Promise.all(
@@ -163,11 +163,11 @@ const TransactionModal = () => {
           createNotification({
             uid: user.uid as string,
             type: statusType,
-            title: "Expense limit warning",
+            title: "Cảnh báo giới hạn chi tiêu",
             description:
               statusType === "near-limit"
-                ? `Your wallet is about to exceed ${periodLabel[item.type]} limit ($${item.nextSpent}/$${item.limitAmount}).`
-                : `Your wallet has exceeded ${periodLabel[item.type]} limit ($${item.nextSpent}/$${item.limitAmount}).`,
+                ? `Ví của bạn sắp vượt giới hạn ${periodLabel[item.type]} (${item.nextSpent.toLocaleString("vi-VN")}đ/${item.limitAmount.toLocaleString("vi-VN")}đ).`
+                : `Ví của bạn đã vượt giới hạn ${periodLabel[item.type]} (${item.nextSpent.toLocaleString("vi-VN")}đ/${item.limitAmount.toLocaleString("vi-VN")}đ).`,
           }),
         ),
       );
@@ -191,7 +191,7 @@ const TransactionModal = () => {
       setLoading(false);
 
       if (!res.success) {
-        Alert.alert("Transaction", res.msg);
+        Alert.alert("Giao dịch", res.msg);
       }
 
       return res;
@@ -206,7 +206,7 @@ const TransactionModal = () => {
       );
 
       if (!warningRes.success) {
-        Alert.alert("Transaction", warningRes.msg);
+        Alert.alert("Giao dịch", warningRes.msg);
         return;
       }
 
@@ -223,20 +223,20 @@ const TransactionModal = () => {
         const warningText = exceededItems
           .map(
             (item: any) =>
-              `${periodLabel[item.type]}: giới hạn $${item.limitAmount}, sau giao dịch là $${item.nextSpent}`,
+              `${periodLabel[item.type]}: giới hạn ${item.limitAmount.toLocaleString("vi-VN")}đ, sau giao dịch là ${item.nextSpent.toLocaleString("vi-VN")}đ`,
           )
           .join("\n");
 
         Alert.alert(
-          "Expense Limit Warning",
+          "Cảnh báo giới hạn chi tiêu",
           `Đã vượt giới hạn chi tiêu của ví.\n${warningText}\n\nBạn có đồng ý thêm giao dịch này không?`,
           [
             {
-              text: "Cancel",
+              text: "Hủy",
               style: "cancel",
             },
             {
-              text: "OK",
+              text: "Đồng ý",
               onPress: async () => {
                 const submitRes = await submitTransaction();
                 if (submitRes.success) {
@@ -269,39 +269,38 @@ const TransactionModal = () => {
   const onDelete = async () => {
     if (!oldTransaction?.id) return;
     setLoading(true);
-    const res = await deleteTransaction(oldTransaction?.id, oldTransaction?.walletId);
+    const res = await deleteTransaction(
+      oldTransaction?.id,
+      oldTransaction?.walletId,
+    );
     setLoading(false);
     if (res.success) {
       router.back();
     } else {
-      Alert.alert("Transaction", res.msg);
+      Alert.alert("Giao dịch", res.msg);
     }
   };
 
   const showDeleteAlert = () => {
-    Alert.alert(
-      "Confirm",
-      "Are you sure you want to do this transaction?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("cancel delete"),
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => onDelete(),
-          style: "destructive",
-        },
-      ],
-    );
+    Alert.alert("Xác nhận", "Bạn có chắc chắn muốn xóa giao dịch này không?", [
+      {
+        text: "Hủy",
+        onPress: () => console.log("cancel delete"),
+        style: "cancel",
+      },
+      {
+        text: "Xóa",
+        onPress: () => onDelete(),
+        style: "destructive",
+      },
+    ]);
   };
 
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title={oldTransaction?.id ? "Update Transaction" : "New Transaction"}
+          title={oldTransaction?.id ? "Cập nhật giao dịch" : "Giao dịch mới"}
           leftIcon={<BackButton />}
           rightIcon={
             !oldTransaction?.id ? (
@@ -328,7 +327,7 @@ const TransactionModal = () => {
           {/* transaction types */}
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>
-              Type
+              Loại
             </Typo>
 
             <Dropdown
@@ -355,7 +354,7 @@ const TransactionModal = () => {
           {/* wallets */}
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>
-              Wallet
+              Ví
             </Typo>
 
             <Dropdown
@@ -365,7 +364,7 @@ const TransactionModal = () => {
               selectedTextStyle={styles.dropdownSelectedText}
               iconStyle={styles.dropdownIcon}
               data={wallets.map((wallet) => ({
-                label: `${wallet?.name} ($${wallet.amount})`,
+                label: `${wallet?.name} (${Number(wallet.amount).toLocaleString("vi-VN")}đ)`,
                 value: wallet?.id,
               }))}
               maxHeight={300}
@@ -374,7 +373,7 @@ const TransactionModal = () => {
               itemTextStyle={styles.dropdownItemText}
               itemContainerStyle={styles.dropdownItemContainer}
               containerStyle={styles.dropdownListContainer}
-              placeholder="Select wallet"
+              placeholder="Chọn ví"
               value={transaction.walletId}
               onChange={(item) => {
                 setTransaction({
@@ -388,7 +387,7 @@ const TransactionModal = () => {
           {/* expense categories */}
           {transaction.type === "expense" && (
             <View style={styles.inputContainer}>
-              <Typo color={colors.neutral200}>Expense Category</Typo>
+              <Typo color={colors.neutral200}>Danh mục chi tiêu</Typo>
 
               <Dropdown
                 style={styles.dropdownContainer}
@@ -403,7 +402,7 @@ const TransactionModal = () => {
                 itemTextStyle={styles.dropdownItemText}
                 itemContainerStyle={styles.dropdownItemContainer}
                 containerStyle={styles.dropdownListContainer}
-                placeholder="Select category"
+                placeholder="Chọn danh mục"
                 value={transaction.category}
                 onChange={(item) => {
                   setTransaction({
@@ -417,7 +416,7 @@ const TransactionModal = () => {
 
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>
-              Date
+              Ngày
             </Typo>
 
             {!showDatePicker && (
@@ -426,7 +425,7 @@ const TransactionModal = () => {
                 onPress={() => setShowDatePicker(true)}
               >
                 <Typo size={14}>
-                  {(transaction.date as Date).toLocaleDateString()}
+                  {(transaction.date as Date).toLocaleDateString("vi-VN")}
                 </Typo>
               </Pressable>
             )}
@@ -459,11 +458,11 @@ const TransactionModal = () => {
           {/* amount */}
           <View style={styles.inputContainer}>
             <Typo color={colors.neutral200} size={16}>
-              Amount
+              Số tiền
             </Typo>
 
             <Input
-              // placeholder="Salary"
+              placeholder="Nhập số tiền..."
               keyboardType="numeric"
               value={transaction.amount?.toString()}
               onChangeText={(value) =>
@@ -479,15 +478,15 @@ const TransactionModal = () => {
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.neutral200} size={16}>
-                Description
+                Mô tả
               </Typo>
               <Typo color={colors.neutral500} size={14}>
-                (optional)
+                (tùy chọn)
               </Typo>
             </View>
 
             <Input
-              // placeholder="Salary"
+              placeholder="Nhập nội dung..."
               value={transaction.description}
               multiline
               containerStyle={{
@@ -509,10 +508,10 @@ const TransactionModal = () => {
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.neutral200} size={16}>
-                Receipt
+                Ảnh hóa đơn
               </Typo>
               <Typo color={colors.neutral500} size={14}>
-                (optional)
+                (tùy chọn)
               </Typo>
             </View>
             <ImageUpload
@@ -521,7 +520,7 @@ const TransactionModal = () => {
               onSelect={(file) =>
                 setTransaction({ ...transaction, image: file })
               }
-              placeholder="Upload Image"
+              placeholder="Tải ảnh lên"
             />
           </View>
 
@@ -538,7 +537,7 @@ const TransactionModal = () => {
                 weight="fill"
               />
               <Typo size={15} fontWeight="700" color={colors.primary}>
-                AI SCAN RECEIPT
+                QUÉT HÓA ĐƠN AI
               </Typo>
             </TouchableOpacity>
           )}
@@ -564,7 +563,7 @@ const TransactionModal = () => {
 
         <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
-            {oldTransaction?.id ? "Update" : "Submit"}
+            {oldTransaction?.id ? "Cập nhật" : "Lưu"}
           </Typo>
         </Button>
       </View>

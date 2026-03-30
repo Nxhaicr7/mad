@@ -17,8 +17,16 @@ const Welcome = () => {
       <View style={styles.container}>
         {/* login button & image */}
         <View>
+<<<<<<< HEAD
           <TouchableOpacity onPress={() => router.push('/(auth)/Login')} style={styles.loginButton}>
             <Typo fontWeight={"500"}>{t("Sign in")}</Typo>
+=======
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/Login")}
+            style={styles.loginButton}
+          >
+            <Typo fontWeight={"500"}>Đăng nhập</Typo>
+>>>>>>> origin/main
           </TouchableOpacity>
 
           <Animated.Image
@@ -35,22 +43,39 @@ const Welcome = () => {
             style={{ alignItems: "center" }}
           >
             <Typo size={30} fontWeight={"800"}>
+<<<<<<< HEAD
               {t("Always take control")}
             </Typo>
             <Typo size={30} fontWeight={"800"}>
               {t("of your finances")}
+=======
+              Luôn kiểm soát
+            </Typo>
+            <Typo size={30} fontWeight={"800"}>
+              tài chính của bạn
+>>>>>>> origin/main
             </Typo>
           </Animated.View>
 
           <Animated.View
-            entering={FadeInDown.duration(1000).delay(100).springify().damping(12)}
+            entering={FadeInDown.duration(1000)
+              .delay(100)
+              .springify()
+              .damping(12)}
             style={{ alignItems: "center", gap: 2 }}
           >
             <Typo size={17} color={colors.textLight}>
+<<<<<<< HEAD
               {t("Finances must be arranged to set a better")}
             </Typo>
             <Typo size={17} color={colors.textLight}>
               {t("lifestyle in future")}
+=======
+              Tài chính ổn định giúp bạn có một
+            </Typo>
+            <Typo size={17} color={colors.textLight}>
+              cuộc sống tốt đẹp hơn
+>>>>>>> origin/main
             </Typo>
           </Animated.View>
 
@@ -61,15 +86,19 @@ const Welcome = () => {
               .damping(12)}
             style={styles.buttonContainer}
           >
-            <Button onPress={() => router.push('/(auth)/Register')}>
+            <Button onPress={() => router.push("/(auth)/Register")}>
               <Typo size={22} color={colors.neutral900} fontWeight={600}>
+<<<<<<< HEAD
                 {t("Get Started")}
+=======
+                Bắt đầu ngay
+>>>>>>> origin/main
               </Typo>
             </Button>
           </Animated.View>
         </View>
       </View>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 };
 
