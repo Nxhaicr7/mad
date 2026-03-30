@@ -166,9 +166,9 @@ const resources = {
       Statistics: "Thống kê",
 
       "My Wallets": "Ví của tôi",
-    }, // Đóng translation của vi
-  }, // Đóng vi
-}; // Đóng resources
+    },
+  },
+};
 
 i18n.use(initReactI18next).init({
   resources,

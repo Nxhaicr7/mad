@@ -1,6 +1,9 @@
 import ScreenWrapper from '@/components/ScreenWrapper'
+import { colors, radius, spacingX, spacingY } from '@/constants/theme'
+import { scale, verticalScale } from '@/utils/styling'
 import React from 'react'
 import { StyleSheet, Text } from 'react-native'
+
 
 const Statistics = () => {
   return (
