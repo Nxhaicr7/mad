@@ -13,7 +13,14 @@ import useFetchData from "@/hooks/useFetchData";
 import {
   createOrUpdateTransaction,
   deleteTransaction,
+<<<<<<< HEAD
 } from "@/services/transactionService";
+=======
+  getExceededExpenseLimits,
+  ExpenseLimitExceededItem,
+} from "@/services/transactionService";
+import { createNotification } from "@/services/notificationService";
+>>>>>>> origin/main
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -71,9 +78,37 @@ const TransactionModal = () => {
     image?: any;
     uid?: string;
     walletId: string;
+    // params từ AI scan
+    scanned?: string;
   };
 
   const oldTransaction: paramType = useLocalSearchParams();
+
+  // Map category tiếng Việt từ AI → value của app
+  const mapAICategory = (aiCategory: string): string => {
+    const map: Record<string, string> = {
+      "Ăn uống": "dining",
+      "Di chuyển": "transportation",
+      "Mua sắm": "groceries",
+      "Y tế": "health",
+      "Giải trí": "entertainment",
+      "Giáo dục": "personal",
+      "Hóa đơn": "utilities",
+      "Khác": "others",
+    };
+    return map[aiCategory] || "others";
+  };
+
+  // Parse date từ "DD/MM/YYYY HH:mm" hoặc "DD/MM/YYYY"
+  const parseScannedDate = (dateStr: string): Date => {
+    try {
+      const [datePart] = dateStr.split(" ");
+      const [day, month, year] = datePart.split("/");
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    } catch {
+      return new Date();
+    }
+  };
 
   const onDateChange = (event: any, selectedDate: any) => {
     const currentDate = selectedDate || transaction.date;
@@ -83,6 +118,7 @@ const TransactionModal = () => {
 
   useEffect(() => {
     if (oldTransaction?.id) {
+      // Chỉnh sửa giao dịch cũ
       setTransaction({
         type: oldTransaction?.type,
         amount: Number(oldTransaction.amount),
@@ -92,6 +128,15 @@ const TransactionModal = () => {
         walletId: oldTransaction.walletId,
         image: oldTransaction?.image ?? null,
       });
+    } else if (oldTransaction?.scanned === "true") {
+      // Điền từ kết quả AI scan
+      setTransaction((prev) => ({
+        ...prev,
+        amount: Number(oldTransaction.amount) || 0,
+        description: oldTransaction.description || "",
+        category: mapAICategory(oldTransaction.category || ""),
+        date: parseScannedDate(oldTransaction.date || ""),
+      }));
     }
   }, []);
 
@@ -102,6 +147,7 @@ const TransactionModal = () => {
       Alert.alert(t("Transaction"), t("Please fill all the fields"));
       return;
     }
+<<<<<<< HEAD
     let transactionData: TransactionType = {
       type,
       amount,
@@ -120,6 +166,126 @@ const TransactionModal = () => {
       router.back();
     } else {
       Alert.alert(t("Transaction"), res.msg);
+=======
+
+    const notifyBudgetStatus = async (
+      items: ExpenseLimitExceededItem[],
+      statusType: "near-limit" | "exceeded-limit",
+    ) => {
+      if (!user?.uid || !items.length) return;
+
+      const periodLabel: Record<string, string> = {
+        day: "day",
+        week: "week",
+        month: "month",
+      };
+
+      await Promise.all(
+        items.map((item) =>
+          createNotification({
+            uid: user.uid as string,
+            type: statusType,
+            title: "Expense limit warning",
+            description:
+              statusType === "near-limit"
+                ? `Your wallet is about to exceed ${periodLabel[item.type]} limit ($${item.nextSpent}/$${item.limitAmount}).`
+                : `Your wallet has exceeded ${periodLabel[item.type]} limit ($${item.nextSpent}/$${item.limitAmount}).`,
+          }),
+        ),
+      );
+    };
+
+    const submitTransaction = async () => {
+      let transactionData: TransactionType = {
+        type,
+        amount,
+        description,
+        category,
+        date,
+        walletId,
+        image: image ? image : null,
+        uid: user?.uid,
+      };
+
+      if (oldTransaction?.id) transactionData.id = oldTransaction.id;
+      setLoading(true);
+      const res = await createOrUpdateTransaction(transactionData);
+      setLoading(false);
+
+      if (!res.success) {
+        Alert.alert("Transaction", res.msg);
+      }
+
+      return res;
+    };
+
+    if (type === "expense") {
+      const warningRes = await getExceededExpenseLimits(
+        walletId,
+        amount,
+        date as Date,
+        oldTransaction?.id,
+      );
+
+      if (!warningRes.success) {
+        Alert.alert("Transaction", warningRes.msg);
+        return;
+      }
+
+      const periodLabel: Record<string, string> = {
+        day: "Ngày",
+        week: "Tuần",
+        month: "Tháng",
+      };
+
+      const exceededItems = warningRes.data?.exceededItems || [];
+      const nearLimitItems = warningRes.data?.nearLimitItems || [];
+
+      if (exceededItems.length) {
+        const warningText = exceededItems
+          .map(
+            (item: any) =>
+              `${periodLabel[item.type]}: giới hạn $${item.limitAmount}, sau giao dịch là $${item.nextSpent}`,
+          )
+          .join("\n");
+
+        Alert.alert(
+          "Expense Limit Warning",
+          `Đã vượt giới hạn chi tiêu của ví.\n${warningText}\n\nBạn có đồng ý thêm giao dịch này không?`,
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "OK",
+              onPress: async () => {
+                const submitRes = await submitTransaction();
+                if (submitRes.success) {
+                  await notifyBudgetStatus(exceededItems, "exceeded-limit");
+                  router.back();
+                }
+              },
+            },
+          ],
+        );
+        return;
+      }
+
+      const submitRes = await submitTransaction();
+      if (submitRes.success) {
+        if (nearLimitItems.length) {
+          await notifyBudgetStatus(nearLimitItems, "near-limit");
+        }
+        router.back();
+      }
+      return;
+    }
+
+    const submitRes = await submitTransaction();
+    if (submitRes.success) {
+      router.back();
+>>>>>>> origin/main
     }
   };
 
@@ -155,6 +321,20 @@ const TransactionModal = () => {
         <Header
           title={oldTransaction?.id ? t("Update Transaction") : t("New Transaction")}
           leftIcon={<BackButton />}
+          rightIcon={
+            !oldTransaction?.id ? (
+              <TouchableOpacity
+                onPress={() => router.push("/(modals)/scanInvoiceModal")}
+                style={styles.scanIcon}
+              >
+                <Icons.Scan
+                  size={verticalScale(22)}
+                  color={colors.primary}
+                  weight="bold"
+                />
+              </TouchableOpacity>
+            ) : undefined
+          }
           style={{ marginBottom: spacingY._10 }}
         />
 
@@ -374,6 +554,24 @@ const TransactionModal = () => {
               placeholder={t("Upload Image")}
             />
           </View>
+
+          {/* AI Scan button */}
+          {!oldTransaction?.id && (
+            <TouchableOpacity
+              style={styles.aiScanButton}
+              onPress={() => router.push("/(modals)/scanInvoiceModal")}
+              activeOpacity={0.8}
+            >
+              <Icons.Robot
+                size={verticalScale(20)}
+                color={colors.primary}
+                weight="fill"
+              />
+              <Typo size={15} fontWeight="700" color={colors.primary}>
+                AI SCAN RECEIPT
+              </Typo>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
 
@@ -458,5 +656,37 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 5,
   },
+<<<<<<< HEAD
   dropdownIcon: { height: verticalScale(30) },
 });
+=======
+  dropdownPlaceholder: {
+    color: colors.white,
+  },
+  dropdownItemContainer: {
+    borderRadius: radius._15,
+    marginHorizontal: spacingX._7,
+  },
+  dropdownIcon: {
+    height: verticalScale(30),
+    tintColor: colors.neutral300,
+  },
+  scanIcon: {
+    backgroundColor: colors.neutral700,
+    padding: spacingY._7,
+    borderRadius: radius._10,
+  },
+  aiScanButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacingX._10,
+    backgroundColor: colors.neutral800,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: radius._15,
+    paddingVertical: spacingY._12,
+    borderStyle: "dashed",
+  },
+});
+>>>>>>> origin/main

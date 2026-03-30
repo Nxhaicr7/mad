@@ -56,6 +56,7 @@ export type HeaderProps = {
   style?: ViewStyle;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  showNotification?: boolean;
 };
 
 export type BackButtonProps = {
@@ -162,6 +163,31 @@ export type ResponseType = {
   success: boolean;
   data?: any;
   msg?: string;
+};
+
+export type ExpenseLimitPeriod = "day" | "week" | "month";
+
+export type BudgetType = {
+  id?: string;
+  type: ExpenseLimitPeriod;
+  amount: number;
+  walletId: string;
+};
+
+export type NotificationType = {
+  id?: string;
+  uid: string;
+  title: string;
+  description: string;
+  type: "near-limit" | "exceeded-limit";
+  created: Date | Timestamp | string;
+};
+
+export type ScanResult = {
+  totalAmount: number;
+  date: string;
+  description: string;
+  category: string;
 };
 
 export type WalletType = {

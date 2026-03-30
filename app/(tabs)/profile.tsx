@@ -86,9 +86,8 @@ const Profile = () => {
 
     return (
         <ScreenWrapper>
-
-            <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <Header title={t("Profile")} style={{ marginVertical: spacingY._10 }} />
+            <View style={styles.container}>
+                <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
 
                 {/* user info */}
                 <View style={styles.userInfo}>

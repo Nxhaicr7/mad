@@ -19,7 +19,7 @@ const ImageUpload = ({
 }: ImageUploadProps) => {
     const pickImage = async ()=>{
         let result = await ImagePicker.launchImageLibraryAsync({
-                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    mediaTypes: ['images'],
                     aspect: [4, 3],
                     quality: 0.5,
                 });

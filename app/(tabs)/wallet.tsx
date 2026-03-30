@@ -1,4 +1,5 @@
 import Loading from '@/components/Loading';
+import NotificationBell from '@/components/NotificationBell';
 import ScreenWrapper from '@/components/ScreenWrapper';
 import Typo from '@/components/Typo';
 import WalletListItem from '@/components/WalletListItem';
@@ -36,15 +37,13 @@ const Wallet = () => {
 
         <ScreenWrapper style={{ backgroundColor: colors.background }}>
             <View style={styles.container}>
-                { }
-                <View style={[styles.balanceView, { backgroundColor: colors.background }]}>
+                <View style={styles.balanceView}>
                     <View style={{ alignItems: "center" }}>
-                        { }
-                        <Typo size={45} fontWeight={"500"} color={colors.text}>
+                        <Typo size={45} fontWeight={"500"}>
                             ${getTotalBalance()?.toFixed(2)}
                         </Typo>
-                        <Typo size={16} color={colors.textLight}>
-                            {t("Total Balance")}
+                        <Typo size={16} color={colors.neutral300}>
+                            Total Balance
                         </Typo>
                     </View>
                 </View>
@@ -90,6 +89,16 @@ const styles = StyleSheet.create({
 
         justifyContent: "center",
         alignItems: "center",
+    },
+    balanceHeader: {
+        width: "100%",
+        position: "absolute",
+        top: spacingY._10,
+        left: 0,
+        paddingHorizontal: spacingX._20,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
     },
     flexRow: {
         flexDirection: "row",

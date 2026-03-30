@@ -3,7 +3,7 @@ import HomeCard from "@/components/HomeCard";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
-import { spacingX, spacingY } from "@/constants/theme"; // Đã bỏ import colors tĩnh
+import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { useTheme } from "@/contexts/themeContext"; // Thêm dòng này
 import useFetchData from "@/hooks/useFetchData";
@@ -51,11 +51,10 @@ const Home = () => {
             </Typo>
           </View>
 
-          {/* Cập nhật màu động cho nút tìm kiếm */}
-          <TouchableOpacity style={[styles.searchIcon, { backgroundColor: colors.neutral300 }]}>
+          <TouchableOpacity style={styles.searchIcon}>
             <Icons.MagnifyingGlass
               size={verticalScale(22)}
-              color={colors.text}
+              color={colors.neutral200}
               weight="bold"
             />
           </TouchableOpacity>
@@ -114,6 +113,12 @@ const styles = StyleSheet.create({
   searchIcon: {
     padding: spacingX._10,
     borderRadius: 50,
+  },
+
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacingX._10,
   },
 
   floatingButton: {
