@@ -16,28 +16,8 @@ const SettingsModal = () => {
     const { t, i18n } = useTranslation();
     const router = useRouter();
 
-<<<<<<< HEAD
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
 
-=======
-  return (
-    <ModalWrapper>
-      <View style={styles.container}>
-        <Header
-          title="Cài đặt"
-          leftIcon={<BackButton />}
-          style={{ marginBottom: spacingY._15 }}
-        />
-
-        <TouchableOpacity
-          style={styles.optionItem}
-          onPress={() => router.push("/(modals)/expenseLimitWarningModal")}
-          activeOpacity={0.8}
-        >
-          <Typo size={15} fontWeight={"500"}>
-            Cảnh báo giới hạn chi tiêu
-          </Typo>
->>>>>>> origin/main
 
     const toggleLanguage = () => {
         const currentLng = i18n.language;

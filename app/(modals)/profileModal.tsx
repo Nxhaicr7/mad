@@ -16,22 +16,20 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useTranslation } from "react-i18next"; // 1. Thêm import
 
 const ProfileModal = () => {
-<<<<<<< HEAD
-    const { t } = useTranslation(); // 2. Khai báo hàm t
-=======
+  const { t } = useTranslation(); // 2. Khai báo hàm t
+
   // hooks
   const { user, updateUserData } = useAuth();
   const router = useRouter();
->>>>>>> origin/main
 
   // state
   const [userData, setUserData] = useState<UserDataType>({
@@ -61,21 +59,14 @@ const ProfileModal = () => {
     let { name } = userData;
 
     if (!name.trim()) {
-      Alert.alert("Người dùng", "Vui lòng nhập đầy đủ thông tin");
+      // Dùng t() cho Alert
+      Alert.alert(t("User"), t("Please fill all the fields"));
       return;
     }
 
     setLoading(true);
 
-<<<<<<< HEAD
-        if (!name.trim()) {
-            // Dùng t() cho Alert
-            Alert.alert(t("User"), t("Please fill all the fields"));
-            return;
-        }
-=======
     const res = await updateUser(user?.uid as string, userData);
->>>>>>> origin/main
 
     setLoading(false);
 
@@ -83,7 +74,7 @@ const ProfileModal = () => {
       updateUserData(user?.uid as string);
       router.back();
     } else {
-      Alert.alert("Người dùng", res.msg);
+      Alert.alert(t("User"), res.msg);
     }
   };
 
@@ -95,25 +86,15 @@ const ProfileModal = () => {
     });
   }, [user]);
 
-<<<<<<< HEAD
-        if (res.success) {
-            updateUserData(user?.uid as string);
-            router.back();
-        } else {
-            Alert.alert(t("User"), res.msg);
-        }
-    };
-=======
   // UI
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Cập nhật hồ sơ"
+          title={t("Update Profile")} // Dùng t() cho Header
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
->>>>>>> origin/main
 
         <ScrollView contentContainerStyle={styles.form}>
           <View style={styles.avatarContainer}>
@@ -124,17 +105,6 @@ const ProfileModal = () => {
               transition={100}
             />
 
-<<<<<<< HEAD
-    // UI
-    return (
-        <ModalWrapper>
-            <View style={styles.container}>
-                <Header
-                    title={t("Update Profile")} // Dùng t() cho Header
-                    leftIcon={<BackButton />}
-                    style={{ marginBottom: spacingY._10 }}
-                />
-=======
             <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
               <Icons.Pencil
                 size={verticalScale(20)}
@@ -142,12 +112,11 @@ const ProfileModal = () => {
               />
             </TouchableOpacity>
           </View>
->>>>>>> origin/main
 
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>Tên</Typo>
+            <Typo color={colors.neutral200}>{t("Name")}</Typo>
             <Input
-              placeholder="Tên của bạn"
+              placeholder={t("Name")} // t() cho placeholder
               value={userData.name}
               onChangeText={(value) =>
                 setUserData({ ...userData, name: value })
@@ -157,48 +126,15 @@ const ProfileModal = () => {
         </ScrollView>
       </View>
 
-<<<<<<< HEAD
-                        <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
-                            <Icons.Pencil
-                                size={verticalScale(20)}
-                                color={colors.neutral800}
-                            />
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.inputContainer}>
-                        <Typo color={colors.neutral200}>{t("Name")}</Typo>
-                        <Input
-                            placeholder={t("Name")} // t() cho placeholder
-                            value={userData.name}
-                            onChangeText={(value) =>
-                                setUserData({ ...userData, name: value })
-                            }
-                        />
-                    </View>
-                </ScrollView>
-            </View>
-
-            <View style={styles.footer}>
-                <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
-                    <Typo color={colors.black} fontWeight={"700"}>
-                        {t("Update")}
-                    </Typo>
-                </Button>
-            </View>
-        </ModalWrapper>
-    );
-=======
       <View style={styles.footer}>
         <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
           <Typo color={colors.black} fontWeight={"700"}>
-            Cập nhật
+            {t("Update")}
           </Typo>
         </Button>
       </View>
     </ModalWrapper>
   );
->>>>>>> origin/main
 };
 
 export default ProfileModal;
@@ -235,35 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral300,
     height: verticalScale(135),
 
-<<<<<<< HEAD
-
-
-
-        width: verticalScale(135),
-        borderRadius: 200,
-        borderWidth: 1,
-        borderColor: colors.neutral500,
-        // overflow: "hidden",
-        // position: "relative",
-    },
-    editIcon: {
-        position: "absolute",
-        bottom: spacingY._5,
-        right: spacingY._7,
-        borderRadius: 100,
-        backgroundColor: colors.neutral100,
-        shadowColor: colors.black,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 4,
-        padding: spacingY._7,
-    },
-    inputContainer: {
-        gap: spacingY._10,
-    },
-});
-=======
     width: verticalScale(135),
     borderRadius: 200,
     borderWidth: 1,
@@ -288,4 +195,3 @@ const styles = StyleSheet.create({
     gap: spacingY._10,
   },
 });
->>>>>>> origin/main

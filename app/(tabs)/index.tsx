@@ -42,22 +42,13 @@ const Home = () => {
         {/* header */}
         <View style={styles.header}>
           <View style={{ gap: 4 }}>
-<<<<<<< HEAD
             {/* Truyền màu chữ phụ (textLight) cho chữ Hello */}
             <Typo size={16} color={colors.textLight}>
               {t("Hello,")}
-=======
-            <Typo size={16} color={colors.neutral400}>
-              Xin chào,
->>>>>>> origin/main
             </Typo>
             {/* Không truyền màu => Tự động lấy chữ chính (text) từ Typo.tsx */}
             <Typo size={20} fontWeight="500">
-<<<<<<< HEAD
               {user?.name || t("Guest")}
-=======
-              {user?.name || "Khách"}
->>>>>>> origin/main
             </Typo>
           </View>
 
@@ -82,13 +73,8 @@ const Home = () => {
           <TransactionList
             data={recentTransactions}
             loading={transactionsLoading}
-<<<<<<< HEAD
             emptyListMessage={t("No Transactions added yet!")}
             title={t("Recent Transactions")}
-=======
-            emptyListMessage="Chưa có giao dịch nào!"
-            title="Giao dịch gần đây"
->>>>>>> origin/main
           />
 
         </ScrollView>
