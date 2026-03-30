@@ -1,11 +1,15 @@
 import { firestore } from "@/config/firebase";
+import { colors } from "@/constants/theme";
 import {
   BudgetType,
   ExpenseLimitPeriod,
+  MonthlyInsightStatsType,
   ResponseType,
   TransactionType,
   WalletType,
 } from "@/types";
+import { getLast12Months, getLast7Days, getYearsRange } from "@/utils/common";
+import { scale } from "@/utils/styling";
 import {
   collection,
   deleteDoc,
@@ -21,9 +25,7 @@ import {
 } from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageServices";
 import { createOrUpdateWallet } from "./walletService";
-import { getLast12Months, getLast7Days, getYearsRange } from "@/utils/common";
-import { scale } from "@/utils/styling";
-import { colors } from "@/constants/theme";
+
 const MONTHS_SHORT = [
   "Jan",
   "Feb",
@@ -38,6 +40,36 @@ const MONTHS_SHORT = [
   "Nov",
   "Dec",
 ];
+
+const CATEGORY_LABELS_VI: Record<string, string> = {
+  groceries: "Mua sắm",
+  rent: "Nhà ở",
+  utilities: "Tiện ích",
+  transportation: "Di chuyển",
+  entertainment: "Giải trí",
+  dining: "Ăn uống",
+  health: "Y tế",
+  insurance: "Bảo hiểm",
+  savings: "Tiết kiệm",
+  clothing: "Quần áo",
+  personal: "Cá nhân",
+  others: "Khác",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  groceries: "#4B5563",
+  rent: "#075985",
+  utilities: "#ca8a04",
+  transportation: "#b45309",
+  entertainment: "#0f766e",
+  dining: "#be185d",
+  health: "#e11d48",
+  insurance: "#404040",
+  savings: "#065F46",
+  clothing: "#7c3aed",
+  personal: "#a21caf",
+  others: "#525252",
+};
 
 const getMonthYearKey = (date: Date) => {
   const monthName = MONTHS_SHORT[date.getMonth()];
@@ -212,7 +244,7 @@ export const createOrUpdateTransaction = async (
     const { id, type, walletId, amount, image } = transactionData;
 
     if (!amount || amount <= 0 || !walletId || !type) {
-      return { success: false, msg: "Invalid transaction data!" };
+      return { success: false, msg: "Dữ liệu giao dịch không hợp lệ!" };
     }
 
     if (id) {
@@ -679,5 +711,259 @@ export const fetchYearlyStats = async (uid: string): Promise<ResponseType> => {
       success: false,
       msg: "Failed to fetch yearly transactions",
     };
+  }
+};
+
+const getYearMonthKey = (date: Date) => {
+  return `${date.getFullYear()}-${date.getMonth()}`;
+};
+
+const getMonthWindow = (year: number, month: number) => {
+  return {
+    start: new Date(year, month, 1),
+    end: new Date(year, month + 1, 1),
+  };
+};
+
+const percentChange = (current: number, previous: number) => {
+  if (previous > 0) {
+    return ((current - previous) / previous) * 100;
+  }
+  if (current > 0) return 100;
+  return 0;
+};
+
+const getMonthlyBudgetLimitByUser = async (uid: string): Promise<number> => {
+  const walletsQuery = query(
+    collection(firestore, "wallets"),
+    where("uid", "==", uid),
+  );
+  const walletsSnapshot = await getDocs(walletsQuery);
+  const walletIdSet = new Set(walletsSnapshot.docs.map((item) => item.id));
+
+  if (!walletIdSet.size) return 0;
+
+  const monthlyBudgetQuery = query(
+    collection(firestore, "budget"),
+    where("type", "==", "month"),
+  );
+  const monthlyBudgetSnapshot = await getDocs(monthlyBudgetQuery);
+
+  return monthlyBudgetSnapshot.docs.reduce((total, item) => {
+    const budget = { id: item.id, ...item.data() } as BudgetType;
+    if (!budget?.walletId || !walletIdSet.has(budget.walletId)) {
+      return total;
+    }
+
+    const amount = Number(budget.amount || 0);
+    if (amount <= 0) return total;
+
+    return total + amount;
+  }, 0);
+};
+
+export const fetchMonthlyInsightStats = async (
+  uid: string,
+): Promise<ResponseType> => {
+  try {
+    if (!uid) {
+      return { success: false, msg: "Missing user id" };
+    }
+
+    const now = new Date();
+    const { start: currentMonthStart, end: nextMonthStart } = getMonthWindow(
+      now.getFullYear(),
+      now.getMonth(),
+    );
+    const { start: previousMonthStart, end: previousMonthEnd } = getMonthWindow(
+      now.getFullYear(),
+      now.getMonth() - 1,
+    );
+    const lookBackStart = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+
+    const transactionsQuery = query(
+      collection(firestore, "transactions"),
+      where("uid", "==", uid),
+      where("date", ">=", Timestamp.fromDate(lookBackStart)),
+      where("date", "<", Timestamp.fromDate(nextMonthStart)),
+      orderBy("date", "desc"),
+    );
+
+    const querySnapshot = await getDocs(transactionsQuery);
+
+    let totalExpense = 0;
+    let totalIncome = 0;
+    let previousExpense = 0;
+    let transactionCount = 0;
+    let previousTransactionCount = 0;
+
+    const currentExpenseByCategory: Record<string, number> = {};
+    const previousExpenseByMonth: Record<string, number> = {};
+    const previousCategoryByMonth: Record<string, Record<string, number>> = {};
+
+    querySnapshot.forEach((item) => {
+      const transaction = { id: item.id, ...item.data() } as TransactionType;
+      const transactionDate = getTransactionDate(transaction.date);
+
+      if (!transactionDate) return;
+
+      const isCurrentMonth =
+        transactionDate >= currentMonthStart &&
+        transactionDate < nextMonthStart;
+      const isPreviousMonth =
+        transactionDate >= previousMonthStart &&
+        transactionDate < previousMonthEnd;
+
+      if (isCurrentMonth) {
+        transactionCount += 1;
+      }
+
+      if (isPreviousMonth) {
+        previousTransactionCount += 1;
+      }
+
+      const amount = Number(transaction.amount || 0);
+      if (amount <= 0) return;
+
+      if (transaction.type === "income") {
+        if (isCurrentMonth) totalIncome += amount;
+        return;
+      }
+
+      const categoryKey = transaction.category || "others";
+
+      if (isCurrentMonth) {
+        totalExpense += amount;
+        currentExpenseByCategory[categoryKey] =
+          (currentExpenseByCategory[categoryKey] || 0) + amount;
+      }
+
+      if (isPreviousMonth) {
+        previousExpense += amount;
+      }
+
+      if (
+        transactionDate >= lookBackStart &&
+        transactionDate < currentMonthStart
+      ) {
+        const monthKey = getYearMonthKey(transactionDate);
+        previousExpenseByMonth[monthKey] =
+          (previousExpenseByMonth[monthKey] || 0) + amount;
+
+        if (!previousCategoryByMonth[monthKey]) {
+          previousCategoryByMonth[monthKey] = {};
+        }
+
+        previousCategoryByMonth[monthKey][categoryKey] =
+          (previousCategoryByMonth[monthKey][categoryKey] || 0) + amount;
+      }
+    });
+
+    const categories = Object.entries(currentExpenseByCategory)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, amount]) => ({
+        key,
+        label: CATEGORY_LABELS_VI[key] || CATEGORY_LABELS_VI.others,
+        amount,
+        percent:
+          totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0,
+        color: CATEGORY_COLORS[key] || CATEGORY_COLORS.others,
+      }));
+
+    const topCategory = categories[0] || {
+      key: "others",
+      label: CATEGORY_LABELS_VI.others,
+      amount: 0,
+      percent: 0,
+      color: CATEGORY_COLORS.others,
+    };
+
+    const previousThreeMonthKeys = [1, 2, 3].map((offset) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      return getYearMonthKey(date);
+    });
+
+    const previousTopCategoryAverage =
+      previousThreeMonthKeys.reduce((sum, monthKey) => {
+        const categoryAmount =
+          previousCategoryByMonth[monthKey]?.[topCategory.key] || 0;
+        return sum + categoryAmount;
+      }, 0) / previousThreeMonthKeys.length;
+
+    const monthlyBudgetLimit = await getMonthlyBudgetLimitByUser(uid);
+    const hasMonthlyBudget = monthlyBudgetLimit > 0;
+    const hasPreviousExpenseData = previousExpense > 0;
+    const expenseChangePercent = hasPreviousExpenseData
+      ? percentChange(totalExpense, previousExpense)
+      : 0;
+    const budgetLimit = Math.max(0, Math.round(monthlyBudgetLimit));
+
+    const savings = totalIncome - totalExpense;
+    const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0;
+    const budgetRemaining = hasMonthlyBudget ? budgetLimit - totalExpense : 0;
+    const budgetUsedPercent =
+      budgetLimit > 0
+        ? Math.min(100, Math.round((totalExpense / budgetLimit) * 100))
+        : 0;
+
+    const insightStats: MonthlyInsightStatsType = {
+      monthLabel: new Intl.DateTimeFormat("vi-VN", {
+        month: "long",
+        year: "numeric",
+      }).format(now),
+      hasMonthlyBudget,
+      hasPreviousExpenseData,
+      totalExpense,
+      totalIncome,
+      savings,
+      savingsRate,
+      expenseChangePercent,
+      transactionCount,
+      transactionCountChangePercent: percentChange(
+        transactionCount,
+        previousTransactionCount,
+      ),
+      budgetLimit,
+      budgetUsedPercent,
+      budgetRemaining,
+      topCategoryLabel: topCategory.label,
+      topCategoryAmount: topCategory.amount,
+      topCategoryPercent: topCategory.percent,
+      categories: categories.slice(0, 6),
+      aiPayload: {
+        monthLabel: new Intl.DateTimeFormat("vi-VN", {
+          month: "long",
+          year: "numeric",
+        }).format(now),
+        hasPreviousExpenseData,
+        totalExpense,
+        totalIncome,
+        savings,
+        savingsRate,
+        expenseChangePercent,
+        transactionCount,
+        transactionCountChangePercent: percentChange(
+          transactionCount,
+          previousTransactionCount,
+        ),
+        topCategoryLabel: topCategory.label,
+        topCategoryAmount: topCategory.amount,
+        topCategoryPercent: topCategory.percent,
+        previousTopCategoryAverage,
+        categories: categories.slice(0, 5).map((item) => ({
+          label: item.label,
+          amount: item.amount,
+          percent: item.percent,
+        })),
+      },
+    };
+
+    return {
+      success: true,
+      data: insightStats,
+    };
+  } catch (err: any) {
+    console.log("error fetching monthly insight stats: ", err);
+    return { success: false, msg: err.message };
   }
 };

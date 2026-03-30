@@ -3,17 +3,18 @@ import { Tabs } from "expo-router";
 import React from "react";
 
 const _layout = () => {
-    return (
-        <Tabs
-            screenOptions={{ headerShown: false }}
-            tabBar={(props) => <CustomTabs {...props} />}
-        >
-            <Tabs.Screen name="index" />
-            <Tabs.Screen name="statistics" />
-            <Tabs.Screen name="wallet" />
-            <Tabs.Screen name="profile" />
-        </Tabs>
-    );
+  return (
+    <Tabs
+      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <CustomTabs {...props} />}
+    >
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="statistics" />
+      <Tabs.Screen name="wallet" />
+      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="aiSummary" />
+    </Tabs>
+  );
 };
 
 export default _layout;

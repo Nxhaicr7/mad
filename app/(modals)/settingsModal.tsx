@@ -16,7 +16,7 @@ const SettingsModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Setting"
+          title="Cài đặt"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._15 }}
         />
@@ -27,7 +27,7 @@ const SettingsModal = () => {
           activeOpacity={0.8}
         >
           <Typo size={15} fontWeight={"500"}>
-            Expense Limit Warning
+            Cảnh báo giới hạn chi tiêu
           </Typo>
 
           <Icons.CaretRight

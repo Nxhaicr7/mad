@@ -1,14 +1,14 @@
 import { firestore } from "@/config/firebase";
 import { ResponseType, WalletType } from "@/types";
 import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-  writeBatch,
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    query,
+    setDoc,
+    where,
+    writeBatch,
 } from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageServices";
 
@@ -27,7 +27,7 @@ export const createOrUpdateWallet = async (
       if (!imageUploadRes.success) {
         return {
           success: false,
-          msg: imageUploadRes.msg || "Failed to upload wallet icon",
+          msg: imageUploadRes.msg || "Không thể tải biểu tượng ví lên",
         };
       }
       walletToSave.image = imageUploadRes.data;
@@ -57,7 +57,7 @@ export const deleteWallet = async (walletId: string): Promise<ResponseType> => {
 
     deleteTransactionsByWalletId(walletId); // delete all transactions related to this wallet
 
-    return { success: true, msg: "Wallet deleted successfully" };
+    return { success: true, msg: "Ví đã được xóa thành công" };
   } catch (err: any) {
     console.log("error deleting wallet: ", err);
     return { success: false, msg: err.message };
@@ -92,13 +92,13 @@ export const deleteTransactionsByWalletId = async (
       await batch.commit();
 
       console.log(
-        `${transactionsSnapshot.size} transactions deleted in this batch`,
+        `${transactionsSnapshot.size} giao dịch đã được xóa trong lô này`,
       );
     }
 
     return {
       success: true,
-      msg: "All transactions deleted successfully",
+      msg: "Tất cả giao dịch đã được xóa thành công",
     };
 
     return { success: true, msg: "Wallet deleted successfully" };

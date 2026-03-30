@@ -1,19 +1,19 @@
 import Header from "@/components/Header";
-import ScreenWrapper from "@/components/ScreenWrapper";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
-import { scale, verticalScale } from "@/utils/styling";
-import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { BarChart } from "react-native-gifted-charts";
 import Loading from "@/components/Loading";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import TransactionList from "@/components/TransactionList";
+import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import {
-  fetchMonthlyStats,
-  fetchWeeklyStats,
-  fetchYearlyStats,
+    fetchMonthlyStats,
+    fetchWeeklyStats,
+    fetchYearlyStats,
 } from "@/services/transactionService";
-import TransactionList from "@/components/TransactionList";
+import { scale, verticalScale } from "@/utils/styling";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { BarChart } from "react-native-gifted-charts";
 
 const Statistics = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -31,7 +31,7 @@ const Statistics = () => {
       setChartData(res?.data?.stats);
       setTransactions(res?.data?.transactions);
     } else {
-      Alert.alert("Error", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
@@ -43,7 +43,7 @@ const Statistics = () => {
       setChartData(res?.data?.stats);
       setTransactions(res?.data?.transactions);
     } else {
-      Alert.alert("Error", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
   const getYearlyStats = async () => {
@@ -54,7 +54,7 @@ const Statistics = () => {
       setChartData(res?.data?.stats);
       setTransactions(res?.data?.transactions);
     } else {
-      Alert.alert("Error", res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
@@ -74,7 +74,7 @@ const Statistics = () => {
     <ScreenWrapper>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Header title="Statistics" showNotification />
+          <Header title="Thống kê" showNotification />
         </View>
         {/* Thanh weekly/monthlt/yearly */}
         <ScrollView
@@ -86,7 +86,7 @@ const Statistics = () => {
           showsVerticalScrollIndicator={false}
         >
           <SegmentedControl
-            values={["Weekly", "Monthly", "Yearly"]}
+            values={["Tuần", "Tháng", "Năm"]}
             selectedIndex={activeIndex}
             onChange={(event) => {
               setActiveIndex(event.nativeEvent.selectedSegmentIndex);
@@ -107,12 +107,10 @@ const Statistics = () => {
                 roundedBottom
                 roundedTop
                 hideRules
-                yAxisLabelPrefix="$"
+                yAxisLabelSuffix="đ"
                 yAxisThickness={0}
                 xAxisThickness={0}
-                yAxisLabelWidth={
-                  [1, 2].includes(activeIndex) ? scale(38) : scale(35)
-                }
+                yAxisLabelWidth={scale(45)}
                 yAxisTextStyle={{ color: colors.neutral350 }}
                 xAxisLabelTextStyle={{
                   color: colors.neutral350,
@@ -135,8 +133,8 @@ const Statistics = () => {
           {/* transactions */}
           <View>
             <TransactionList
-              title="Transactions"
-              emptyListMessage="No transactions found"
+              title="Giao dịch"
+              emptyListMessage="Không tìm thấy giao dịch nào"
               data={transactions}
             />
           </View>

@@ -8,23 +8,23 @@ import { useAuth } from "@/contexts/authContext";
 import { NotificationType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import {
-  collection,
-  DocumentData,
-  getDocs,
-  limit,
-  query,
-  QueryDocumentSnapshot,
-  startAfter,
-  where,
+    collection,
+    DocumentData,
+    getDocs,
+    limit,
+    query,
+    QueryDocumentSnapshot,
+    startAfter,
+    where,
 } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const PAGE_SIZE = 10;
@@ -127,13 +127,13 @@ const NotificationModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Notification"
+          title="Thông báo"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._15 }}
         />
 
         <Typo size={20} fontWeight={"700"}>
-          Recent notifications
+          Thông báo gần đây
         </Typo>
 
         <FlatList
@@ -144,7 +144,7 @@ const NotificationModal = () => {
           renderItem={({ item }) => {
             const createdDate = getCreatedDate(item.created);
             const dateLabel = createdDate
-              ? createdDate.toLocaleDateString("en-GB", {
+              ? createdDate.toLocaleDateString("vi-VN", {
                   day: "2-digit",
                   month: "short",
                 })
@@ -194,7 +194,7 @@ const NotificationModal = () => {
           ListEmptyComponent={
             <View style={styles.emptyBox}>
               <Typo size={14} color={colors.neutral400}>
-                No notifications yet
+                Chưa có thông báo nào
               </Typo>
             </View>
           }
@@ -210,7 +210,7 @@ const NotificationModal = () => {
                   <ActivityIndicator color={colors.black} />
                 ) : (
                   <Typo size={14} color={colors.black} fontWeight={"700"}>
-                    Load more
+                    Xem thêm
                   </Typo>
                 )}
               </TouchableOpacity>
