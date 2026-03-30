@@ -1,19 +1,19 @@
 import Header from "@/components/Header";
-import ScreenWrapper from "@/components/ScreenWrapper";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
-import { scale, verticalScale } from "@/utils/styling";
-import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
-import { BarChart } from "react-native-gifted-charts";
 import Loading from "@/components/Loading";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import TransactionList from "@/components/TransactionList";
+import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import {
-  fetchMonthlyStats,
-  fetchWeeklyStats,
-  fetchYearlyStats,
+    fetchMonthlyStats,
+    fetchWeeklyStats,
+    fetchYearlyStats,
 } from "@/services/transactionService";
-import TransactionList from "@/components/TransactionList";
+import { scale, verticalScale } from "@/utils/styling";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { BarChart } from "react-native-gifted-charts";
 
 const Statistics = () => {
   const [activeIndex, setActiveIndex] = useState(0);
