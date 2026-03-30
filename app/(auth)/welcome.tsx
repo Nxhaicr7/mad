@@ -14,8 +14,11 @@ const Welcome = () => {
       <View style={styles.container}>
         {/* login button & image */}
         <View>
-          <TouchableOpacity onPress={() => router.push('/(auth)/Login')} style={styles.loginButton}>
-            <Typo fontWeight={"500"}>Sign in</Typo>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/Login")}
+            style={styles.loginButton}
+          >
+            <Typo fontWeight={"500"}>Đăng nhập</Typo>
           </TouchableOpacity>
 
           <Animated.Image
@@ -32,22 +35,25 @@ const Welcome = () => {
             style={{ alignItems: "center" }}
           >
             <Typo size={30} fontWeight={"800"}>
-              Always take control
+              Luôn kiểm soát
             </Typo>
             <Typo size={30} fontWeight={"800"}>
-              of your finances
+              tài chính của bạn
             </Typo>
           </Animated.View>
 
           <Animated.View
-            entering={FadeInDown.duration(1000).delay(100).springify().damping(12)}
+            entering={FadeInDown.duration(1000)
+              .delay(100)
+              .springify()
+              .damping(12)}
             style={{ alignItems: "center", gap: 2 }}
           >
             <Typo size={17} color={colors.textLight}>
-              Finances must be arranged to set a better
+              Tài chính ổn định giúp bạn có một
             </Typo>
             <Typo size={17} color={colors.textLight}>
-              lifestyle in future
+              cuộc sống tốt đẹp hơn
             </Typo>
           </Animated.View>
 
@@ -58,15 +64,15 @@ const Welcome = () => {
               .damping(12)}
             style={styles.buttonContainer}
           >
-            <Button onPress={() => router.push('/(auth)/Register')}>
+            <Button onPress={() => router.push("/(auth)/Register")}>
               <Typo size={22} color={colors.neutral900} fontWeight={600}>
-                Get Started
+                Bắt đầu ngay
               </Typo>
             </Button>
           </Animated.View>
         </View>
       </View>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 };
 

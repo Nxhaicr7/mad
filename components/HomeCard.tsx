@@ -42,7 +42,7 @@ const HomeCard = () => {
         {/* Total Balance */}
         <View style={styles.totalBalanceRow}>
           <Typo color={colors.neutral800} size={17} fontWeight="500">
-            Total Balance
+            Tổng số dư
           </Typo>
 
           <Icons.DotsThreeOutline
@@ -53,12 +53,13 @@ const HomeCard = () => {
         </View>
 
         <Typo color={colors.black} size={30} fontWeight="bold">
-          $ {walletLoading ? "----" : getTotals()?.balance?.toFixed(2)}
+          {walletLoading
+            ? "----"
+            : `${getTotals()?.balance?.toLocaleString("vi-VN")}đ`}
         </Typo>
 
         {/* Stats: Income & Expense */}
         <View style={styles.stats}>
-
           {/* Income */}
           <View style={{ gap: verticalScale(5) }}>
             <View style={styles.incomeExpense}>
@@ -71,13 +72,15 @@ const HomeCard = () => {
               </View>
 
               <Typo size={16} color={colors.neutral700} fontWeight="500">
-                Income
+                Thu nhập
               </Typo>
             </View>
 
             <View style={{ alignSelf: "center" }}>
               <Typo size={17} color={colors.green} fontWeight="600">
-                $ {walletLoading ? "----" : getTotals()?.income?.toFixed(2)}
+                {walletLoading
+                  ? "----"
+                  : `${getTotals()?.income?.toLocaleString("vi-VN")}đ`}
               </Typo>
             </View>
           </View>
@@ -94,13 +97,15 @@ const HomeCard = () => {
               </View>
 
               <Typo size={16} color={colors.neutral700} fontWeight="500">
-                Expense
+                Chi tiêu
               </Typo>
             </View>
 
             <View style={{ alignSelf: "center" }}>
               <Typo size={17} color={colors.rose} fontWeight="600">
-                $ {walletLoading ? "----" : getTotals()?.expenses?.toFixed(2)}
+                {walletLoading
+                  ? "----"
+                  : `${getTotals()?.expenses?.toLocaleString("vi-VN")}đ`}
               </Typo>
             </View>
           </View>

@@ -14,7 +14,7 @@ const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/
 
 const SCAN_PROMPT = `Extract from this receipt: totalAmount (number), date (DD/MM/YYYY), description (items bought, Vietnamese, max 5), category (one of: Ăn uống|Di chuyển|Mua sắm|Y tế|Giải trí|Giáo dục|Hóa đơn|Khác). Reply ONLY valid JSON, no markdown.`;
 
-const FINANCIAL_SUMMARY_PROMPT = `Bạn là chuyên gia tài chính cá nhân.
+const FINANCIAL_SUMMARY_PROMPT = `Bạn là chuyên gia tài chính cá nhân người Việt Nam.
 Hãy phân tích dữ liệu chi tiêu tháng và trả về JSON hợp lệ (không markdown) theo đúng schema:
 {
   "summary": "string (2-3 câu, tiếng Việt, ngắn gọn, có số liệu)",
@@ -26,8 +26,10 @@ Hãy phân tích dữ liệu chi tiêu tháng và trả về JSON hợp lệ (kh
   ]
 }
 Yêu cầu:
-- highlights từ 2 đến 3 item.
-- suggestions từ 2 đến 3 item.
+- Ngôn ngữ: Chỉ dùng tiếng Việt, giọng văn tư vấn tài chính chuyên nghiệp.
+- Tiền tệ: Khi nhắc đến số tiền trong phần summary hoặc description, hãy dùng đơn vị VNĐ (Ví dụ: 100.000 VNĐ, 2 triệu VNĐ).
+- highlights: từ 2 đến 3 item.
+- suggestions: từ 2 đến 3 item.
 - Ưu tiên hành động cụ thể, dễ thực hiện.
 - Nếu hasPreviousExpenseData = false: KHÔNG được so sánh với tháng trước, không dùng cụm "so với tháng trước".
 - Không dùng ký tự markdown.`;
@@ -206,6 +208,10 @@ const buildRuleBasedSuggestions = (
 export const buildFallbackFinancialSummary = (
   payload: MonthlySummaryAIPayloadType,
 ): AISummaryResult => {
+  const formatCurrencyLocal = (value: number) => {
+    return `${Math.abs(value).toLocaleString("vi-VN")}đ`;
+  };
+
   const trendWord = payload.hasPreviousExpenseData
     ? payload.expenseChangePercent > 0
       ? `tăng ${Math.abs(payload.expenseChangePercent).toFixed(1)}%`
@@ -218,11 +224,11 @@ export const buildFallbackFinancialSummary = (
 
   return {
     summary: payload.hasPreviousExpenseData
-      ? `Trong ${payload.monthLabel}, bạn đã chi tiêu tổng cộng $${payload.totalExpense.toFixed(2)} (${trendWord} so với tháng trước). Thu nhập đạt $${payload.totalIncome.toFixed(2)}, mức tiết kiệm hiện tại là $${payload.savings.toFixed(2)}. Danh mục ${payload.topCategoryLabel} chiếm tỷ trọng cao nhất (${payload.topCategoryPercent}%).`
-      : `Trong ${payload.monthLabel}, bạn đã chi tiêu tổng cộng $${payload.totalExpense.toFixed(2)}. Thu nhập đạt $${payload.totalIncome.toFixed(2)}, mức tiết kiệm hiện tại là $${payload.savings.toFixed(2)}. Hiện chưa có dữ liệu chi tiêu tháng trước để so sánh xu hướng.`,
+      ? `Trong ${payload.monthLabel}, bạn đã chi tiêu tổng cộng ${formatCurrencyLocal(payload.totalExpense)} (${trendWord} so với tháng trước). Thu nhập đạt ${formatCurrencyLocal(payload.totalIncome)}, mức tiết kiệm hiện tại là ${formatCurrencyLocal(payload.savings)}. Danh mục ${payload.topCategoryLabel} chiếm tỷ trọng cao nhất (${payload.topCategoryPercent}%).`
+      : `Trong ${payload.monthLabel}, bạn đã chi tiêu tổng cộng ${formatCurrencyLocal(payload.totalExpense)}. Thu nhập đạt ${formatCurrencyLocal(payload.totalIncome)}, mức tiết kiệm hiện tại là ${formatCurrencyLocal(payload.savings)}. Hiện chưa có dữ liệu chi tiêu tháng trước để so sánh xu hướng.`,
     highlights: [
       {
-        text: payload.savings >= 0 ? "Savings tốt" : "Savings âm",
+        text: payload.savings >= 0 ? "Tiết kiệm tốt" : "Tiết kiệm âm",
         tone: savingsTone,
       },
       {

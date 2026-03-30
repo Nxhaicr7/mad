@@ -1,9 +1,9 @@
 import Button from "@/components/Button";
 import HomeCard from "@/components/HomeCard";
+import NotificationBell from "@/components/NotificationBell";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
-import NotificationBell from "@/components/NotificationBell";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
@@ -38,10 +38,10 @@ const Home = () => {
         <View style={styles.header}>
           <View style={{ gap: 4 }}>
             <Typo size={16} color={colors.neutral400}>
-              Hello,
+              Xin chào,
             </Typo>
             <Typo size={20} fontWeight="500">
-              {user?.name || "Guest"}
+              {user?.name || "Khách"}
             </Typo>
           </View>
 
@@ -72,8 +72,8 @@ const Home = () => {
           <TransactionList
             data={recentTransactions}
             loading={transactionsLoading}
-            emptyListMessage="No Transactions added yet!"
-            title="Recent Transactions"
+            emptyListMessage="Chưa có giao dịch nào!"
+            title="Giao dịch gần đây"
           />
 
           {/* thêm các phần khác nếu có */}

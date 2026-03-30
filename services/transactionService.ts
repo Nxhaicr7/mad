@@ -244,7 +244,7 @@ export const createOrUpdateTransaction = async (
     const { id, type, walletId, amount, image } = transactionData;
 
     if (!amount || amount <= 0 || !walletId || !type) {
-      return { success: false, msg: "Invalid transaction data!" };
+      return { success: false, msg: "Dữ liệu giao dịch không hợp lệ!" };
     }
 
     if (id) {

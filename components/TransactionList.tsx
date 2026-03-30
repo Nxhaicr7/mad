@@ -1,13 +1,13 @@
-import { useRouter } from "expo-router";
 import { expenseCategories, incomeCategory } from "@/constants/data";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import {
-  TransactionItemProps,
-  TransactionListType,
-  TransactionType,
+    TransactionItemProps,
+    TransactionListType,
+    TransactionType,
 } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import { Timestamp } from "firebase/firestore";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -95,7 +95,7 @@ const TransactionItem = ({
 
   const date = (item?.date as Timestamp)
     ?.toDate()
-    ?.toLocaleDateString("en-GB", {
+    ?.toLocaleDateString("vi-VN", {
       day: "numeric",
       month: "short",
     });
@@ -134,7 +134,7 @@ const TransactionItem = ({
             fontWeight={"500"}
             color={item?.type === "income" ? colors.primary : colors.rose}
           >
-            {`${item?.type === "income" ? "+ " : "- "}$${item?.amount.toFixed(2)}`}
+            {`${item?.type === "income" ? "+ " : "- "}${item?.amount.toLocaleString("vi-VN")}đ`}
           </Typo>
 
           <Typo size={13} color={colors.neutral400}>

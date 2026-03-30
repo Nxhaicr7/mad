@@ -53,7 +53,7 @@ const AISummary = () => {
         const statsRes = await fetchMonthlyInsightStats(user.uid as string);
         if (!statsRes.success || !statsRes.data) {
           Alert.alert(
-            "AI Summary",
+            "Tóm tắt AI",
             statsRes.msg || "Không thể tải dữ liệu thống kê",
           );
           return;
@@ -71,7 +71,7 @@ const AISummary = () => {
 
         setUpdatedAt(new Date());
       } catch {
-        Alert.alert("AI Summary", "Đã có lỗi khi tải báo cáo tháng");
+        Alert.alert("Tóm tắt AI", "Đã có lỗi khi tải báo cáo tháng");
       } finally {
         if (isRefresh) {
           setRefreshing(false);
@@ -93,9 +93,7 @@ const AISummary = () => {
   }, [loadMonthlyInsight]);
 
   const formatCurrency = (value: number) => {
-    return `$${Math.abs(value).toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    })}`;
+    return `${Math.abs(value).toLocaleString("vi-VN")}đ`;
   };
 
   const formatSignedPercent = (value: number) => {
@@ -156,7 +154,7 @@ const AISummary = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Header
-            title="AI Summary"
+            title="Tóm tắt tài chính"
             rightIcon={
               <TouchableOpacity
                 onPress={() => loadMonthlyInsight(true)}
@@ -215,7 +213,7 @@ const AISummary = () => {
             <View style={styles.heroHeaderRow}>
               <View style={styles.aiChip}>
                 <Typo size={12} color={colors.primary} fontWeight="700">
-                  AI Analysis
+                  Phân tích AI
                 </Typo>
               </View>
 
@@ -265,7 +263,7 @@ const AISummary = () => {
                       </Typo>
                     </Typo>
                     <Typo size={13} color={colors.neutral400}>
-                      Budget tháng này
+                      Ngân sách tháng này
                     </Typo>
                     <Typo size={14} color={colors.neutral300}>
                       Còn lại
@@ -278,9 +276,9 @@ const AISummary = () => {
                         }
                         fontWeight="700"
                       >
-                        {` ${insightStats.budgetRemaining >= 0 ? "$" : "-$"}${Math.abs(
-                          insightStats.budgetRemaining,
-                        ).toFixed(2)}`}
+                        {` ${insightStats.budgetRemaining >= 0 ? "" : "-"}${formatCurrency(
+                          Math.abs(insightStats.budgetRemaining),
+                        )}`}
                       </Typo>
                     </Typo>
                   </View>
@@ -312,7 +310,7 @@ const AISummary = () => {
 
                 <View style={styles.noBudgetContent}>
                   <Typo size={18} fontWeight="700">
-                    Chưa cấu hình budget theo tháng
+                    Chưa cấu hình hạn mức theo tháng
                   </Typo>
                   <Typo
                     size={14}
@@ -331,7 +329,7 @@ const AISummary = () => {
                     activeOpacity={0.85}
                   >
                     <Typo size={13} color={colors.black} fontWeight="700">
-                      Thiết lập budget tháng
+                      Thiết lập hạn mức tháng
                     </Typo>
                   </TouchableOpacity>
                 </View>
@@ -388,7 +386,7 @@ const AISummary = () => {
                 </Typo>
               </View>
               <Typo size={22} color="#4ade80" fontWeight="700">
-                {`${insightStats.savings >= 0 ? "$" : "-$"}${Math.abs(insightStats.savings).toFixed(0)}`}
+                {formatCurrency(insightStats.savings)}
               </Typo>
               <Typo size={12} color={colors.neutral400}>
                 Tiết kiệm

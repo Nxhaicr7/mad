@@ -1,23 +1,16 @@
 import BackButton from "@/components/BackButton";
-import Button from "@/components/Button";
 import Header from "@/components/Header";
-import ImageUpload from "@/components/ImageUpload";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import TransactionList from "@/components/TransactionList";
-import Typo from "@/components/Typo";
-import { colors, spacingX, spacingY } from "@/constants/theme";
+import { colors, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import useFetchData from "@/hooks/useFetchData";
-import { createOrUpdateWallet, deleteWallet } from "@/services/walletService";
-import { TransactionType, WalletType } from "@/types";
-import { scale, verticalScale } from "@/utils/styling";
-import * as ImagePicker from "expo-image-picker";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { limit, orderBy, Transaction, where } from "firebase/firestore";
-import * as Icons from "phosphor-react-native";
-import React, { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { TransactionType } from "@/types";
+import { useRouter } from "expo-router";
+import { orderBy, where } from "firebase/firestore";
+import React, { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 const SearchModal = () => {
   const { user, updateUserData } = useAuth();
@@ -43,7 +36,7 @@ const SearchModal = () => {
       ) {
         return true;
       }
-      return false
+      return false;
     }
     return true;
   });
@@ -53,7 +46,7 @@ const SearchModal = () => {
     <ModalWrapper style={{ backgroundColor: colors.neutral900 }}>
       <View style={styles.container}>
         <Header
-          title={"Search"}
+          title={"Tìm kiếm"}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -61,7 +54,7 @@ const SearchModal = () => {
         <ScrollView contentContainerStyle={styles.form}>
           <View style={styles.inputContainer}>
             <Input
-              placeholder="shoes..."
+              placeholder="Nhập từ khóa..."
               value={search}
               placeholderTextColor={colors.neutral400}
               containerStyle={{ backgroundColor: colors.neutral800 }}
@@ -72,7 +65,7 @@ const SearchModal = () => {
             <TransactionList
               loading={transactionsLoading}
               data={filteredTransactions}
-              emptyListMessage="No transactions match your search keywords"
+              emptyListMessage="Không tìm thấy giao dịch nào phù hợp"
             />
           </View>
         </ScrollView>
