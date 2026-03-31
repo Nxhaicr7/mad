@@ -11,10 +11,10 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useRef, useState } from "react";
 import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
-import { useTranslation } from "react-i18next";
+
 
 const Register = () => {
-    const { t } = useTranslation();
+
     const { colors } = useTheme();
     const emailRef = useRef("");
     const passwordRef = useRef("");
@@ -27,7 +27,7 @@ const Register = () => {
 
     const handleSubmit = async () => {
         if (!emailRef.current || !passwordRef.current || !nameRef.current) {
-            Alert.alert(t("Sign up"), t("Please fill all the fields"));
+            Alert.alert(("Đăng kí"), ("Vui lòng điền đầy đủ thông tin vào tất cả các ô"));
             return;
         }
 
@@ -40,7 +40,7 @@ const Register = () => {
         setIsLoading(false);
         console.log("register result: ", res);
         if (!res.success) {
-            Alert.alert(t("Sign up"), res.msg);
+            Alert.alert(("Đăng kí"), res.msg);
         }
     };
 
@@ -62,20 +62,20 @@ const Register = () => {
 
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
                     <Typo size={30} fontWeight={"800"}>
-                        {t("Let's")}
+                        {("Sẵn sàng")}
                     </Typo>
                     <Typo size={30} fontWeight={"800"}>
-                        {t("Get started")}
+                        {("Bắt đầu nào")}
                     </Typo>
                 </View>
 
                 <View style={styles.form}>
                     <Typo size={16} color={colors.textLight}>
-                        {t("Create an account to track your expense")}
+                        {("Tạo tài khoản để theo dõi chi phí của bạn")}
                     </Typo>
 
                     <Input
-                        placeholder={t("Enter your name")}
+                        placeholder={("Nhập tên của bạn")}
                         onChangeText={(value) => (nameRef.current = value)}
                         icon={
                             <Icons.User
@@ -87,7 +87,7 @@ const Register = () => {
                     />
 
                     <Input
-                        placeholder={t("Enter your email")}
+                        placeholder={("Nhập email của bạn")}
                         onChangeText={(value) => (emailRef.current = value)}
                         icon={
                             <Icons.At
@@ -99,7 +99,7 @@ const Register = () => {
                     />
 
                     <Input
-                        placeholder={t("Enter your password")}
+                        placeholder={("Nhập mật khẩu của bạn")}
                         secureTextEntry
                         onChangeText={(value) => (passwordRef.current = value)}
                         icon={
@@ -113,7 +113,7 @@ const Register = () => {
 
                     <Button loading={isLoading} onPress={handleSubmit}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
-                            {t("Sign up")}
+                            {("Đăng kí")}
                         </Typo>
                     </Button>
                 </View>
@@ -122,7 +122,7 @@ const Register = () => {
                 <View style={styles.dividerContainer}>
                     <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
                     <Typo size={14} color={colors.textLight} style={{ paddingHorizontal: 10 }}>
-                        {t("Or")}
+                        {("hoặc")}
                     </Typo>
                     <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
                 </View>
@@ -136,7 +136,7 @@ const Register = () => {
                     >
                         <Icons.GoogleLogo size={verticalScale(24)} color={colors.text} weight="bold" />
                         <Typo size={16} fontWeight={"600"} color={colors.text}>
-                            {t("Continue with Google")}
+                            {("Tiếp tục với Google")}
                         </Typo>
                     </TouchableOpacity>
 
@@ -147,18 +147,18 @@ const Register = () => {
                     >
                         <Icons.FacebookLogo size={verticalScale(24)} color="#1877F2" weight="fill" />
                         <Typo size={16} fontWeight={"600"} color={colors.text}>
-                            {t("Continue with Facebook")}
+                            {("Tiếp tục với Facebook")}
                         </Typo>
                     </TouchableOpacity>
                 </View>
 
                 {/* footer */}
                 <View style={styles.footer}>
-                    <Typo size={15} color={colors.textLight}>{t("Already have an account?")}</Typo>
+                    <Typo size={15} color={colors.textLight}>{("Đã có tài khoản ?")}</Typo>
 
                     <Pressable onPress={() => router.navigate("/(auth)/Login")}>
                         <Typo size={15} fontWeight={"700"} color={colors.primary}>
-                            {t("Login")}
+                            {("Đăng nhập")}
                         </Typo>
                     </Pressable>
                 </View>

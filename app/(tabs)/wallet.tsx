@@ -14,10 +14,10 @@ import { orderBy, where } from 'firebase/firestore';
 import * as Icons from 'phosphor-react-native';
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useTranslation } from "react-i18next";
+
 
 const Wallet = () => {
-    const { t } = useTranslation(); t
+
     const router = useRouter();
     const { user } = useAuth();
     const { colors } = useTheme();
@@ -53,7 +53,7 @@ const Wallet = () => {
                     <View style={styles.flexRow}>
                         {/* Đổi màu chữ */}
                         <Typo size={20} fontWeight={"500"} color={colors.text}>
-                            {t("My Wallets")}
+                            {("Ví của tôi")}
                         </Typo>
                         <TouchableOpacity onPress={() => router.push("/(modals)/walletModal")}>
                             <Icons.PlusCircle

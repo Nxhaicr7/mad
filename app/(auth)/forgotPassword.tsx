@@ -11,10 +11,10 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
+
 
 const ForgotPassword = () => {
-    const { t } = useTranslation();
+
     const { colors } = useTheme(); // 👈 Vũ khí bí mật cho Dark/Light mode
     const emailRef = useRef("");
     const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
 
     const handleSendLink = async () => {
         if (!emailRef.current) {
-            Alert.alert(t("Quên mật khẩu"), t("Vui lòng nhập email của bạn"));
+            Alert.alert(("Quên mật khẩu"), ("Vui lòng nhập email của bạn"));
             return;
         }
 
@@ -33,12 +33,12 @@ const ForgotPassword = () => {
 
         if (res.success) {
             Alert.alert(
-                t("Thành công"),
+                ("Thành công"),
                 res.msg,
                 [{ text: "OK", onPress: () => router.back() }] // Gửi xong thì tự động lùi về màn Login
             );
         } else {
-            Alert.alert(t("Lỗi"), res.msg);
+            Alert.alert(("Lỗi"), res.msg);
         }
     };
 
@@ -50,21 +50,21 @@ const ForgotPassword = () => {
                 {/* Tiêu đề */}
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
                     <Typo size={30} fontWeight={"800"}>
-                        {t("Reset")}
+                        {("Reset")}
                     </Typo>
                     <Typo size={30} fontWeight={"800"}>
-                        {t("Password")}
+                        {("Password")}
                     </Typo>
                 </View>
 
                 {/* Form nhập liệu */}
                 <View style={styles.form}>
                     <Typo size={16} color={colors.textLight}>
-                        {t("Nhập email bạn đã đăng ký để nhận liên kết đặt lại mật khẩu.")}
+                        {("Nhập email bạn đã đăng ký để nhận liên kết đặt lại mật khẩu.")}
                     </Typo>
 
                     <Input
-                        placeholder={t("Nhập email của bạn")}
+                        placeholder={("Nhập email của bạn")}
                         onChangeText={(value) => (emailRef.current = value)}
                         icon={
                             <Icons.At
@@ -77,7 +77,7 @@ const ForgotPassword = () => {
 
                     <Button loading={isLoading} onPress={handleSendLink}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
-                            {t("Gửi liên kết")}
+                            {("Gửi liên kết")}
                         </Typo>
                     </Button>
                 </View>

@@ -15,10 +15,10 @@ import { limit, orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { useTranslation } from "react-i18next"; // 1. Import hook dịch
+
 
 const Home = () => {
-  const { t } = useTranslation(); // 2. Khai báo hàm t
+
   const { user } = useAuth();
   const router = useRouter();
   const { colors } = useTheme(); // Lấy bảng màu động
@@ -44,11 +44,11 @@ const Home = () => {
           <View style={{ gap: 4 }}>
             {/* Truyền màu chữ phụ (textLight) cho chữ Hello */}
             <Typo size={16} color={colors.textLight}>
-              {t("Hello,")}
+              {("Xin chào,")}
             </Typo>
-            {/* Không truyền màu => Tự động lấy chữ chính (text) từ Typo.tsx */}
+
             <Typo size={20} fontWeight="500">
-              {user?.name || t("Guest")}
+              {user?.name || ("Khách")}
             </Typo>
           </View>
 
@@ -73,8 +73,8 @@ const Home = () => {
           <TransactionList
             data={recentTransactions}
             loading={transactionsLoading}
-            emptyListMessage={t("No Transactions added yet!")}
-            title={t("Recent Transactions")}
+            emptyListMessage={("Chưa có giao dịch nào được thêm vào!")}
+            title={("Giao dịch gần đây")}
           />
 
         </ScrollView>

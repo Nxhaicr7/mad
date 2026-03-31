@@ -24,10 +24,10 @@ import {
 import { useTranslation } from "react-i18next"; // 1. Import hook dịch
 
 const WalletModal = () => {
-    const { t } = useTranslation(); // 2. Khai báo hàm t
+
     const { user, updateUserData } = useAuth();
     const router = useRouter();
-    const { colors } = useTheme(); // Lấy bảng màu động
+    const { colors } = useTheme();
 
     // state
     const [wallet, setWallet] = useState<WalletType>({
@@ -63,7 +63,7 @@ const WalletModal = () => {
     const onSubmit = async () => {
         let { name, image } = wallet;
         if (!name.trim()) {
-            Alert.alert(t("Wallet"), t("Please enter a wallet name"));
+            Alert.alert(("Vui lòng nhập tên ví"));
             return;
         }
 
@@ -79,7 +79,7 @@ const WalletModal = () => {
         if (res.success) {
             router.back();
         } else {
-            Alert.alert(t("Wallet"), res.msg);
+            Alert.alert(("Ví"), res.msg);
         }
     };
 
@@ -91,22 +91,22 @@ const WalletModal = () => {
         if (res.success) {
             router.back();
         } else {
-            Alert.alert(t("Wallet"), res.msg);
+            Alert.alert(("Ví"), res.msg);
         }
     };
 
     const showDeleteAlert = () => {
         Alert.alert(
-            t("Confirm"),
-            t("Are you sure you want to do this? \nThis action will remove all the transactions related to this wallet"),
+            ("Xác nhận"),
+            ("Bạn có chắc chắn muốn thực hiện việc này không?\n Thao tác này sẽ xóa tất cả các giao dịch liên quan đến ví này."),
             [
                 {
-                    text: t("Cancel"),
-                    onPress: () => console.log("cancel delete"),
+                    text: ("Hủy"),
+                    onPress: () => console.log("Đã hủy"),
                     style: "cancel"
                 },
                 {
-                    text: t("Delete"),
+                    text: ("Xóa"),
                     onPress: () => onDelete(),
                     style: "destructive"
                 }
@@ -119,16 +119,16 @@ const WalletModal = () => {
         <ModalWrapper>
             <View style={[styles.container, { backgroundColor: colors.background }]}>
                 <Header
-                    title={oldWallet?.id ? t("Update Wallet") : t("New Wallet")}
+                    title={oldWallet?.id ? ("Cập nhật ví") : ("Ví mới")}
                     leftIcon={<BackButton />}
                     style={{ marginBottom: spacingY._10 }}
                 />
 
                 <ScrollView contentContainerStyle={styles.form}>
                     <View style={styles.inputContainer}>
-                        <Typo color={colors.text}>{t("Wallet Name")}</Typo>
+                        <Typo color={colors.text}>{("Tên ví")}</Typo>
                         <Input
-                            placeholder={t("Salary")}
+                            placeholder={("Ngân sách")}
                             value={wallet.name}
                             onChangeText={(value) =>
                                 setWallet({ ...wallet, name: value })
@@ -136,12 +136,12 @@ const WalletModal = () => {
                         />
                     </View>
                     <View style={styles.inputContainer}>
-                        <Typo color={colors.text}>{t("Wallet Icon")}</Typo>
+                        <Typo color={colors.text}>{("Biểu tượng ví")}</Typo>
                         <ImageUpload
                             file={wallet.image}
                             onClear={() => setWallet({ ...wallet, image: null })}
                             onSelect={file => setWallet({ ...wallet, image: file })}
-                            placeholder={t("Upload Image")} />
+                            placeholder={("Tải ảnh lên")} />
                     </View>
                 </ScrollView>
             </View>
@@ -162,7 +162,7 @@ const WalletModal = () => {
                 )}
                 <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
                     <Typo color={colors.black} fontWeight={"700"}>
-                        {oldWallet?.id ? t("Update Wallet") : t("Add Wallet")}
+                        {oldWallet?.id ? ("Cập nhật ví") : ("Thêm ví")}
                     </Typo>
                 </Button>
             </View>

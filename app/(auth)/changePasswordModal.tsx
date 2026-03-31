@@ -11,11 +11,11 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useRef, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { useTranslation } from "react-i18next";
+
 
 const ChangePasswordModal = () => {
     const { colors } = useTheme();
-    const { t } = useTranslation();
+
     const router = useRouter();
 
     const { changePassword, logout } = useAuth();
@@ -30,17 +30,17 @@ const ChangePasswordModal = () => {
         const confirmPass = confirmPasswordRef.current;
 
         if (!newPass || !confirmPass) {
-            Alert.alert(t("Lỗi"), t("Vui lòng điền đầy đủ 2 ô mật khẩu!"));
+            Alert.alert(("Lỗi"), ("Vui lòng điền đầy đủ 2 ô mật khẩu!"));
             return;
         }
 
         if (newPass.length < 6) {
-            Alert.alert(t("Lỗi"), t("Mật khẩu phải có ít nhất 6 ký tự!"));
+            Alert.alert(("Lỗi"), ("Mật khẩu phải có ít nhất 6 ký tự!"));
             return;
         }
 
         if (newPass !== confirmPass) {
-            Alert.alert(t("Lỗi"), t("Hai mật khẩu không khớp nhau!"));
+            Alert.alert(("Lỗi"), ("Hai mật khẩu không khớp nhau!"));
             return;
         }
 
@@ -50,8 +50,8 @@ const ChangePasswordModal = () => {
 
         if (res.success) {
             Alert.alert(
-                t("Thành công"),
-                t("Đổi mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới."),
+                ("Thành công"),
+                ("Đổi mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới."),
                 [
                     {
                         text: "OK",
@@ -66,7 +66,7 @@ const ChangePasswordModal = () => {
                 ]
             );
         } else {
-            Alert.alert(t("Thất bại"), res.msg);
+            Alert.alert(("Thất bại"), res.msg);
         }
     };
 
@@ -76,18 +76,18 @@ const ChangePasswordModal = () => {
                 <View style={styles.header}>
                     <BackButton iconSize={28} />
                     <Typo size={20} fontWeight={"700"}>
-                        {t("Đổi mật khẩu")}
+                        {("Đổi mật khẩu")}
                     </Typo>
                     <View style={{ width: 28 }} />
                 </View>
 
                 <View style={styles.form}>
                     <Typo size={16} color={colors.textLight} style={{ marginBottom: 10 }}>
-                        {t("Mật khẩu mới của bạn phải có ít nhất 6 ký tự để đảm bảo an toàn.")}
+                        {("Mật khẩu mới của bạn phải có ít nhất 6 ký tự để đảm bảo an toàn.")}
                     </Typo>
 
                     <Input
-                        placeholder={t("Nhập mật khẩu mới")}
+                        placeholder={("Nhập mật khẩu mới")}
                         secureTextEntry
                         onChangeText={(value) => (newPasswordRef.current = value)}
                         icon={
@@ -100,7 +100,7 @@ const ChangePasswordModal = () => {
                     />
 
                     <Input
-                        placeholder={t("Xác nhận mật khẩu mới")}
+                        placeholder={("Xác nhận mật khẩu mới")}
                         secureTextEntry
                         onChangeText={(value) => (confirmPasswordRef.current = value)}
                         icon={
@@ -114,7 +114,7 @@ const ChangePasswordModal = () => {
 
                     <Button loading={isLoading} onPress={handleUpdate} style={{ marginTop: 10 }}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
-                            {t("Cập nhật")}
+                            {("Cập nhật")}
                         </Typo>
                     </Button>
                 </View>

@@ -15,35 +15,35 @@ import * as Icons from 'phosphor-react-native'
 import React from 'react'
 import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native'
 import Animated, { FadeInDown } from 'react-native-reanimated'
-import { useTranslation } from "react-i18next";
+
 
 const Profile = () => {
-    const { t } = useTranslation();
+
 
     const { colors } = useTheme();
     const { user, logout } = useAuth();
 
     const accountOptions: accountOptionType[] = [
         {
-            title: t("Edit Profile"),
+            title: ("Chỉnh sửa thông tin"),
             icon: <Icons.User size={26} color={colors.white} weight="fill" />,
             routeName: "/(modals)/profileModal",
             bgColor: "#6366f1",
         },
         {
-            title: t("Settings"),
+            title: ("Cài đặt"),
             icon: <Icons.GearSix size={26} color={colors.white} weight="fill" />,
             routeName: "/(modals)/settingsModal",
             bgColor: "#059669",
         },
         {
-            title: t("Privacy Policy"),
+            title: ("Chính sách bảo mật"),
             icon: <Icons.Lock size={26} color={colors.white} weight="fill" />,
             routeName: "/(modals)/privacyModal",
             bgColor: '#9ca3af'
         },
         {
-            title: t("Logout"),
+            title: ("Đăng xuất"),
             icon: <Icons.Power size={26} color={colors.white} weight="fill" />,
 
             bgColor: "#e11d48",
@@ -56,15 +56,15 @@ const Profile = () => {
 
     const showLogoutAlert = () => {
         Alert.alert(
-            t('Confirm Logout'),
-            t('Are you sure you want to log out?'),
+            ('Xác nhận đăng xuất ?'),
+            ('Bạn có chắc muốn đăng xuất ?'),
             [
                 {
-                    text: t('Cancel'),
+                    text: ('Hủy'),
                     style: 'cancel',
                 },
                 {
-                    text: t('Logout'),
+                    text: ('Đăng xuất'),
                     style: 'destructive',
 
                     onPress: async () => {
@@ -77,7 +77,7 @@ const Profile = () => {
     };
 
     const handlePress = (item: accountOptionType) => {
-        if (item.title == t('Logout')) {
+        if (item.title == ('Đăng xuất')) {
             showLogoutAlert();
         } else if (item.routeName) {
             router.push(item.routeName);

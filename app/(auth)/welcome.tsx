@@ -7,10 +7,10 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
-import { useTranslation } from "react-i18next";
+
 
 const Welcome = () => {
-  const { t } = useTranslation();
+
   const router = useRouter();
   return (
     <ScreenWrapper>
@@ -18,7 +18,7 @@ const Welcome = () => {
         {/* login button & image */}
         <View>
           <TouchableOpacity onPress={() => router.push('/(auth)/Login')} style={styles.loginButton}>
-            <Typo fontWeight={"500"}>{t("Sign in")}</Typo>
+            <Typo fontWeight={"500"}>{("Đăng kí")}</Typo>
           </TouchableOpacity>
 
           <Animated.Image
@@ -35,10 +35,10 @@ const Welcome = () => {
             style={{ alignItems: "center" }}
           >
             <Typo size={30} fontWeight={"800"}>
-              {t("Always take control")}
+              {("Luôn kiểm soát")}
             </Typo>
             <Typo size={30} fontWeight={"800"}>
-              {t("of your finances")}
+              {("tài chính của ban")}
             </Typo>
           </Animated.View>
 
@@ -47,10 +47,10 @@ const Welcome = () => {
             style={{ alignItems: "center", gap: 2 }}
           >
             <Typo size={17} color={colors.textLight}>
-              {t("Finances must be arranged to set a better")}
+              {("Luôn sắp xếp tài chính để xây dựng một cuộc sống")}
             </Typo>
             <Typo size={17} color={colors.textLight}>
-              {t("lifestyle in future")}
+              {("tốt đẹp hơn trong tương lai")}
             </Typo>
           </Animated.View>
 
@@ -63,7 +63,7 @@ const Welcome = () => {
           >
             <Button onPress={() => router.push('/(auth)/Register')}>
               <Typo size={22} color={colors.neutral900} fontWeight={600}>
-                {t("Get Started")}
+                {("Bắt đầu nào")}
               </Typo>
             </Button>
           </Animated.View>
