@@ -1,17 +1,154 @@
-import ScreenWrapper from '@/components/ScreenWrapper'
-import { colors, radius, spacingX, spacingY } from '@/constants/theme'
-import { scale, verticalScale } from '@/utils/styling'
-import React from 'react'
-import { StyleSheet, Text } from 'react-native'
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet, View, Text } from "react-native";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { BarChart } from "react-native-gifted-charts";
 
+import Header from "@/components/Header";
+import Loading from "@/components/Loading";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import TransactionList from "@/components/TransactionList";
+import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { useAuth } from "@/contexts/authContext";
+import {
+  fetchMonthlyStats,
+  fetchWeeklyStats,
+  fetchYearlyStats,
+} from "@/services/transactionService";
+import { scale, verticalScale } from "@/utils/styling";
 
 const Statistics = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [chartData, setChartData] = useState([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+
+  const { user } = useAuth();
+
+  const getWeeklyStats = async () => {
+    setChartLoading(true);
+    let res = await fetchWeeklyStats(user?.uid as string);
+    setChartLoading(false);
+    if (res.success) {
+      setChartData(res?.data?.stats);
+      setTransactions(res?.data?.transactions);
+    } else {
+      Alert.alert("Lỗi", res.msg);
+    }
+  };
+
+  const getMonthlyStats = async () => {
+    setChartLoading(true);
+    let res = await fetchMonthlyStats(user?.uid as string);
+    setChartLoading(false);
+    if (res.success) {
+      setChartData(res?.data?.stats);
+      setTransactions(res?.data?.transactions);
+    } else {
+      Alert.alert("Lỗi", res.msg);
+    }
+  };
+
+  const getYearlyStats = async () => {
+    setChartLoading(true);
+    let res = await fetchYearlyStats(user?.uid as string);
+    setChartLoading(false);
+    if (res.success) {
+      setChartData(res?.data?.stats);
+      setTransactions(res?.data?.transactions);
+    } else {
+      Alert.alert("Lỗi", res.msg);
+    }
+  };
+
+  useEffect(() => {
+    if (activeIndex === 0) {
+      getWeeklyStats();
+    }
+    if (activeIndex === 1) {
+      getMonthlyStats();
+    }
+    if (activeIndex === 2) {
+      getYearlyStats();
+    }
+  }, [activeIndex]);
+
   return (
     <ScreenWrapper>
-      <Text>Statistics</Text>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Header title="Thống kê" showNotification />
+        </View>
+
+        {/* Thanh tuần/tháng/năm */}
+        <ScrollView
+          contentContainerStyle={{
+            gap: spacingY._20,
+            paddingTop: spacingY._5,
+            paddingBottom: verticalScale(100),
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <SegmentedControl
+            values={["Tuần", "Tháng", "Năm"]}
+            selectedIndex={activeIndex}
+            onChange={(event) => {
+              setActiveIndex(event.nativeEvent.selectedSegmentIndex);
+            }}
+            tintColor={colors.neutral200}
+            backgroundColor={colors.neutral800}
+            appearance="dark"
+            activeFontStyle={styles.segmentFontStyle}
+            style={styles.segmentStyle}
+            fontStyle={{ ...styles.segmentFontStyle, color: colors.white }}
+          />
+
+          <View style={styles.chartContainer}>
+            {chartData.length > 0 ? (
+              <BarChart
+                data={chartData}
+                barWidth={scale(12)}
+                spacing={[1, 2].includes(activeIndex) ? scale(25) : scale(16)}
+                roundedBottom
+                roundedTop
+                hideRules
+                yAxisLabelSuffix="đ"
+                yAxisThickness={0}
+                xAxisThickness={0}
+                yAxisLabelWidth={scale(45)}
+                yAxisTextStyle={{ color: colors.neutral350 }}
+                xAxisLabelTextStyle={{
+                  color: colors.neutral350,
+                  fontSize: verticalScale(12),
+                }}
+                noOfSections={3}
+                minHeight={5}
+              // isAnimated={true}
+              // animationDuration={1000}
+              />
+            ) : (
+              <View style={styles.noChart} />
+            )}
+
+            {chartLoading && (
+              <View style={styles.chartLoadingContainer}>
+                <Loading color={colors.white} />
+              </View>
+            )}
+          </View>
+
+          {/* Danh sách giao dịch */}
+          <View>
+            <TransactionList
+              title="Giao dịch"
+              emptyListMessage="Không tìm thấy giao dịch nào"
+              data={transactions}
+            />
+          </View>
+        </ScrollView>
+      </View>
     </ScreenWrapper>
-  )
-}
+  );
+};
 
 export default Statistics;
 
@@ -21,22 +158,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   chartLoadingContainer: {
     position: "absolute",
     width: "100%",
     height: "100%",
     borderRadius: radius._12,
     backgroundColor: "rgba(0,0,0,0.6)",
+    alignItems: "center",
+    justifyContent: "center",
   },
-
   header: {},
-
   noChart: {
     backgroundColor: "rgba(0,0,0,0.6)",
     height: verticalScale(210),
+    width: "100%",
+    borderRadius: radius._12,
   },
-
   searchIcon: {
     backgroundColor: colors.neutral700,
     alignItems: "center",
@@ -46,17 +183,14 @@ const styles = StyleSheet.create({
     width: verticalScale(35),
     borderCurve: "continuous",
   },
-
   segmentStyle: {
     height: scale(37),
   },
-
   segmentFontStyle: {
     fontSize: verticalScale(13),
     fontWeight: "bold",
     color: colors.black,
   },
-
   container: {
     paddingHorizontal: spacingX._20,
     paddingVertical: spacingY._5,
