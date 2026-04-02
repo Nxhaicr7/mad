@@ -69,7 +69,7 @@ const Login = () => {
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.textLight} // 👈 Đổi cho nét hơn
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }
@@ -82,7 +82,7 @@ const Login = () => {
                         icon={
                             <Icons.Lock
                                 size={verticalScale(26)}
-                                color={colors.textLight} // 👈 Đổi cho nét hơn
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }
@@ -113,7 +113,7 @@ const Login = () => {
                 {/* Social Buttons - Fix viền nút */}
                 <View style={styles.socialContainer}>
                     <TouchableOpacity
-                        style={[styles.socialButton, { borderColor: colors.border }]} // 👈 Dùng colors.border
+                        style={[styles.socialButton, { borderColor: colors.border }]}
                         onPress={handleGoogleLogin}
                     >
                         <Icons.GoogleLogo size={verticalScale(24)} color={colors.text} weight="bold" />
@@ -123,7 +123,7 @@ const Login = () => {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.socialButton, { borderColor: colors.border }]} // 👈 Dùng colors.border
+                        style={[styles.socialButton, { borderColor: colors.border }]}
                         onPress={handleFacebookLogin}
                     >
                         <Icons.FacebookLogo size={verticalScale(24)} color="#1877F2" weight="fill" />

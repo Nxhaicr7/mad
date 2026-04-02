@@ -1,5 +1,5 @@
 import Loading from "@/components/Loading";
-import { radius } from "@/constants/theme"; // Bỏ import colors tĩnh đi
+import { radius } from "@/constants/theme";
 import { CustomButtonProps } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import React from "react";
@@ -24,7 +24,7 @@ const Button = ({
     return (
         <TouchableOpacity
             onPress={onPress}
-            // 👈 Bơm màu sống vào đây
+
             style={[styles.button, { backgroundColor: colors.primary }, style]}
         >
             {children}

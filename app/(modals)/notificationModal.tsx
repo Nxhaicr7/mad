@@ -3,9 +3,9 @@ import Header from "@/components/Header";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { firestore } from "@/config/firebase";
-import { radius, spacingX, spacingY } from "@/constants/theme"; // 👈 Bỏ import colors tĩnh
+import { radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { useTheme } from "@/contexts/themeContext"; // 👈 Thêm máy dò theme
+import { useTheme } from "@/contexts/themeContext";
 import { NotificationType } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import {
@@ -30,7 +30,7 @@ import {
 
 const PAGE_SIZE = 10;
 
-// --- Helper Functions (Giữ nguyên logic của bro) ---
+
 const getCreatedDate = (value: NotificationType["created"]): Date | null => {
   if (!value) return null;
   if (value instanceof Date) return value;
@@ -54,7 +54,7 @@ const sortByCreatedDesc = (items: NotificationType[]) => {
 
 const NotificationModal = () => {
   const { user } = useAuth();
-  const { colors, isDarkMode } = useTheme(); // 👈 Lấy bảng màu sống
+  const { colors, isDarkMode } = useTheme();
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -183,7 +183,7 @@ const NotificationModal = () => {
   );
 };
 
-// ❗ BẮT BUỘC PHẢI CÓ DÒNG NÀY ĐỂ FIX LỖI "MISSING DEFAULT EXPORT"
+
 export default NotificationModal;
 
 const styles = StyleSheet.create({

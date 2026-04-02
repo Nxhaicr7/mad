@@ -9,7 +9,7 @@ const isIos = Platform.OS == "ios";
 const ModalWrapper = ({
     style,
     children,
-    bg, // Nhận prop bg như cũ
+    bg,
 }: ModalWrapperProps) => {
     const { colors } = useTheme();
 

@@ -15,11 +15,11 @@ import { Alert, StyleSheet, View } from "react-native";
 
 const ForgotPassword = () => {
 
-    const { colors } = useTheme(); // 👈 Vũ khí bí mật cho Dark/Light mode
+    const { colors } = useTheme();
     const emailRef = useRef("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const { resetPassword } = useAuth(); // Lấy hàm reset từ Context
+    const { resetPassword } = useAuth();
 
     const handleSendLink = async () => {
         if (!emailRef.current) {
@@ -35,7 +35,7 @@ const ForgotPassword = () => {
             Alert.alert(
                 ("Thành công"),
                 res.msg,
-                [{ text: "OK", onPress: () => router.back() }] // Gửi xong thì tự động lùi về màn Login
+                [{ text: "OK", onPress: () => router.back() }]
             );
         } else {
             Alert.alert(("Lỗi"), res.msg);

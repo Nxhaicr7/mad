@@ -3,9 +3,9 @@ import Button from "@/components/Button";
 import Input from "@/components/Input";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
-import { spacingX, spacingY } from "@/constants/theme"; // ⚠️ Đã bỏ import colors tĩnh
+import { spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { useTheme } from "@/contexts/themeContext"; // 👈 Thêm import useTheme
+import { useTheme } from "@/contexts/themeContext";
 import { verticalScale } from "@/utils/styling";
 import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
@@ -76,7 +76,7 @@ const Register = () => {
                         icon={
                             <Icons.User
                                 size={verticalScale(26)}
-                                color={colors.textLight} // 👈 Sửa cho nét
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }
@@ -88,7 +88,7 @@ const Register = () => {
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.textLight} // 👈 Sửa cho nét
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }
@@ -101,7 +101,7 @@ const Register = () => {
                         icon={
                             <Icons.Lock
                                 size={verticalScale(26)}
-                                color={colors.textLight} // 👈 Sửa cho nét
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }

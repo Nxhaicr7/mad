@@ -4,9 +4,9 @@ import Header from "@/components/Header";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
-import { radius, spacingX, spacingY } from "@/constants/theme"; // 👈 Đã bỏ import colors tĩnh
+import { radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { useTheme } from "@/contexts/themeContext"; // 👈 Gọi máy dò theme
+import { useTheme } from "@/contexts/themeContext";
 import { getProfileImage } from "@/services/imageServices";
 import { updateUser } from "@/services/userServices";
 import { UserDataType } from "@/types";
@@ -26,7 +26,7 @@ import {
 
 const ProfileModal = () => {
   const { user, updateUserData } = useAuth();
-  const { colors, isDarkMode } = useTheme(); // 👈 Lấy bảng màu sống
+  const { colors, isDarkMode } = useTheme();
   const router = useRouter();
 
   const [userData, setUserData] = useState<UserDataType>({
@@ -38,7 +38,7 @@ const ProfileModal = () => {
   const onPickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      aspect: [1, 1], // Profile nên để 1:1 cho tròn
+      aspect: [1, 1],
       quality: 0.5,
     });
 
@@ -96,7 +96,7 @@ const ProfileModal = () => {
             >
               <Icons.Pencil
                 size={verticalScale(20)}
-                color={colors.primary} // Để màu xanh cho nổi bật
+                color={colors.primary}
                 weight="bold"
               />
             </TouchableOpacity>

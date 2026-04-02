@@ -23,7 +23,7 @@ const TransactionList = ({
 }: TransactionListType) => {
   const router = useRouter();
 
-  // 1. Lấy LUÔN isDarkMode từ ThemeContext, khỏi cần dò màu chi cho mệt!
+
   const { colors, isDarkMode } = useTheme();
 
   const handleClick = (item: TransactionType) => {
@@ -67,7 +67,7 @@ const TransactionList = ({
         {!loading && data?.length === 0 && (
           <Typo
             size={15}
-            // Sáng thì chữ xám đậm (#666666), Tối thì chữ xám nhạt (colors.neutral400)
+
             color={isDarkMode ? colors.neutral400 : '#666666'}
             style={{ textAlign: "center", marginTop: spacingY._15 }}
           >
@@ -91,7 +91,7 @@ const TransactionItem = ({
   handleClick,
 }: TransactionItemProps) => {
 
-  // 2. Tương tự, gọi isDarkMode cho cái Item
+
   const { colors, isDarkMode } = useTheme();
 
   let category =
@@ -114,7 +114,7 @@ const TransactionItem = ({
       <TouchableOpacity
         style={[
           styles.row,
-          // Dùng bảng màu surface (bề mặt thẻ) thay vì gán màu chết
+
           { backgroundColor: colors.surface }
         ]}
         onPress={() => handleClick(item)}
@@ -133,7 +133,7 @@ const TransactionItem = ({
           <Typo size={17}>{category.label}</Typo>
           <Typo
             size={12}
-            // Text mô tả mờ đi một chút
+
             color={isDarkMode ? colors.neutral400 : '#666666'}
             textProps={{ numberOfLines: 1 }}
           >
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     padding: spacingY._10,
     borderRadius: radius._17,
     paddingHorizontal: spacingX._10,
-    // Giữ lại phần đổ bóng cho thẻ có chiều sâu
+
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,

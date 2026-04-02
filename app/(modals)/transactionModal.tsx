@@ -6,9 +6,9 @@ import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { expenseCategories, transactionTypes } from "@/constants/data";
-import { radius, spacingX, spacingY } from "@/constants/theme"; // 👈 Bỏ colors tĩnh
+import { radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { useTheme } from "@/contexts/themeContext"; // 👈 Vũ khí mới
+import { useTheme } from "@/contexts/themeContext";
 import useFetchData from "@/hooks/useFetchData";
 import { createNotification } from "@/services/notificationService";
 import {
@@ -37,7 +37,7 @@ import { Dropdown } from "react-native-element-dropdown";
 
 const TransactionModal = () => {
   const { user } = useAuth();
-  const { colors, isDarkMode } = useTheme(); // 👈 Lấy màu động ở đây
+  const { colors, isDarkMode } = useTheme();
 
   const [transaction, setTransaction] = useState({
     type: "expense",
