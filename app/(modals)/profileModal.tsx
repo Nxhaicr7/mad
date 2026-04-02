@@ -16,14 +16,17 @@ import { useRouter } from "expo-router";
 import * as Icons from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
+
 const ProfileModal = () => {
+
+
   // hooks
   const { user, updateUserData } = useAuth();
   const router = useRouter();
@@ -56,7 +59,8 @@ const ProfileModal = () => {
     let { name } = userData;
 
     if (!name.trim()) {
-      Alert.alert("Người dùng", "Vui lòng nhập đầy đủ thông tin");
+
+      Alert.alert(("Vui lòng nhập đủ thông tin"));
       return;
     }
 
@@ -70,7 +74,7 @@ const ProfileModal = () => {
       updateUserData(user?.uid as string);
       router.back();
     } else {
-      Alert.alert("Người dùng", res.msg);
+      Alert.alert(("Người dùng"), res.msg);
     }
   };
 
@@ -87,7 +91,7 @@ const ProfileModal = () => {
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Cập nhật hồ sơ"
+          title={("Cập nhật thông tin")}
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -110,9 +114,9 @@ const ProfileModal = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>Tên</Typo>
+            <Typo color={colors.neutral200}>{("Tên")}</Typo>
             <Input
-              placeholder="Tên của bạn"
+              placeholder={("Tên")} // t() cho placeholder
               value={userData.name}
               onChangeText={(value) =>
                 setUserData({ ...userData, name: value })
@@ -125,7 +129,7 @@ const ProfileModal = () => {
       <View style={styles.footer}>
         <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
           <Typo color={colors.black} fontWeight={"700"}>
-            Cập nhật
+            {("Cập nhật")}
           </Typo>
         </Button>
       </View>

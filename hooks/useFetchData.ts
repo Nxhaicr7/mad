@@ -1,40 +1,71 @@
 import { firestore } from "@/config/firebase";
-import { collection, onSnapshot, query, QueryConstraint } from "firebase/firestore";
-import { useEffect, useState } from 'react';
-import { StyleSheet } from "react-native";
+import {
+  collection,
+  onSnapshot,
+  query,
+  QueryConstraint,
+} from "firebase/firestore";
+import { useEffect, useState } from "react";
 
 const useFetchData = <T>(
-    collectionName: string,
-    constraints: QueryConstraint[] = []
-
+  collectionName: string,
+  constraints: QueryConstraint[] = [],
 ) => {
-    const [data, setData] = useState<T[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<T[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!collectionName) return;
-        const collectionRef = collection(firestore, collectionName);
-        const q = query(collectionRef, ...constraints)
-        const unsub = onSnapshot(q,(snapshot) =>{
-            const fetchData = snapshot.docs.map(doc=>{
-                return {
-                    id: doc.id,
-                    ...doc.data()
-                };
-            }) as T[];
-            setData(fetchData);
-            setLoading(false);
-        }, (err)=>{
-            console.log('Error fetching data: ', err);
-            setError(err.message);
-            setLoading(false);
-        });
-        return ()=>unsub();
-    },[])
-    return {data, loading, error};
-}
+  useEffect(() => {
+    // 1. Chặn nếu không có tên collection (tránh lỗi thừa)
+    if (!collectionName) {
+      setLoading(false);
+      return;
+    }
 
-    export default useFetchData
+    let unsub = () => {};
 
-    const styles = StyleSheet.create({})
+    try {
+      const collectionRef = collection(firestore, collectionName);
+
+      // 2. Tạo query. Nếu constraints có chứa undefined, Firebase có thể văng lỗi
+      // Chúng ta bọc trong try-catch để app không bị crash trắng màn hình
+      const q = query(collectionRef, ...constraints);
+
+      setLoading(true); // Bắt đầu load dữ liệu mới
+
+      unsub = onSnapshot(
+        q,
+        (snapshot) => {
+          const fetchedData = snapshot.docs.map((doc) => {
+            return {
+              id: doc.id,
+              ...doc.data(),
+            };
+          }) as T[];
+
+          setData(fetchedData);
+          setLoading(false);
+          setError(null);
+        },
+        (err) => {
+          console.log("Error fetching data: ", err);
+          setError(err.message);
+          setLoading(false);
+        },
+      );
+    } catch (err: any) {
+      // 3. Nếu query lỗi (do chưa có UID), ta im lặng đợi lần render sau
+      console.log("Waiting for valid query constraints...");
+      setLoading(false);
+    }
+
+    return () => unsub();
+
+    // CỰC KỲ QUAN TRỌNG: Lắng nghe sự thay đổi của constraints và collectionName
+    // Dùng JSON.stringify để so sánh nội dung mảng thay vì so sánh địa chỉ ô nhớ (reference)
+  }, [collectionName, JSON.stringify(constraints)]);
+
+  return { data, loading, error };
+};
+
+export default useFetchData;

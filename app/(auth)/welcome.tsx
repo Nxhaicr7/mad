@@ -7,18 +7,18 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+
+
 const Welcome = () => {
+
   const router = useRouter();
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         {/* login button & image */}
         <View>
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/Login")}
-            style={styles.loginButton}
-          >
-            <Typo fontWeight={"500"}>Đăng nhập</Typo>
+          <TouchableOpacity onPress={() => router.push('/(auth)/Login')} style={styles.loginButton}>
+            <Typo fontWeight={"500"}>{("Đăng kí")}</Typo>
           </TouchableOpacity>
 
           <Animated.Image
@@ -35,25 +35,22 @@ const Welcome = () => {
             style={{ alignItems: "center" }}
           >
             <Typo size={30} fontWeight={"800"}>
-              Luôn kiểm soát
+              {("Luôn kiểm soát")}
             </Typo>
             <Typo size={30} fontWeight={"800"}>
-              tài chính của bạn
+              {("tài chính của ban")}
             </Typo>
           </Animated.View>
 
           <Animated.View
-            entering={FadeInDown.duration(1000)
-              .delay(100)
-              .springify()
-              .damping(12)}
+            entering={FadeInDown.duration(1000).delay(100).springify().damping(12)}
             style={{ alignItems: "center", gap: 2 }}
           >
             <Typo size={17} color={colors.textLight}>
-              Tài chính ổn định giúp bạn có một
+              {("Luôn sắp xếp tài chính để xây dựng một cuộc sống")}
             </Typo>
             <Typo size={17} color={colors.textLight}>
-              cuộc sống tốt đẹp hơn
+              {("tốt đẹp hơn trong tương lai")}
             </Typo>
           </Animated.View>
 
@@ -64,15 +61,15 @@ const Welcome = () => {
               .damping(12)}
             style={styles.buttonContainer}
           >
-            <Button onPress={() => router.push("/(auth)/Register")}>
+            <Button onPress={() => router.push('/(auth)/Register')}>
               <Typo size={22} color={colors.neutral900} fontWeight={600}>
-                Bắt đầu ngay
+                {("Bắt đầu nào")}
               </Typo>
             </Button>
           </Animated.View>
         </View>
       </View>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 };
 

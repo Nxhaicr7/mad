@@ -148,9 +148,17 @@ export type AuthContextType = {
     password: string,
     name: string,
   ) => Promise<{ success: boolean; msg?: string }>;
+
+  loginWithGoogle: () => Promise<{ success: boolean; msg?: string }>;
+  resetPassword: (email: string) => Promise<{ success: boolean; msg?: string }>;
   updateUserData: (userId: string) => Promise<void>;
+  logout: () => Promise<void>;
+  changePassword: (
+    newPassword: string,
+  ) => Promise<{ success: boolean; msg?: string }>;
 };
 
+// ... các đoạn code bên dưới giữ nguyên
 export type ResponseType = {
   success: boolean;
   data?: any;

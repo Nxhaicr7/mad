@@ -6,6 +6,7 @@ import TransactionList from "@/components/TransactionList";
 import Typo from "@/components/Typo";
 import { colors, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext"; // Thêm dòng này
 import useFetchData from "@/hooks/useFetchData";
 import { TransactionType } from "@/types";
 import { verticalScale } from "@/utils/styling";
@@ -15,9 +16,12 @@ import * as Icons from "phosphor-react-native";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
+
 const Home = () => {
+
   const { user } = useAuth();
   const router = useRouter();
+  const { colors } = useTheme(); // Lấy bảng màu động
 
   const constraints = [
     where("uid", "==", user?.uid),
@@ -27,41 +31,38 @@ const Home = () => {
 
   const {
     data: recentTransactions,
-    error,
     loading: transactionsLoading,
-  } = useFetchData<TransactionType>("transactions", constraints);
-
+  } = useFetchData<TransactionType>(
+    user?.uid ? "transactions" : "", // 👈 Chỉ truyền tên collection khi đã có UID
+    constraints
+  );
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         {/* header */}
         <View style={styles.header}>
           <View style={{ gap: 4 }}>
-            <Typo size={16} color={colors.neutral400}>
-              Xin chào,
+            {/* Truyền màu chữ phụ (textLight) cho chữ Hello */}
+            <Typo size={16} color={colors.textLight}>
+              {("Xin chào,")}
             </Typo>
+
             <Typo size={20} fontWeight="500">
-              {user?.name || "Khách"}
+              {user?.name || ("Khách")}
             </Typo>
           </View>
 
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              onPress={() => router.push("/(modals)/searchModal")}
-              style={styles.searchIcon}
-            >
-              <Icons.MagnifyingGlass
-                size={verticalScale(22)}
-                color={colors.neutral200}
-                weight="bold"
-              />
-            </TouchableOpacity>
-            <NotificationBell />
-          </View>
+          <TouchableOpacity style={styles.searchIcon}>
+            <Icons.MagnifyingGlass
+              size={verticalScale(22)}
+              color={colors.neutral200}
+              weight="bold"
+            />
+          </TouchableOpacity>
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollViewStyle} // sửa tên style cho khớp
+          contentContainerStyle={styles.scrollViewStyle}
           showsVerticalScrollIndicator={false}
         >
           {/* card */}
@@ -72,19 +73,19 @@ const Home = () => {
           <TransactionList
             data={recentTransactions}
             loading={transactionsLoading}
-            emptyListMessage="Chưa có giao dịch nào!"
-            title="Giao dịch gần đây"
+            emptyListMessage={("Chưa có giao dịch nào được thêm vào!")}
+            title={("Giao dịch gần đây")}
           />
 
-          {/* thêm các phần khác nếu có */}
         </ScrollView>
 
         <Button
           style={styles.floatingButton}
           onPress={() => router.push("/(modals)/transactionModal")}
         >
+          {/* Icon dấu + giữ màu đen vì nút thêm thường giữ nguyên một màu nền sáng */}
           <Icons.Plus
-            color={colors.black}
+            color={"#000"}
             weight="bold"
             size={verticalScale(24)}
           />
@@ -111,7 +112,6 @@ const styles = StyleSheet.create({
   },
 
   searchIcon: {
-    backgroundColor: colors.neutral700,
     padding: spacingX._10,
     borderRadius: 50,
   },

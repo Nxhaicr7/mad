@@ -1,10 +1,11 @@
-import { colors } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Image, StyleSheet, View } from "react-native";
+import { useTheme } from "@/contexts/themeContext"; // Import hook theme
 
-const index = () => {
+const Index = () => {
   const router = useRouter();
+  const { colors } = useTheme(); // Lấy bảng màu động
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -14,7 +15,8 @@ const index = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    // Dùng mảng [styles.container, { backgroundColor: ... }] để ghi đè màu nền tĩnh
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Image
         style={styles.logo}
         resizeMode="contain"
@@ -24,18 +26,17 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.neutral900,
+
   },
   logo: {
     height: "20%",
     aspectRatio: 1,
-
   },
 });
