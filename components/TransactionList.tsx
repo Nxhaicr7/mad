@@ -1,9 +1,9 @@
 import { expenseCategories, incomeCategory } from "@/constants/data";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { radius, spacingX, spacingY } from "@/constants/theme";
 import {
-    TransactionItemProps,
-    TransactionListType,
-    TransactionType,
+  TransactionItemProps,
+  TransactionListType,
+  TransactionType,
 } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import { FlashList } from "@shopify/flash-list";
@@ -13,6 +13,7 @@ import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Loading from "./Loading";
 import Typo from "./Typo";
+import { useTheme } from "@/contexts/themeContext";
 
 const TransactionList = ({
   data,
@@ -21,6 +22,9 @@ const TransactionList = ({
   emptyListMessage,
 }: TransactionListType) => {
   const router = useRouter();
+
+  // 1. Lấy LUÔN isDarkMode từ ThemeContext, khỏi cần dò màu chi cho mệt!
+  const { colors, isDarkMode } = useTheme();
 
   const handleClick = (item: TransactionType) => {
     router.push({
@@ -41,14 +45,12 @@ const TransactionList = ({
 
   return (
     <View style={styles.container}>
-      {/* Title */}
       {title && (
         <Typo size={20} fontWeight="500" style={{ marginBottom: spacingY._10 }}>
           {title}
         </Typo>
       )}
 
-      {/* List container with background */}
       <View style={styles.list}>
         <FlashList
           data={data}
@@ -59,15 +61,14 @@ const TransactionList = ({
               handleClick={handleClick}
             />
           )}
-          // estimatedItemSize={60}
           keyExtractor={(item, index) => String(item?.id || index)}
         />
 
-        {/* Empty state khi không loading và data rỗng */}
         {!loading && data?.length === 0 && (
           <Typo
             size={15}
-            color={colors.neutral400}
+            // Sáng thì chữ xám đậm (#666666), Tối thì chữ xám nhạt (colors.neutral400)
+            color={isDarkMode ? colors.neutral400 : '#666666'}
             style={{ textAlign: "center", marginTop: spacingY._15 }}
           >
             {emptyListMessage}
@@ -76,7 +77,7 @@ const TransactionList = ({
 
         {loading && (
           <View style={{ top: verticalScale(100) }}>
-            <Loading />
+            <Loading color={colors.primary} />
           </View>
         )}
       </View>
@@ -89,6 +90,10 @@ const TransactionItem = ({
   index,
   handleClick,
 }: TransactionItemProps) => {
+
+  // 2. Tương tự, gọi isDarkMode cho cái Item
+  const { colors, isDarkMode } = useTheme();
+
   let category =
     item?.type == "income" ? incomeCategory : expenseCategories[item.category!];
   const IconComponent = category.icon;
@@ -106,23 +111,30 @@ const TransactionItem = ({
         .springify()
         .damping(14)}
     >
-      <TouchableOpacity style={styles.row} onPress={() => handleClick(item)}>
+      <TouchableOpacity
+        style={[
+          styles.row,
+          // Dùng bảng màu surface (bề mặt thẻ) thay vì gán màu chết
+          { backgroundColor: colors.surface }
+        ]}
+        onPress={() => handleClick(item)}
+      >
         <View style={[styles.icon, { backgroundColor: category.bgColor }]}>
           {IconComponent && (
             <IconComponent
               size={verticalScale(25)}
               weight="fill"
-              color={colors.white}
+              color={"#ffffff"}
             />
           )}
         </View>
 
         <View style={styles.categoryDes}>
           <Typo size={17}>{category.label}</Typo>
-
           <Typo
             size={12}
-            color={colors.neutral400}
+            // Text mô tả mờ đi một chút
+            color={isDarkMode ? colors.neutral400 : '#666666'}
             textProps={{ numberOfLines: 1 }}
           >
             {item?.description}
@@ -132,12 +144,12 @@ const TransactionItem = ({
         <View style={styles.amountDate}>
           <Typo
             fontWeight={"500"}
-            color={item?.type === "income" ? colors.primary : colors.rose}
+            color={item?.type === "income" ? colors.green : colors.rose}
           >
             {`${item?.type === "income" ? "+ " : "- "}${item?.amount.toLocaleString("vi-VN")}đ`}
           </Typo>
 
-          <Typo size={13} color={colors.neutral400}>
+          <Typo size={13} color={isDarkMode ? colors.neutral400 : '#666666'}>
             {date}
           </Typo>
         </View>
@@ -151,46 +163,40 @@ export default TransactionList;
 const styles = StyleSheet.create({
   container: {
     gap: spacingY._17,
-    // flex: 1,               // uncomment nếu cần full height
-    // backgroundColor: 'red', // debug
   },
-
   list: {
-    // list with background
     minHeight: 3,
   },
-
-  // các style khác bạn định nghĩa thêm (dùng trong TransactionItem)
   icon: {
     height: verticalScale(44),
     aspectRatio: 1,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: radius._12,
-    borderCurve: "continuous", // chỉ có trong tamagui / react-native-reanimated
+    borderCurve: "continuous",
   },
-
   categoryDes: {
     flex: 1,
     gap: 2.5,
   },
-
   amountDate: {
     alignItems: "flex-end",
     gap: 3,
   },
-
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     gap: spacingX._12,
     marginBottom: spacingY._12,
-
-    //
-    backgroundColor: colors.neutral800,
     padding: spacingY._10,
     borderRadius: radius._17,
     paddingHorizontal: spacingX._10,
+    // Giữ lại phần đổ bóng cho thẻ có chiều sâu
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });

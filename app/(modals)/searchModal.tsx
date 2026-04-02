@@ -3,8 +3,9 @@ import Header from "@/components/Header";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import TransactionList from "@/components/TransactionList";
-import { colors, spacingY } from "@/constants/theme";
+import { spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext";
 import useFetchData from "@/hooks/useFetchData";
 import { TransactionType } from "@/types";
 import { useRouter } from "expo-router";
@@ -13,8 +14,8 @@ import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
 const SearchModal = () => {
-  const { user, updateUserData } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const { colors, isDarkMode } = useTheme();
   const [search, setSearch] = useState("");
 
   const router = useRouter();
@@ -23,27 +24,24 @@ const SearchModal = () => {
 
   const {
     data: allTransactions,
-    error,
     loading: transactionsLoading,
   } = useFetchData<TransactionType>("transactions", constraints);
 
   const filteredTransactions = allTransactions.filter((item) => {
     if (search.length > 1) {
-      if (
-        item.category?.toLowerCase()?.includes(search.toLowerCase()) ||
-        item.type?.toLowerCase()?.includes(search.toLowerCase()) ||
-        item.description?.toLowerCase()?.includes(search.toLowerCase())
-      ) {
-        return true;
-      }
-      return false;
+      const searchLower = search.toLowerCase();
+      return (
+        item.category?.toLowerCase()?.includes(searchLower) ||
+        item.type?.toLowerCase()?.includes(searchLower) ||
+        item.description?.toLowerCase()?.includes(searchLower)
+      );
     }
     return true;
   });
 
-  // UI
   return (
-    <ModalWrapper style={{ backgroundColor: colors.neutral900 }}>
+
+    <ModalWrapper style={{ backgroundColor: colors.background }}>
       <View style={styles.container}>
         <Header
           title={"Tìm kiếm"}
@@ -51,17 +49,23 @@ const SearchModal = () => {
           style={{ marginBottom: spacingY._10 }}
         />
 
-        <ScrollView contentContainerStyle={styles.form}>
+        <ScrollView contentContainerStyle={styles.form} showsVerticalScrollIndicator={false}>
           <View style={styles.inputContainer}>
+            {/* 🛠️ FIX 2: Ô Input tự đổi màu nền và màu chữ */}
             <Input
-              placeholder="Nhập từ khóa..."
+              placeholder="Nhập từ khóa (tên, danh mục...)"
               value={search}
-              placeholderTextColor={colors.neutral400}
-              containerStyle={{ backgroundColor: colors.neutral800 }}
+              placeholderTextColor={colors.textLighter}
+              containerStyle={{
+                backgroundColor: isDarkMode ? colors.neutral800 : colors.neutral200,
+                borderColor: colors.border
+              }}
               onChangeText={(value) => setSearch(value)}
             />
           </View>
+
           <View>
+            {/* TransactionList bên trong đã được anh em mình fix theme rồi nên cứ thế dùng thôi */}
             <TransactionList
               loading={transactionsLoading}
               data={filteredTransactions}
@@ -79,19 +83,12 @@ export default SearchModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
     paddingHorizontal: spacingY._20,
-    // paddingVertical: spacingY._30,
   },
   form: {
     gap: spacingY._30,
     marginTop: spacingY._15,
   },
-  avatarContainer: {
-    position: "relative",
-    alignSelf: "center",
-  },
-
   inputContainer: {
     gap: spacingY._10,
   },

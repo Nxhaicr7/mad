@@ -47,10 +47,10 @@ const Welcome = () => {
             style={{ alignItems: "center", gap: 2 }}
           >
             <Typo size={17} color={colors.textLight}>
-              {("Luôn sắp xếp tài chính để xây dựng một cuộc sống")}
+              {("Luôn sắp xếp tài chính để xây dựng một cuộc")}
             </Typo>
             <Typo size={17} color={colors.textLight}>
-              {("tốt đẹp hơn trong tương lai")}
+              {("sống tốt đẹp hơn trong tương lai")}
             </Typo>
           </Animated.View>
 

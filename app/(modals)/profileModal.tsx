@@ -4,8 +4,9 @@ import Header from "@/components/Header";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
-import { colors, spacingX, spacingY } from "@/constants/theme";
+import { radius, spacingX, spacingY } from "@/constants/theme"; // 👈 Đã bỏ import colors tĩnh
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext"; // 👈 Gọi máy dò theme
 import { getProfileImage } from "@/services/imageServices";
 import { updateUser } from "@/services/userServices";
 import { UserDataType } from "@/types";
@@ -23,113 +24,100 @@ import {
   View,
 } from "react-native";
 
-
 const ProfileModal = () => {
-
-
-  // hooks
   const { user, updateUserData } = useAuth();
+  const { colors, isDarkMode } = useTheme(); // 👈 Lấy bảng màu sống
   const router = useRouter();
 
-  // state
   const [userData, setUserData] = useState<UserDataType>({
     name: "",
     image: null,
   });
-
   const [loading, setLoading] = useState(false);
 
-  // functions
   const onPickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      aspect: [4, 3],
+      aspect: [1, 1], // Profile nên để 1:1 cho tròn
       quality: 0.5,
     });
 
     if (!result.canceled && result.assets?.length > 0) {
-      setUserData({
-        ...userData,
-        image: result.assets[0].uri,
-      });
+      setUserData({ ...userData, image: result.assets[0].uri });
     }
   };
 
   const onSubmit = async () => {
-    let { name } = userData;
-
-    if (!name.trim()) {
-
-      Alert.alert(("Vui lòng nhập đủ thông tin"));
+    if (!userData.name.trim()) {
+      Alert.alert("Lỗi", "Vui lòng nhập tên của bạn");
       return;
     }
-
     setLoading(true);
-
     const res = await updateUser(user?.uid as string, userData);
-
     setLoading(false);
 
     if (res.success) {
       updateUserData(user?.uid as string);
       router.back();
     } else {
-      Alert.alert(("Người dùng"), res.msg);
+      Alert.alert("Lỗi", res.msg);
     }
   };
 
-  // effects
   useEffect(() => {
-    setUserData({
-      name: user?.name || "",
-      image: user?.image || null,
-    });
+    setUserData({ name: user?.name || "", image: user?.image || null });
   }, [user]);
 
-  // UI
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title={("Cập nhật thông tin")}
+          title="Cập nhật thông tin"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
 
         <ScrollView contentContainerStyle={styles.form}>
+          {/* Avatar Section */}
           <View style={styles.avatarContainer}>
             <Image
-              style={styles.avatar}
+              style={[
+                styles.avatar,
+                { backgroundColor: colors.neutral200, borderColor: colors.border }
+              ]}
               source={getProfileImage(userData.image)}
               contentFit="cover"
               transition={100}
             />
 
-            <TouchableOpacity onPress={onPickImage} style={styles.editIcon}>
+            <TouchableOpacity
+              onPress={onPickImage}
+              style={[styles.editIcon, { backgroundColor: colors.neutral200 }]}
+            >
               <Icons.Pencil
                 size={verticalScale(20)}
-                color={colors.neutral800}
+                color={colors.primary} // Để màu xanh cho nổi bật
+                weight="bold"
               />
             </TouchableOpacity>
           </View>
 
+          {/* Input Section */}
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200}>{("Tên")}</Typo>
+            <Typo color={colors.textLight} size={16}>Tên hiển thị</Typo>
             <Input
-              placeholder={("Tên")} // t() cho placeholder
+              placeholder="Nhập tên của bạn"
               value={userData.name}
-              onChangeText={(value) =>
-                setUserData({ ...userData, name: value })
-              }
+              onChangeText={(value) => setUserData({ ...userData, name: value })}
             />
           </View>
         </ScrollView>
       </View>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { borderTopColor: colors.border }]}>
         <Button onPress={onSubmit} style={{ flex: 1 }} loading={loading}>
-          <Typo color={colors.black} fontWeight={"700"}>
-            {("Cập nhật")}
+          <Typo color={colors.black} fontWeight={"700"} size={18}>
+            Cập nhật
           </Typo>
         </Button>
       </View>
@@ -142,11 +130,8 @@ export default ProfileModal;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "space-between",
     paddingHorizontal: spacingY._20,
-    // paddingVertical: spacingY._30,
   },
-
   footer: {
     alignItems: "center",
     flexDirection: "row",
@@ -154,42 +139,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacingX._20,
     gap: scale(12),
     paddingTop: spacingY._15,
-    borderTopColor: colors.neutral700,
     marginBottom: spacingY._5,
     borderTopWidth: 1,
   },
   form: {
     gap: spacingY._30,
-    marginTop: spacingY._15,
+    marginTop: spacingY._20,
   },
   avatarContainer: {
     position: "relative",
     alignSelf: "center",
+    marginTop: verticalScale(10),
   },
   avatar: {
-    alignSelf: "center",
-    backgroundColor: colors.neutral300,
     height: verticalScale(135),
-
     width: verticalScale(135),
     borderRadius: 200,
     borderWidth: 1,
-    borderColor: colors.neutral500,
-    // overflow: "hidden",
-    // position: "relative",
   },
   editIcon: {
     position: "absolute",
-    bottom: spacingY._5,
-    right: spacingY._7,
+    bottom: 0,
+    right: 0,
     borderRadius: 100,
-    backgroundColor: colors.neutral100,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
     padding: spacingY._7,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 4,
   },
   inputContainer: {
     gap: spacingY._10,

@@ -7,8 +7,9 @@ import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import TransactionList from "@/components/TransactionList";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { radius, spacingX, spacingY } from "@/constants/theme"; // 👈 Bỏ import colors tĩnh
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext"; // 👈 Gọi máy dò theme
 import {
   fetchMonthlyStats,
   fetchWeeklyStats,
@@ -23,6 +24,7 @@ const Statistics = () => {
   const [transactions, setTransactions] = useState([]);
 
   const { user } = useAuth();
+  const { colors, isDarkMode } = useTheme(); // 👈 Lấy bảng màu sống
 
   const getWeeklyStats = async () => {
     setChartLoading(true);
@@ -61,15 +63,9 @@ const Statistics = () => {
   };
 
   useEffect(() => {
-    if (activeIndex === 0) {
-      getWeeklyStats();
-    }
-    if (activeIndex === 1) {
-      getMonthlyStats();
-    }
-    if (activeIndex === 2) {
-      getYearlyStats();
-    }
+    if (activeIndex === 0) getWeeklyStats();
+    if (activeIndex === 1) getMonthlyStats();
+    if (activeIndex === 2) getYearlyStats();
   }, [activeIndex]);
 
   return (
@@ -79,7 +75,6 @@ const Statistics = () => {
           <Header title="Thống kê" showNotification />
         </View>
 
-        {/* Thanh tuần/tháng/năm */}
         <ScrollView
           contentContainerStyle={{
             gap: spacingY._20,
@@ -88,18 +83,19 @@ const Statistics = () => {
           }}
           showsVerticalScrollIndicator={false}
         >
+          {/* Thanh tuần/tháng/năm - Đã fix Sáng/Tối */}
           <SegmentedControl
             values={["Tuần", "Tháng", "Năm"]}
             selectedIndex={activeIndex}
             onChange={(event) => {
               setActiveIndex(event.nativeEvent.selectedSegmentIndex);
             }}
-            tintColor={colors.neutral200}
-            backgroundColor={colors.neutral800}
-            appearance="dark"
-            activeFontStyle={styles.segmentFontStyle}
+            tintColor={isDarkMode ? colors.neutral200 : colors.white}
+            backgroundColor={isDarkMode ? colors.neutral800 : colors.neutral200}
+            appearance={isDarkMode ? "dark" : "light"}
+            activeFontStyle={{ ...styles.segmentFontStyle, color: colors.text }}
             style={styles.segmentStyle}
-            fontStyle={{ ...styles.segmentFontStyle, color: colors.white }}
+            fontStyle={{ ...styles.segmentFontStyle, color: colors.textLight }}
           />
 
           <View style={styles.chartContainer}>
@@ -115,28 +111,26 @@ const Statistics = () => {
                 yAxisThickness={0}
                 xAxisThickness={0}
                 yAxisLabelWidth={scale(45)}
-                yAxisTextStyle={{ color: colors.neutral350 }}
+                // 🛠️ FIX Ở ĐÂY: Dùng textLight để nổi bật ở cả 2 mode 🛠️
+                yAxisTextStyle={{ color: colors.textLight }}
                 xAxisLabelTextStyle={{
-                  color: colors.neutral350,
+                  color: colors.textLight,
                   fontSize: verticalScale(12),
                 }}
                 noOfSections={3}
                 minHeight={5}
-              // isAnimated={true}
-              // animationDuration={1000}
               />
             ) : (
-              <View style={styles.noChart} />
+              <View style={[styles.noChart, { backgroundColor: colors.neutral100 }]} />
             )}
 
             {chartLoading && (
-              <View style={styles.chartLoadingContainer}>
-                <Loading color={colors.white} />
+              <View style={[styles.chartLoadingContainer, { backgroundColor: isDarkMode ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)" }]}>
+                <Loading color={colors.primary} />
               </View>
             )}
           </View>
 
-          {/* Danh sách giao dịch */}
           <View>
             <TransactionList
               title="Giao dịch"
@@ -163,25 +157,14 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: radius._12,
-    backgroundColor: "rgba(0,0,0,0.6)",
     alignItems: "center",
     justifyContent: "center",
   },
   header: {},
   noChart: {
-    backgroundColor: "rgba(0,0,0,0.6)",
     height: verticalScale(210),
     width: "100%",
     borderRadius: radius._12,
-  },
-  searchIcon: {
-    backgroundColor: colors.neutral700,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 100,
-    height: verticalScale(35),
-    width: verticalScale(35),
-    borderCurve: "continuous",
   },
   segmentStyle: {
     height: scale(37),
@@ -189,7 +172,6 @@ const styles = StyleSheet.create({
   segmentFontStyle: {
     fontSize: verticalScale(13),
     fontWeight: "bold",
-    color: colors.black,
   },
   container: {
     paddingHorizontal: spacingX._20,

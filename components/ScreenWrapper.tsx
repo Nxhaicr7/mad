@@ -3,7 +3,7 @@ import React from "react";
 import {
   Dimensions,
   Platform,
-  StatusBar, // Đảm bảo đã import StatusBar
+  StatusBar,
   StyleSheet,
   View,
 } from "react-native";
@@ -22,7 +22,7 @@ const ScreenWrapper = ({ style, children }: ScreenWrapperProps) => {
     <View
       style={[
         {
-          paddingTop, // Khoảng trống này sẽ đẩy toàn bộ nội dung xuống dưới
+          paddingTop,
           flex: 1,
           backgroundColor: colors.background,
         },

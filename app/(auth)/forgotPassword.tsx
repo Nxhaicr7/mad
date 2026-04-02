@@ -69,7 +69,7 @@ const ForgotPassword = () => {
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }

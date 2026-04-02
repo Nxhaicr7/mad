@@ -3,8 +3,9 @@ import Loading from "@/components/Loading";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import Typo from "@/components/Typo";
 import { expenseCategories } from "@/constants/data";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext"; // 👈 Vũ khí tối thượng
 import {
   buildFallbackFinancialSummary,
   generateFinancialSummaryWithAI,
@@ -38,6 +39,9 @@ const AISummary = () => {
 
   const { user } = useAuth();
   const router = useRouter();
+
+  // Lôi bộ màu và chế độ Sáng/Tối ra dùng
+  const { colors, isDarkMode } = useTheme();
 
   const loadMonthlyInsight = useCallback(
     async (isRefresh = false) => {
@@ -120,7 +124,7 @@ const AISummary = () => {
 
     return {
       bg: "rgba(250,204,21,0.15)",
-      text: "#facc15",
+      text: isDarkMode ? "#facc15" : "#ca8a04", // Giảm độ chói ở Light mode
     };
   };
 
@@ -132,7 +136,7 @@ const AISummary = () => {
       <View style={[styles.categoryIcon, { backgroundColor: item.color }]}>
         <IconComponent
           size={verticalScale(18)}
-          color={colors.white}
+          color={"#ffffff"} // Nền icon thường màu đậm nên giữ icon màu trắng
           weight="fill"
         />
       </View>
@@ -158,15 +162,15 @@ const AISummary = () => {
             rightIcon={
               <TouchableOpacity
                 onPress={() => loadMonthlyInsight(true)}
-                style={styles.refreshButton}
+                style={[styles.refreshButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 disabled={refreshing}
               >
                 {refreshing ? (
-                  <Loading size="small" color={colors.white} />
+                  <Loading size="small" color={colors.text} />
                 ) : (
                   <Icons.ArrowsClockwise
                     size={verticalScale(21)}
-                    color={colors.white}
+                    color={colors.text} // Đổi màu icon cho hết tàng hình
                     weight="bold"
                   />
                 )}
@@ -180,10 +184,10 @@ const AISummary = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.monthHeaderWrap}>
-            <TouchableOpacity style={styles.monthNavButton}>
+            <TouchableOpacity style={[styles.monthNavButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Icons.CaretLeft
                 size={verticalScale(18)}
-                color={colors.neutral300}
+                color={colors.textLight} // Đổi màu
               />
             </TouchableOpacity>
 
@@ -191,19 +195,20 @@ const AISummary = () => {
               <Typo size={18} fontWeight="700">
                 {insightStats.monthLabel}
               </Typo>
-              <Typo size={15} color={colors.neutral500}>
+              <Typo size={15} color={colors.textLight}>
                 Báo cáo tháng
               </Typo>
             </View>
 
-            <TouchableOpacity style={styles.monthNavButton}>
+            <TouchableOpacity style={[styles.monthNavButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Icons.CaretRight
                 size={verticalScale(18)}
-                color={colors.neutral300}
+                color={colors.textLight} // Đổi màu
               />
             </TouchableOpacity>
           </View>
 
+          {/* Thẻ Hero màu xanh lá - Giữ nguyên màu trắng cho chữ bên trong vì nền luôn tối */}
           <LinearGradient
             colors={["#0d611a", "#033b3d"]}
             start={{ x: 0, y: 0 }}
@@ -217,12 +222,12 @@ const AISummary = () => {
                 </Typo>
               </View>
 
-              <Typo size={12} color={colors.neutral300}>
+              <Typo size={12} color="#d4d4d4">
                 {updatedAt ? "Cập nhật vừa xong" : "Đang đồng bộ"}
               </Typo>
             </View>
 
-            <Typo size={15} style={styles.summaryText}>
+            <Typo size={15} style={styles.summaryText} color="#ffffff">
               {summary.summary}
             </Typo>
 
@@ -243,12 +248,12 @@ const AISummary = () => {
             </View>
           </LinearGradient>
 
-          <View style={styles.budgetCard}>
+          <View style={[styles.budgetCard, { backgroundColor: colors.surface }]}>
             {insightStats.hasMonthlyBudget ? (
               <>
                 <View style={styles.budgetTopRow}>
                   <View style={styles.budgetCircleOuter}>
-                    <View style={styles.budgetCircleInner}>
+                    <View style={[styles.budgetCircleInner, { backgroundColor: colors.surface }]}>
                       <Typo size={18} fontWeight="700">
                         {insightStats.budgetUsedPercent}%
                       </Typo>
@@ -258,14 +263,14 @@ const AISummary = () => {
                   <View style={styles.budgetContent}>
                     <Typo size={18} fontWeight="700" color={colors.rose}>
                       {formatCurrency(insightStats.totalExpense)}
-                      <Typo size={16} color={colors.neutral500}>
+                      <Typo size={16} color={colors.textLight}>
                         {` /${formatCurrency(insightStats.budgetLimit)}`}
                       </Typo>
                     </Typo>
-                    <Typo size={13} color={colors.neutral400}>
+                    <Typo size={13} color={colors.textLight}>
                       Ngân sách tháng này
                     </Typo>
-                    <Typo size={14} color={colors.neutral300}>
+                    <Typo size={14} color={colors.textLight}>
                       Còn lại
                       <Typo
                         size={14}
@@ -284,7 +289,7 @@ const AISummary = () => {
                   </View>
                 </View>
 
-                <View style={styles.progressTrack}>
+                <View style={[styles.progressTrack, { backgroundColor: isDarkMode ? colors.neutral700 : colors.neutral200 }]}>
                   <LinearGradient
                     colors={["#a3e635", "#ef4444"]}
                     start={{ x: 0, y: 0.5 }}
@@ -303,7 +308,7 @@ const AISummary = () => {
                 <View style={styles.noBudgetIconWrap}>
                   <Icons.WarningCircle
                     size={verticalScale(22)}
-                    color="#facc15"
+                    color={isDarkMode ? "#facc15" : "#ca8a04"}
                     weight="fill"
                   />
                 </View>
@@ -314,7 +319,7 @@ const AISummary = () => {
                   </Typo>
                   <Typo
                     size={14}
-                    color={colors.neutral400}
+                    color={colors.textLight}
                     style={styles.noBudgetText}
                   >
                     Bạn cần thiết lập giới hạn tháng để theo dõi mức sử dụng
@@ -329,7 +334,7 @@ const AISummary = () => {
                     activeOpacity={0.85}
                   >
                     <Typo size={13} color={colors.black} fontWeight="700">
-                      Thiết lập hạn mức tháng
+                      Thiết lập hạn mức
                     </Typo>
                   </TouchableOpacity>
                 </View>
@@ -339,7 +344,7 @@ const AISummary = () => {
 
           <Typo
             size={18}
-            color={colors.neutral300}
+            color={colors.textLight}
             fontWeight="700"
             style={styles.sectionTitle}
           >
@@ -347,15 +352,9 @@ const AISummary = () => {
           </Typo>
 
           <View style={styles.kpiGrid}>
-            <View style={styles.kpiCard}>
-              <View
-                style={[styles.kpiIconWrap, { backgroundColor: "#1d4ed8" }]}
-              >
-                <Icons.ArrowUp
-                  size={verticalScale(16)}
-                  color={colors.neutral200}
-                  weight="bold"
-                />
+            <View style={[styles.kpiCard, { backgroundColor: colors.surface }]}>
+              <View style={[styles.kpiIconWrap, { backgroundColor: "#1d4ed8" }]}>
+                <Icons.ArrowUp size={verticalScale(16)} color="#ffffff" weight="bold" />
               </View>
               <View style={styles.kpiBadgeWarning}>
                 <Typo size={11} color="#f87171" fontWeight="700">
@@ -365,20 +364,12 @@ const AISummary = () => {
               <Typo size={22} color={colors.rose} fontWeight="700">
                 {formatCurrency(insightStats.totalExpense)}
               </Typo>
-              <Typo size={12} color={colors.neutral400}>
-                Tổng chi tiêu
-              </Typo>
+              <Typo size={12} color={colors.textLight}>Tổng chi tiêu</Typo>
             </View>
 
-            <View style={styles.kpiCard}>
-              <View
-                style={[styles.kpiIconWrap, { backgroundColor: "#065f46" }]}
-              >
-                <Icons.PiggyBank
-                  size={verticalScale(16)}
-                  color={colors.primary}
-                  weight="fill"
-                />
+            <View style={[styles.kpiCard, { backgroundColor: colors.surface }]}>
+              <View style={[styles.kpiIconWrap, { backgroundColor: "#065f46" }]}>
+                <Icons.PiggyBank size={verticalScale(16)} color={colors.primary} weight="fill" />
               </View>
               <View style={styles.kpiBadgePositive}>
                 <Typo size={11} color="#4ade80" fontWeight="700">
@@ -388,68 +379,41 @@ const AISummary = () => {
               <Typo size={22} color="#4ade80" fontWeight="700">
                 {formatCurrency(insightStats.savings)}
               </Typo>
-              <Typo size={12} color={colors.neutral400}>
-                Tiết kiệm
-              </Typo>
+              <Typo size={12} color={colors.textLight}>Tiết kiệm</Typo>
             </View>
 
-            <View style={styles.kpiCard}>
-              <View
-                style={[styles.kpiIconWrap, { backgroundColor: "#6d28d9" }]}
-              >
-                <Icons.Receipt
-                  size={verticalScale(16)}
-                  color={colors.neutral200}
-                  weight="bold"
-                />
+            <View style={[styles.kpiCard, { backgroundColor: colors.surface }]}>
+              <View style={[styles.kpiIconWrap, { backgroundColor: "#6d28d9" }]}>
+                <Icons.Receipt size={verticalScale(16)} color="#ffffff" weight="bold" />
               </View>
               <View style={styles.kpiBadgeNeutral}>
                 <Typo size={11} color={colors.primary} fontWeight="700">
-                  {formatSignedPercent(
-                    insightStats.transactionCountChangePercent,
-                  )}
+                  {formatSignedPercent(insightStats.transactionCountChangePercent)}
                 </Typo>
               </View>
-              <Typo size={22} color={colors.white} fontWeight="700">
+              <Typo size={22} color={colors.text} fontWeight="700">
                 {insightStats.transactionCount}
               </Typo>
-              <Typo size={12} color={colors.neutral400}>
-                Giao dịch
-              </Typo>
+              <Typo size={12} color={colors.textLight}>Giao dịch</Typo>
             </View>
 
-            <View style={styles.kpiCard}>
-              <View
-                style={[styles.kpiIconWrap, { backgroundColor: "#be185d" }]}
-              >
-                <Icons.ForkKnife
-                  size={verticalScale(16)}
-                  color={colors.neutral200}
-                  weight="fill"
-                />
+            <View style={[styles.kpiCard, { backgroundColor: colors.surface }]}>
+              <View style={[styles.kpiIconWrap, { backgroundColor: "#be185d" }]}>
+                <Icons.ForkKnife size={verticalScale(16)} color="#ffffff" weight="fill" />
               </View>
               <View style={styles.kpiBadgeWarning}>
-                <Typo size={11} color="#f87171" fontWeight="700">
-                  Top
-                </Typo>
+                <Typo size={11} color="#f87171" fontWeight="700">Top</Typo>
               </View>
-              <Typo
-                size={20}
-                color={colors.white}
-                fontWeight="700"
-                textProps={{ numberOfLines: 1 }}
-              >
+              <Typo size={20} color={colors.text} fontWeight="700" textProps={{ numberOfLines: 1 }}>
                 {insightStats.topCategoryLabel}
               </Typo>
-              <Typo size={12} color={colors.neutral400}>
-                Chi nhiều nhất
-              </Typo>
+              <Typo size={12} color={colors.textLight}>Chi nhiều nhất</Typo>
             </View>
           </View>
 
           <Typo
             size={18}
-            color={colors.neutral300}
+            color={colors.textLight}
             fontWeight="700"
             style={styles.sectionTitle}
           >
@@ -458,26 +422,23 @@ const AISummary = () => {
 
           <View style={styles.categoryList}>
             {insightStats.categories.map((item, index) => (
-              <View key={`${item.key}-${index}`} style={styles.categoryCard}>
+              <View key={`${item.key}-${index}`} style={[styles.categoryCard, { backgroundColor: colors.surface }]}>
                 <View style={styles.categoryTopRow}>
                   <View style={styles.categoryInfoWrap}>
                     {renderCategoryIcon(item)}
                     <View>
-                      <Typo size={16} fontWeight="700">
-                        {item.label}
-                      </Typo>
-                      <Typo size={12} color={colors.neutral500}>
+                      <Typo size={16} fontWeight="700">{item.label}</Typo>
+                      <Typo size={12} color={colors.textLight}>
                         {`${item.percent}% tổng chi tiêu`}
                       </Typo>
                     </View>
                   </View>
-
                   <Typo size={15} color={colors.rose} fontWeight="700">
                     {formatCurrency(item.amount)}
                   </Typo>
                 </View>
 
-                <View style={styles.categoryProgressTrack}>
+                <View style={[styles.categoryProgressTrack, { backgroundColor: isDarkMode ? colors.neutral700 : colors.neutral200 }]}>
                   <View
                     style={[
                       styles.categoryProgressFill,
@@ -494,7 +455,7 @@ const AISummary = () => {
 
           <Typo
             size={18}
-            color={colors.neutral300}
+            color={colors.textLight}
             fontWeight="700"
             style={styles.sectionTitle}
           >
@@ -512,32 +473,14 @@ const AISummary = () => {
                     : Icons.ChartLineUp;
 
               return (
-                <View
-                  key={`${item.title}-${index}`}
-                  style={styles.suggestionCard}
-                >
-                  <View
-                    style={[
-                      styles.suggestionIcon,
-                      { backgroundColor: tone.bg },
-                    ]}
-                  >
-                    <IconComponent
-                      size={verticalScale(16)}
-                      color={tone.text}
-                      weight="fill"
-                    />
+                <View key={`${item.title}-${index}`} style={[styles.suggestionCard, { backgroundColor: colors.surface }]}>
+                  <View style={[styles.suggestionIcon, { backgroundColor: tone.bg }]}>
+                    <IconComponent size={verticalScale(16)} color={tone.text} weight="fill" />
                   </View>
 
                   <View style={styles.suggestionContent}>
-                    <Typo size={16} fontWeight="700">
-                      {item.title}
-                    </Typo>
-                    <Typo
-                      size={14}
-                      color={colors.neutral350}
-                      style={styles.suggestionText}
-                    >
+                    <Typo size={16} fontWeight="700">{item.title}</Typo>
+                    <Typo size={14} color={colors.textLight} style={styles.suggestionText}>
                       {item.description}
                     </Typo>
                   </View>
@@ -553,63 +496,52 @@ const AISummary = () => {
 
 export default AISummary;
 
+// Styles tĩnh giữ nguyên cấu trúc, màu sắc đã đưa lên inline-style
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-
   container: {
     flex: 1,
     paddingHorizontal: spacingX._20,
     paddingTop: spacingY._5,
   },
-
   header: {
     marginBottom: spacingY._10,
   },
-
   content: {
     gap: spacingY._20,
     paddingBottom: verticalScale(120),
   },
-
   refreshButton: {
     width: verticalScale(42),
     height: verticalScale(42),
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.neutral800,
     borderWidth: 1,
-    borderColor: colors.neutral700,
   },
-
   monthHeaderWrap: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: spacingY._5,
   },
-
   monthTextWrap: {
     alignItems: "center",
     justifyContent: "center",
     gap: spacingY._5,
   },
-
   monthNavButton: {
     width: verticalScale(42),
     height: verticalScale(42),
     borderRadius: 999,
-    backgroundColor: colors.neutral800,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.neutral700,
   },
-
   heroCard: {
     borderRadius: radius._30,
     padding: spacingY._15,
@@ -617,13 +549,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(163,230,53,0.2)",
   },
-
   heroHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-
   aiChip: {
     backgroundColor: "rgba(163,230,53,0.13)",
     borderWidth: 1,
@@ -632,67 +562,60 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacingX._15,
     paddingVertical: spacingY._7,
   },
-
   summaryText: {
     lineHeight: verticalScale(26),
   },
-
   highlightRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacingX._10,
   },
-
   highlightChip: {
     paddingHorizontal: spacingX._12,
     paddingVertical: spacingY._7,
     borderRadius: radius._20,
   },
-
   budgetCard: {
-    backgroundColor: colors.neutral800,
     borderRadius: radius._30,
     padding: spacingY._15,
     gap: spacingY._15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-
   budgetTopRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacingX._15,
   },
-
   budgetCircleOuter: {
     width: verticalScale(85),
     height: verticalScale(85),
     borderRadius: 999,
     borderWidth: 7,
-    borderColor: colors.primary,
+    borderColor: "#a3e635",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(163,230,53,0.08)",
   },
-
   budgetCircleInner: {
     width: "78%",
     height: "78%",
     borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.neutral900,
   },
-
   budgetContent: {
     flex: 1,
     gap: spacingY._5,
   },
-
   noBudgetContainer: {
     flexDirection: "row",
     gap: spacingX._12,
     alignItems: "flex-start",
   },
-
   noBudgetIconWrap: {
     width: verticalScale(36),
     height: verticalScale(36),
@@ -701,56 +624,50 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(250, 204, 21, 0.15)",
   },
-
   noBudgetContent: {
     flex: 1,
     gap: spacingY._7,
   },
-
   noBudgetText: {
     lineHeight: verticalScale(20),
   },
-
   setupBudgetButton: {
     alignSelf: "flex-start",
-    backgroundColor: colors.primary,
+    backgroundColor: "#a3e635", // colors.primary
     paddingHorizontal: spacingX._12,
     paddingVertical: spacingY._7,
     borderRadius: radius._12,
   },
-
   progressTrack: {
     height: verticalScale(10),
     borderRadius: 999,
-    backgroundColor: colors.neutral700,
     overflow: "hidden",
   },
-
   progressFill: {
     height: "100%",
     borderRadius: 999,
   },
-
   sectionTitle: {
     textTransform: "uppercase",
     letterSpacing: 1,
   },
-
   kpiGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacingX._15,
   },
-
   kpiCard: {
     width: "47.5%",
-    backgroundColor: colors.neutral800,
     borderRadius: radius._20,
     paddingHorizontal: spacingX._12,
     paddingVertical: spacingY._12,
     gap: spacingY._7,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-
   kpiIconWrap: {
     width: verticalScale(40),
     height: verticalScale(40),
@@ -758,7 +675,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   kpiBadgeWarning: {
     alignSelf: "flex-end",
     backgroundColor: "rgba(239,68,68,0.15)",
@@ -766,7 +682,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacingY._5,
     borderRadius: radius._20,
   },
-
   kpiBadgePositive: {
     alignSelf: "flex-end",
     backgroundColor: "rgba(22,163,74,0.18)",
@@ -774,7 +689,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacingY._5,
     borderRadius: radius._20,
   },
-
   kpiBadgeNeutral: {
     alignSelf: "flex-end",
     backgroundColor: "rgba(163,230,53,0.12)",
@@ -782,32 +696,31 @@ const styles = StyleSheet.create({
     paddingVertical: spacingY._5,
     borderRadius: radius._20,
   },
-
   categoryList: {
     gap: spacingY._15,
   },
-
   categoryCard: {
-    backgroundColor: colors.neutral800,
     borderRadius: radius._20,
     padding: spacingY._12,
     gap: spacingY._10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-
   categoryTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: spacingX._10,
   },
-
   categoryInfoWrap: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacingX._10,
     flex: 1,
   },
-
   categoryIcon: {
     width: verticalScale(42),
     height: verticalScale(42),
@@ -815,32 +728,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   categoryProgressTrack: {
     height: verticalScale(8),
     borderRadius: 999,
-    backgroundColor: colors.neutral700,
     overflow: "hidden",
   },
-
   categoryProgressFill: {
     height: "100%",
     borderRadius: 999,
   },
-
   suggestionList: {
     gap: spacingY._15,
   },
-
   suggestionCard: {
-    backgroundColor: colors.neutral800,
     borderRadius: radius._20,
     padding: spacingY._12,
     flexDirection: "row",
     alignItems: "flex-start",
     gap: spacingX._12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
-
   suggestionIcon: {
     width: verticalScale(38),
     height: verticalScale(38),
@@ -848,12 +759,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
   suggestionContent: {
     flex: 1,
     gap: spacingY._5,
   },
-
   suggestionText: {
     lineHeight: verticalScale(22),
   },

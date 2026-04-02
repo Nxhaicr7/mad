@@ -21,7 +21,7 @@ import {
     StyleSheet,
     View
 } from "react-native";
-import { useTranslation } from "react-i18next"; // 1. Import hook dịch
+
 
 const WalletModal = () => {
 

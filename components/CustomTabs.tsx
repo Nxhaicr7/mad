@@ -1,62 +1,70 @@
-import { colors, spacingY } from "@/constants/theme";
+import { spacingY } from "@/constants/theme";
 import { verticalScale } from "@/utils/styling";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import * as Icons from "phosphor-react-native";
 import React from "react";
 import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useTheme } from "@/contexts/themeContext";
+
 export default function CustomTabs({
   state,
   descriptors,
   navigation,
 }: BottomTabBarProps) {
+
+  const { colors, isDarkMode } = useTheme();
+
+
+  const inactiveColor = isDarkMode ? colors.neutral400 : '#888888';
+
   const tabbarIcons: any = {
     index: (isFocused: boolean) => (
       <Icons.House
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
-        color={isFocused ? colors.primary : colors.neutral400}
+        color={isFocused ? colors.primary : inactiveColor}
       />
     ),
     statistics: (isFocused: boolean) => (
       <Icons.ChartBar
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
-        color={isFocused ? colors.primary : colors.neutral400}
+        color={isFocused ? colors.primary : inactiveColor}
       />
     ),
     wallet: (isFocused: boolean) => (
       <Icons.Wallet
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
-        color={isFocused ? colors.primary : colors.neutral400}
+        color={isFocused ? colors.primary : inactiveColor}
       />
     ),
     profile: (isFocused: boolean) => (
       <Icons.User
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
-        color={isFocused ? colors.primary : colors.neutral400}
+        color={isFocused ? colors.primary : inactiveColor}
       />
     ),
     aiSummary: (isFocused: boolean) => (
-      <Icons.Star
+      <Icons.Sparkle
         size={verticalScale(30)}
         weight={isFocused ? "fill" : "regular"}
-        color={isFocused ? colors.primary : colors.neutral400}
+        color={isFocused ? colors.primary : inactiveColor}
       />
     ),
   };
+
   return (
-    <View style={styles.tabbar}>
+    <View
+      style={[
+        styles.tabbar,
+
+        { backgroundColor: colors.surface, borderTopColor: colors.border }
+      ]}
+    >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
-        const label: any =
-          options.tabBarLabel !== undefined
-            ? options.tabBarLabel
-            : options.title !== undefined
-              ? options.title
-              : route.name;
-
         const isFocused = state.index === index;
 
         const onPress = () => {
@@ -80,7 +88,6 @@ export default function CustomTabs({
 
         return (
           <TouchableOpacity
-            // href={buildHref(route.name, route.params)}
             key={route.name}
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
@@ -102,10 +109,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     height: Platform.OS == "ios" ? verticalScale(73) : verticalScale(55),
-    backgroundColor: colors.neutral800,
+
     justifyContent: "space-around",
     alignItems: "center",
-    borderTopColor: colors.neutral700,
     borderTopWidth: 1,
   },
   tabbarItem: {

@@ -54,109 +54,96 @@ const Login = () => {
                 <BackButton iconSize={28} />
 
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
-
-                    <Typo size={30} fontWeight={"800"}>
-                        {("Xin chào,")}
-                    </Typo>
-                    <Typo size={30} fontWeight={"800"}>
-                        {("Mừng bạn trở lại")}
-                    </Typo>
+                    <Typo size={30} fontWeight={"800"}>Xin chào,</Typo>
+                    <Typo size={30} fontWeight={"800"}>Mừng bạn trở lại</Typo>
                 </View>
 
                 <View style={styles.form}>
                     <Typo size={16} color={colors.textLight}>
-                        {("Đăng nhập để theo dõi chi phí của bạn")}
+                        Đăng nhập để theo dõi chi phí của bạn
                     </Typo>
 
                     <Input
-                        placeholder={("Nhập email của bạn")}
+                        placeholder={"Nhập email của bạn"}
                         onChangeText={(value) => (emailRef.current = value)}
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight} // 👈 Đổi cho nét hơn
                                 weight="fill"
                             />
                         }
                     />
 
                     <Input
-                        placeholder={("Nhập mật khẩu của bạn")}
+                        placeholder={"Nhập mật khẩu của bạn"}
                         secureTextEntry
                         onChangeText={(value) => (passwordRef.current = value)}
                         icon={
                             <Icons.Lock
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight} // 👈 Đổi cho nét hơn
                                 weight="fill"
                             />
                         }
                     />
 
-
                     <TouchableOpacity onPress={() => router.push("/(auth)/forgotPassword")}>
                         <Typo size={14} color={colors.textLight} fontWeight={"500"} style={{ textAlign: 'right' }}>
-                            {("Quên mật khẩu")}
+                            Quên mật khẩu
                         </Typo>
                     </TouchableOpacity>
 
                     <Button loading={isLoading} onPress={handleSubmit}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
-                            {("Đăng nhập")}
+                            Đăng nhập
                         </Typo>
                     </Button>
                 </View>
 
-
+                {/* Divider Line - Dùng colors.border cho đồng bộ */}
                 <View style={styles.dividerContainer}>
-                    <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
+                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
                     <Typo size={14} color={colors.textLight} style={{ paddingHorizontal: 10 }}>
-                        {("Or")}
+                        Or
                     </Typo>
-                    <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
+                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
                 </View>
 
-
+                {/* Social Buttons - Fix viền nút */}
                 <View style={styles.socialContainer}>
                     <TouchableOpacity
-
-                        style={[styles.socialButton, { borderColor: colors.neutral300 }]}
+                        style={[styles.socialButton, { borderColor: colors.border }]} // 👈 Dùng colors.border
                         onPress={handleGoogleLogin}
                     >
                         <Icons.GoogleLogo size={verticalScale(24)} color={colors.text} weight="bold" />
                         <Typo size={16} fontWeight={"600"} color={colors.text}>
-                            {("Tiếp tục với Google")}
+                            Tiếp tục với Google
                         </Typo>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.socialButton, { borderColor: colors.neutral300 }]}
+                        style={[styles.socialButton, { borderColor: colors.border }]} // 👈 Dùng colors.border
                         onPress={handleFacebookLogin}
                     >
                         <Icons.FacebookLogo size={verticalScale(24)} color="#1877F2" weight="fill" />
                         <Typo size={16} fontWeight={"600"} color={colors.text}>
-                            {("Tiếp tục với Facebook")}
+                            Tiếp tục với Facebook
                         </Typo>
                     </TouchableOpacity>
                 </View>
 
-
+                {/* Footer */}
                 <View style={styles.footer}>
-                    <Typo size={15} color={colors.textLight}>
-                        {("Chưa có tài khoản ?")}
-                    </Typo>
-
+                    <Typo size={15} color={colors.textLight}>Chưa có tài khoản ?</Typo>
                     <Pressable onPress={() => router.navigate("/(auth)/Register")}>
-                        <Typo size={15} fontWeight={"700"} color={colors.primary}>
-                            {("Đăng kí")}
-                        </Typo>
+                        <Typo size={15} fontWeight={"700"} color={colors.primary}> Đăng kí</Typo>
                     </Pressable>
                 </View>
             </View>
         </ScreenWrapper>
     );
 };
-
 export default Login;
 
 const styles = StyleSheet.create({

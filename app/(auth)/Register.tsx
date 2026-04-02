@@ -15,7 +15,7 @@ import { Alert, Pressable, StyleSheet, TouchableOpacity, View } from "react-nati
 
 const Register = () => {
 
-    const { colors } = useTheme();
+    const { colors, isDarkMode } = useTheme();
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const nameRef = useRef("");
@@ -61,51 +61,47 @@ const Register = () => {
                 <BackButton iconSize={28} />
 
                 <View style={{ gap: 5, marginTop: spacingY._20 }}>
-                    <Typo size={30} fontWeight={"800"}>
-                        {("Sẵn sàng")}
-                    </Typo>
-                    <Typo size={30} fontWeight={"800"}>
-                        {("Bắt đầu nào")}
-                    </Typo>
+                    <Typo size={30} fontWeight={"800"}>Sẵn sàng</Typo>
+                    <Typo size={30} fontWeight={"800"}>Bắt đầu nào</Typo>
                 </View>
 
                 <View style={styles.form}>
                     <Typo size={16} color={colors.textLight}>
-                        {("Tạo tài khoản để theo dõi chi phí của bạn")}
+                        Tạo tài khoản để theo dõi chi phí của bạn
                     </Typo>
 
                     <Input
-                        placeholder={("Nhập tên của bạn")}
+                        placeholder={"Nhập tên của bạn"}
                         onChangeText={(value) => (nameRef.current = value)}
                         icon={
                             <Icons.User
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight} // 👈 Sửa cho nét
                                 weight="fill"
                             />
                         }
                     />
 
                     <Input
-                        placeholder={("Nhập email của bạn")}
+                        placeholder={"Nhập email của bạn"}
                         onChangeText={(value) => (emailRef.current = value)}
                         icon={
                             <Icons.At
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight} // 👈 Sửa cho nét
                                 weight="fill"
                             />
                         }
                     />
 
                     <Input
-                        placeholder={("Nhập mật khẩu của bạn")}
+                        placeholder={"Nhập mật khẩu của bạn"}
                         secureTextEntry
                         onChangeText={(value) => (passwordRef.current = value)}
                         icon={
                             <Icons.Lock
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight} // 👈 Sửa cho nét
                                 weight="fill"
                             />
                         }
@@ -113,53 +109,47 @@ const Register = () => {
 
                     <Button loading={isLoading} onPress={handleSubmit}>
                         <Typo fontWeight={"700"} color={colors.black} size={21}>
-                            {("Đăng kí")}
+                            Đăng kí
                         </Typo>
                     </Button>
                 </View>
 
-                {/* --- Divider "Or" --- */}
+                {/* Divider Line - Đã fix màu border */}
                 <View style={styles.dividerContainer}>
-                    <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
+                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
                     <Typo size={14} color={colors.textLight} style={{ paddingHorizontal: 10 }}>
-                        {("hoặc")}
+                        hoặc
                     </Typo>
-                    <View style={[styles.dividerLine, { backgroundColor: colors.neutral300 }]} />
+                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
                 </View>
 
-                {/* --- Social Register Buttons --- */}
+                {/* Social Buttons - Đã fix viền nút */}
                 <View style={styles.socialContainer}>
-                    {/* Nút Google */}
                     <TouchableOpacity
-                        style={[styles.socialButton, { borderColor: colors.neutral300 }]}
+                        style={[styles.socialButton, { borderColor: colors.border }]}
                         onPress={handleGoogleRegister}
                     >
                         <Icons.GoogleLogo size={verticalScale(24)} color={colors.text} weight="bold" />
                         <Typo size={16} fontWeight={"600"} color={colors.text}>
-                            {("Tiếp tục với Google")}
+                            Tiếp tục với Google
                         </Typo>
                     </TouchableOpacity>
 
-                    {/* Nút Facebook */}
                     <TouchableOpacity
-                        style={[styles.socialButton, { borderColor: colors.neutral300 }]}
+                        style={[styles.socialButton, { borderColor: colors.border }]}
                         onPress={handleFacebookRegister}
                     >
                         <Icons.FacebookLogo size={verticalScale(24)} color="#1877F2" weight="fill" />
                         <Typo size={16} fontWeight={"600"} color={colors.text}>
-                            {("Tiếp tục với Facebook")}
+                            Tiếp tục với Facebook
                         </Typo>
                     </TouchableOpacity>
                 </View>
 
-                {/* footer */}
                 <View style={styles.footer}>
-                    <Typo size={15} color={colors.textLight}>{("Đã có tài khoản ?")}</Typo>
-
+                    <Typo size={15} color={colors.textLight}>Đã có tài khoản ?</Typo>
                     <Pressable onPress={() => router.navigate("/(auth)/Login")}>
-                        <Typo size={15} fontWeight={"700"} color={colors.primary}>
-                            {("Đăng nhập")}
-                        </Typo>
+                        <Typo size={15} fontWeight={"700"} color={colors.primary}> Đăng nhập</Typo>
                     </Pressable>
                 </View>
             </View>
@@ -185,7 +175,6 @@ const styles = StyleSheet.create({
         gap: 5,
         marginTop: verticalScale(10),
     },
-
     dividerContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -194,7 +183,6 @@ const styles = StyleSheet.create({
     dividerLine: {
         flex: 1,
         height: 1,
-
     },
     socialContainer: {
         gap: spacingY._15,
@@ -208,6 +196,5 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 12,
         backgroundColor: "transparent",
-
     },
 });
