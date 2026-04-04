@@ -1,4 +1,3 @@
-import { colors } from "@/constants/theme";
 import React from "react";
 import {
     ActivityIndicator,
@@ -6,14 +5,19 @@ import {
     StyleSheet,
     View
 } from "react-native";
-
+import { useTheme } from "@/contexts/themeContext";
 const Loading = ({
     size = "large",
-    color = colors.primary,
+    color,
 }: ActivityIndicatorProps) => {
+    const { colors } = useTheme();
+
+
+    const spinnerColor = color || colors.primary;
+
     return (
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <ActivityIndicator size={size} color={color} />
+            <ActivityIndicator size={size} color={spinnerColor} />
         </View>
     );
 };

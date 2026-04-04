@@ -5,9 +5,9 @@ import ImageUpload from "@/components/ImageUpload";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
-import { spacingX, spacingY } from "@/constants/theme"; // Bỏ import colors
+import { spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
-import { useTheme } from "@/contexts/themeContext"; // Thêm hook theme
+import { useTheme } from "@/contexts/themeContext";
 import { createOrUpdateWallet, deleteWallet } from "@/services/walletService";
 import { WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
@@ -21,7 +21,7 @@ import {
     StyleSheet,
     View
 } from "react-native";
-import { useTranslation } from "react-i18next"; // 1. Import hook dịch
+
 
 const WalletModal = () => {
 
@@ -29,7 +29,7 @@ const WalletModal = () => {
     const router = useRouter();
     const { colors } = useTheme();
 
-    // state
+
     const [wallet, setWallet] = useState<WalletType>({
         name: "",
         image: null,
@@ -114,7 +114,6 @@ const WalletModal = () => {
         );
     }
 
-    // UI
     return (
         <ModalWrapper>
             <View style={[styles.container, { backgroundColor: colors.background }]}>

@@ -2,21 +2,21 @@ import { TypoProps } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import React from "react";
 import { Text, TextStyle } from "react-native";
-import { useTheme } from "@/contexts/themeContext"; // 1. Gọi hook theme
+import { useTheme } from "@/contexts/themeContext";
 
 const Typo = ({
   size,
-  color, // 2. Bỏ giá trị mặc định tĩnh ở đây
+  color,
   fontWeight = "400",
   children,
   style,
   textProps = {},
 }: TypoProps) => {
-  const { colors } = useTheme(); // 3. Lấy bảng màu động
+  const { colors } = useTheme();
 
   const textStyle: TextStyle = {
     fontSize: size ? verticalScale(size) : verticalScale(18),
-    color: color ? color : colors.text, // 4. Tự động lấy màu chữ chuẩn theo theme nếu không có prop truyền vào
+    color: color ? color : colors.text,
     fontWeight,
   };
   return (

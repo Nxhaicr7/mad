@@ -2,18 +2,18 @@ import { spacingY } from "@/constants/theme";
 import { ModalWrapperProps } from "@/types";
 import React from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
-import { useTheme } from "@/contexts/themeContext"; // Thêm hook theme
+import { useTheme } from "@/contexts/themeContext";
 
 const isIos = Platform.OS == "ios";
 
 const ModalWrapper = ({
     style,
     children,
-    bg, // Nhận prop bg như cũ
+    bg,
 }: ModalWrapperProps) => {
-    const { colors } = useTheme(); // Lấy bảng màu động
+    const { colors } = useTheme();
 
-    // Logic gốc: Nếu bạn truyền bg thì dùng bg, nếu không thì lấy nền động tự động
+
     const fallbackBg = bg || colors.background;
 
     return (
@@ -28,7 +28,7 @@ export default ModalWrapper;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // SỬA CHỖ NÀY: Lấy đúng chiều cao thanh pin của Android (thường là ~30-40) + 10px cho thoáng
+
         paddingTop: isIos ? spacingY._15 : (StatusBar.currentHeight || 0) + 10,
         paddingBottom: isIos ? spacingY._20 : spacingY._10,
     },

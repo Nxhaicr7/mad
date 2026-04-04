@@ -1,9 +1,9 @@
 import Typo from "@/components/Typo";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
-import { scale, verticalScale } from "@/utils/styling";
+import { radius, spacingX, spacingY } from "@/constants/theme";
+import { scale } from "@/utils/styling";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-
+import { useTheme } from "@/contexts/themeContext";
 type Props = {
     icon: React.ReactNode;
     label: string;
@@ -11,11 +11,22 @@ type Props = {
 };
 
 const ScanResultItem = ({ icon, label, value }: Props) => {
+    const { colors, isDarkMode } = useTheme();
+
     return (
-        <View style={styles.container}>
-            <View style={styles.iconBox}>{icon}</View>
+        <View style={[
+            styles.container,
+            { backgroundColor: colors.surface }
+        ]}>
+            <View style={[
+                styles.iconBox,
+
+                { backgroundColor: isDarkMode ? colors.neutral700 : colors.neutral200 }
+            ]}>
+                {icon}
+            </View>
             <View style={styles.textBox}>
-                <Typo size={12} color={colors.neutral400}>
+                <Typo size={12} color={colors.textLight}>
                     {label}
                 </Typo>
                 <Typo size={14} fontWeight="500" color={colors.text}>
@@ -33,7 +44,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: spacingX._12,
-        backgroundColor: colors.neutral800,
+
         borderRadius: radius._12,
         padding: spacingY._12,
     },
@@ -41,7 +52,7 @@ const styles = StyleSheet.create({
         width: scale(36),
         height: scale(36),
         borderRadius: radius._10,
-        backgroundColor: colors.neutral700,
+
         justifyContent: "center",
         alignItems: "center",
     },

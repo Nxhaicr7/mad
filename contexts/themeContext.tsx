@@ -11,11 +11,11 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-    // Lấy theme mặc định của hệ thống điện thoại
+
     const systemColorScheme = useColorScheme();
     const [isDarkMode, setIsDarkMode] = useState(systemColorScheme === 'dark');
 
-    // Chuyển đổi bảng màu dựa trên state
+
     const colors = isDarkMode ? darkColors : lightColors;
 
     const toggleTheme = (value: boolean) => {
