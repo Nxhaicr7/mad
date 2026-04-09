@@ -27,18 +27,41 @@ const SearchModal = () => {
     loading: transactionsLoading,
   } = useFetchData<TransactionType>("transactions", constraints);
 
+  const categoryMap: Record<string, string> = {
+    groceries: "mua sắm",
+    rent: "tiền thuê",
+    utilities: "tiện ích",
+    transportation: "di chuyển",
+    entertainment: "giải trí",
+    dining: "ăn uống",
+    health: "sức khỏe",
+    insurance: "bảo hiểm",
+    savings: "tiết kiệm",
+    clothing: "quần áo",
+    personal: "cá nhân",
+    others: "khác",
+  };
+
+  const typeMap: Record<string, string> = {
+    income: "thu nhập",
+    expense: "chi tiêu",
+  };
+
   const filteredTransactions = allTransactions.filter((item) => {
     if (search.length > 1) {
       const searchLower = search.toLowerCase();
+
+      const categoryVi = item.category ? categoryMap[item.category] || "" : "";
+      const typeVi = item.type ? typeMap[item.type] || "" : "";
+
       return (
-        item.category?.toLowerCase()?.includes(searchLower) ||
-        item.type?.toLowerCase()?.includes(searchLower) ||
+        categoryVi.includes(searchLower) ||
+        typeVi.includes(searchLower) ||
         item.description?.toLowerCase()?.includes(searchLower)
       );
     }
     return true;
   });
-
   return (
 
     <ModalWrapper style={{ backgroundColor: colors.background }}>

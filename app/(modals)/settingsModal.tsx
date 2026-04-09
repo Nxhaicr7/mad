@@ -58,10 +58,28 @@ const SettingsModal = () => {
                         />
                     </View>
 
-                    {/* 3. Đổi mật khẩu */}
+                    {/* 3. Cảnh báo giới hạn chi tiêu (Khôi phục lại cho bro) */}
+                    <TouchableOpacity
+                        style={[styles.row, { borderBottomColor: colors.border }]}
+                        onPress={() => router.push("/(modals)/expenseLimitWarningModal")}
+                        activeOpacity={0.8}
+                    >
+                        <View style={styles.rowLeft}>
+                            <Icons.WarningCircle size={verticalScale(24)} color={colors.text} />
+                            <Typo color={colors.text} style={{ marginLeft: scale(10) }}>
+                                Cảnh báo giới hạn chi tiêu
+                            </Typo>
+                        </View>
+                        <View style={styles.rowRight}>
+                            <Icons.CaretRight size={verticalScale(20)} color={colors.textLight} />
+                        </View>
+                    </TouchableOpacity>
+
+                    {/* 4. Đổi mật khẩu */}
                     <TouchableOpacity
                         style={[styles.row, { borderBottomColor: colors.border }]}
                         onPress={() => router.push("/(auth)/changePasswordModal")}
+                        activeOpacity={0.8}
                     >
                         <View style={styles.rowLeft}>
                             <Icons.LockKey size={verticalScale(24)} color={colors.text} />

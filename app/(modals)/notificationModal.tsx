@@ -30,7 +30,6 @@ import {
 
 const PAGE_SIZE = 10;
 
-
 const getCreatedDate = (value: NotificationType["created"]): Date | null => {
   if (!value) return null;
   if (value instanceof Date) return value;
@@ -129,11 +128,19 @@ const NotificationModal = () => {
             return (
               <View style={[styles.item, { backgroundColor: colors.surface }]}>
                 <View style={[styles.iconContainer, { backgroundColor: item.type === "exceeded-limit" ? "#ea580c" : "#ca8a04" }]}>
-                  <Icons.WarningCircle
-                    size={verticalScale(18)}
-                    color="#fff"
-                    weight="fill"
-                  />
+                  {item.type === "exceeded-limit" ? (
+                    <Icons.WarningCircle
+                      size={verticalScale(18)}
+                      color="#fff"
+                      weight="fill"
+                    />
+                  ) : (
+                    <Icons.Warning
+                      size={verticalScale(18)}
+                      color="#fff"
+                      weight="fill"
+                    />
+                  )}
                 </View>
 
                 <View style={styles.messageWrap}>
@@ -182,7 +189,6 @@ const NotificationModal = () => {
     </ModalWrapper>
   );
 };
-
 
 export default NotificationModal;
 

@@ -1,13 +1,13 @@
 import { firestore } from "@/config/firebase";
 import { BudgetType, ExpenseLimitPeriod, ResponseType } from "@/types";
 import {
-    collection,
-    deleteDoc,
-    doc,
-    getDocs,
-    query,
-    setDoc,
-    where,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
 } from "firebase/firestore";
 
 const validTypes: ExpenseLimitPeriod[] = ["day", "week", "month"];
@@ -31,7 +31,6 @@ export const getBudgetByWalletId = async (
       const amount = Number(budget.amount);
       if (!amount || amount <= 0) return;
 
-      // Keep one budget per type; latest iteration overrides older duplicates.
       byType[budget.type] = {
         id: budget.id,
         walletId: budget.walletId,
@@ -60,7 +59,7 @@ export const createOrUpdateBudget = async (
     const { walletId, type, amount } = payload;
 
     if (!walletId || !validTypes.includes(type) || !amount || amount <= 0) {
-      return { success: false, msg: "Dữ liệu hạn mức không hợp lệ" };
+      return { success: false, msg: "Invalid budget data" };
     }
 
     const existingQuery = query(
@@ -102,7 +101,7 @@ export const createOrUpdateBudget = async (
 export const deleteBudget = async (id: string): Promise<ResponseType> => {
   try {
     await deleteDoc(doc(firestore, "budget", id));
-    return { success: true, msg: "Đã xóa hạn mức" };
+    return { success: true, msg: "Budget deleted" };
   } catch (err: any) {
     console.log("error deleting budget: ", err);
     return { success: false, msg: err.message };

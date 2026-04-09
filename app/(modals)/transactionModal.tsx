@@ -38,6 +38,7 @@ import { Dropdown } from "react-native-element-dropdown";
 const TransactionModal = () => {
   const { user } = useAuth();
   const { colors, isDarkMode } = useTheme();
+  const router = useRouter();
 
   const [transaction, setTransaction] = useState({
     type: "expense",
@@ -51,27 +52,22 @@ const TransactionModal = () => {
 
   const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const router = useRouter();
 
-  const {
-    data: wallets,
-    error: walletError,
-    loading: walletLoading,
-  } = useFetchData<WalletType>("wallets", [
+  const { data: wallets } = useFetchData<WalletType>("wallets", [
     where("uid", "==", user?.uid),
     orderBy("created", "desc"),
   ]);
 
   type paramType = {
-    id: string;
-    type: string;
-    amount: string;
+    id?: string;
+    type?: string;
+    amount?: string;
     category?: string;
-    date: string;
+    date?: string;
     description?: string;
     image?: any;
     uid?: string;
-    walletId: string;
+    walletId?: string;
     scanned?: string;
   };
 
@@ -92,6 +88,7 @@ const TransactionModal = () => {
   };
 
   const parseScannedDate = (dateStr: string): Date => {
+    if (!dateStr) return new Date();
     try {
       const [datePart] = dateStr.split(" ");
       const [day, month, year] = datePart.split("/");
@@ -107,18 +104,18 @@ const TransactionModal = () => {
       ...transaction,
       date: currentDate,
     });
-    setShowDatePicker(Platform.OS === "ios" ? true : false);
+    setShowDatePicker(Platform.OS === "ios");
   };
 
   useEffect(() => {
     if (oldTransaction?.id) {
       setTransaction({
-        type: oldTransaction?.type,
-        amount: Number(oldTransaction.amount),
+        type: oldTransaction?.type || "expense",
+        amount: Number(oldTransaction.amount) || 0,
         description: oldTransaction.description || "",
         category: oldTransaction.category || "",
-        date: new Date(oldTransaction.date),
-        walletId: oldTransaction.walletId,
+        date: oldTransaction.date ? new Date(oldTransaction.date) : new Date(),
+        walletId: oldTransaction.walletId || "",
         image: oldTransaction?.image ?? null,
       });
     } else if (oldTransaction?.scanned === "true") {
@@ -130,16 +127,43 @@ const TransactionModal = () => {
         date: parseScannedDate(oldTransaction.date || ""),
       }));
     }
-  }, []);
+  }, [oldTransaction?.id, oldTransaction?.scanned]);
 
   const onSubmit = async () => {
-    const { type, amount, description, category, date, walletId, image } =
-      transaction;
+    const { type, amount, description, category, date, walletId, image } = transaction;
 
-    if (!walletId || !date || !amount || (type == "expense" && !category)) {
-      Alert.alert("Giao dịch", "Vui lòng điền đầy đủ thông tin");
+    if (!walletId || !date || !amount || (type === "expense" && !category)) {
+      Alert.alert("Giao dịch", "Vui lòng điền đầy đủ thông tin bắt buộc");
       return;
     }
+
+    const notifyBudgetStatus = async (
+      items: ExpenseLimitExceededItem[],
+      statusType: "near-limit" | "exceeded-limit"
+    ) => {
+      if (!user?.uid || !items.length) return;
+
+      const periodLabel: Record<string, string> = {
+        day: "ngày",
+        week: "tuần",
+        month: "tháng",
+      };
+
+      await Promise.all(
+        items.map((item) =>
+          createNotification({
+            uid: user.uid as string,
+            type: statusType,
+            title: "Cảnh báo ngân sách",
+            description:
+              statusType === "near-limit"
+                ? `Ví của bạn sắp vượt giới hạn ${periodLabel[item.type]} (${item.nextSpent.toLocaleString("vi-VN")}đ/${item.limitAmount.toLocaleString("vi-VN")}đ).`
+                : `Ví của bạn đã vượt giới hạn ${periodLabel[item.type]} (${item.nextSpent.toLocaleString("vi-VN")}đ/${item.limitAmount.toLocaleString("vi-VN")}đ).`,
+            created: new Date(),
+          })
+        )
+      );
+    };
 
     const submitTransaction = async () => {
       let transactionData: TransactionType = {
@@ -149,7 +173,7 @@ const TransactionModal = () => {
         category,
         date,
         walletId,
-        image: image ? image : null,
+        image: image || null,
         uid: user?.uid,
       };
 
@@ -165,36 +189,57 @@ const TransactionModal = () => {
     };
 
     if (type === "expense") {
-      const warningRes = await getExceededExpenseLimits(
-        walletId,
-        amount,
-        date as Date,
-        oldTransaction?.id,
-      );
-
-      if (!warningRes.success) {
-        Alert.alert("Giao dịch", warningRes.msg);
-        return;
-      }
-
-      const exceededItems = warningRes.data?.exceededItems || [];
-      const nearLimitItems = warningRes.data?.nearLimitItems || [];
-
-      if (exceededItems.length) {
-        Alert.alert(
-          "Cảnh báo giới hạn chi tiêu",
-          `Đã vượt giới hạn chi tiêu của ví. Bạn có đồng ý thêm không?`,
-          [
-            { text: "Hủy", style: "cancel" },
-            {
-              text: "Đồng ý",
-              onPress: async () => {
-                const submitRes = await submitTransaction();
-                if (submitRes.success) router.back();
-              },
-            },
-          ],
+      try {
+        setLoading(true);
+        const warningRes = await getExceededExpenseLimits(
+          walletId,
+          amount,
+          date,
+          oldTransaction?.id
         );
+        setLoading(false);
+
+        if (!warningRes.success) {
+          Alert.alert("Cảnh báo", warningRes.msg);
+          return;
+        }
+
+        const exceededItems = warningRes?.data?.exceededItems || [];
+        const nearLimitItems = warningRes?.data?.nearLimitItems || [];
+
+        if (exceededItems.length > 0) {
+          Alert.alert(
+            "Cảnh báo giới hạn chi tiêu",
+            `Giao dịch này sẽ làm bạn vượt hạn mức ngân sách. Bạn vẫn muốn tiếp tục?`,
+            [
+              { text: "Hủy", style: "cancel" },
+              {
+                text: "Đồng ý",
+                style: "destructive",
+                onPress: async () => {
+                  const submitRes = await submitTransaction();
+                  if (submitRes.success) {
+                    await notifyBudgetStatus(exceededItems, "exceeded-limit");
+                    router.back();
+                  }
+                },
+              },
+            ]
+          );
+          return;
+        }
+
+        const submitRes = await submitTransaction();
+        if (submitRes.success) {
+          if (nearLimitItems.length > 0) {
+            await notifyBudgetStatus(nearLimitItems, "near-limit");
+          }
+          router.back();
+        }
+        return;
+      } catch (err) {
+        setLoading(false);
+        Alert.alert("Lỗi", "Không thể kiểm tra hạn mức");
         return;
       }
     }
@@ -215,22 +260,14 @@ const TransactionModal = () => {
                 onPress={() => router.push("/(modals)/scanInvoiceModal")}
                 style={[styles.scanIcon, { backgroundColor: isDarkMode ? colors.neutral700 : colors.neutral200 }]}
               >
-                <Icons.Scan
-                  size={verticalScale(22)}
-                  color={colors.primary}
-                  weight="bold"
-                />
+                <Icons.Scan size={verticalScale(22)} color={colors.primary} weight="bold" />
               </TouchableOpacity>
             ) : undefined
           }
           style={{ marginBottom: spacingY._10 }}
         />
 
-        <ScrollView
-          contentContainerStyle={styles.form}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Loại */}
+        <ScrollView contentContainerStyle={styles.form} showsVerticalScrollIndicator={false}>
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>Loại</Typo>
             <Dropdown
@@ -240,7 +277,6 @@ const TransactionModal = () => {
               itemTextStyle={{ color: colors.text }}
               containerStyle={{ backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius._15 }}
               data={transactionTypes}
-              maxHeight={300}
               labelField="label"
               valueField="value"
               value={transaction.type}
@@ -248,7 +284,6 @@ const TransactionModal = () => {
             />
           </View>
 
-          {/* Ví */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>Ví</Typo>
             <Dropdown
@@ -262,7 +297,6 @@ const TransactionModal = () => {
                 label: `${wallet?.name} (${Number(wallet.amount).toLocaleString("vi-VN")}đ)`,
                 value: wallet?.id,
               }))}
-              maxHeight={300}
               labelField="label"
               valueField="value"
               placeholder="Chọn ví"
@@ -271,7 +305,6 @@ const TransactionModal = () => {
             />
           </View>
 
-          {/* Danh mục */}
           {transaction.type === "expense" && (
             <View style={styles.inputContainer}>
               <Typo color={colors.textLight} size={16}>Danh mục chi tiêu</Typo>
@@ -283,7 +316,6 @@ const TransactionModal = () => {
                 itemTextStyle={{ color: colors.text }}
                 containerStyle={{ backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius._15 }}
                 data={Object.values(expenseCategories)}
-                maxHeight={300}
                 labelField="label"
                 valueField="value"
                 placeholder="Chọn danh mục"
@@ -293,17 +325,11 @@ const TransactionModal = () => {
             </View>
           )}
 
-          {/* Ngày */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>Ngày</Typo>
             {!showDatePicker && (
-              <Pressable
-                style={[styles.dateInput, { borderColor: colors.border }]}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Typo size={14} color={colors.text}>
-                  {(transaction.date as Date).toLocaleDateString("vi-VN")}
-                </Typo>
+              <Pressable style={[styles.dateInput, { borderColor: colors.border }]} onPress={() => setShowDatePicker(true)}>
+                <Typo size={14} color={colors.text}>{(transaction.date as Date).toLocaleDateString("vi-VN")}</Typo>
               </Pressable>
             )}
             {showDatePicker && (
@@ -317,10 +343,7 @@ const TransactionModal = () => {
                   onChange={onDateChange}
                 />
                 {Platform.OS === "ios" && (
-                  <TouchableOpacity
-                    style={[styles.datePickerButton, { backgroundColor: colors.neutral200 }]}
-                    onPress={() => setShowDatePicker(false)}
-                  >
+                  <TouchableOpacity style={[styles.datePickerButton, { backgroundColor: colors.neutral200 }]} onPress={() => setShowDatePicker(false)}>
                     <Typo size={15} fontWeight={"500"} color={colors.text}>Ok</Typo>
                   </TouchableOpacity>
                 )}
@@ -328,23 +351,16 @@ const TransactionModal = () => {
             )}
           </View>
 
-          {/* Số tiền */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>Số tiền</Typo>
             <Input
               placeholder="0đ"
               keyboardType="numeric"
               value={transaction.amount > 0 ? transaction.amount.toString() : ""}
-              onChangeText={(value) =>
-                setTransaction({
-                  ...transaction,
-                  amount: Number(value.replace(/[^0-9]/g, "")),
-                })
-              }
+              onChangeText={(value) => setTransaction({ ...transaction, amount: Number(value.replace(/[^0-9]/g, "")) })}
             />
           </View>
 
-          {/* Mô tả */}
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.textLight} size={16}>Mô tả</Typo>
@@ -354,16 +370,11 @@ const TransactionModal = () => {
               placeholder="Nhập nội dung..."
               value={transaction.description}
               multiline
-              containerStyle={{
-                height: verticalScale(100),
-                alignItems: "flex-start",
-                paddingVertical: 15,
-              }}
+              containerStyle={{ height: verticalScale(100), alignItems: "flex-start", paddingVertical: 15 }}
               onChangeText={(value) => setTransaction({ ...transaction, description: value })}
             />
           </View>
 
-          {/* Hóa đơn */}
           <View style={styles.inputContainer}>
             <View style={styles.flexRow}>
               <Typo color={colors.textLight} size={16}>Ảnh hóa đơn</Typo>
@@ -377,7 +388,6 @@ const TransactionModal = () => {
             />
           </View>
 
-          {/* Nút AI */}
           {!oldTransaction?.id && (
             <TouchableOpacity
               style={[styles.aiScanButton, { backgroundColor: colors.surface, borderColor: colors.primary }]}
@@ -396,7 +406,7 @@ const TransactionModal = () => {
           <Button
             onPress={() => Alert.alert("Xác nhận", "Xóa giao dịch này?", [
               { text: "Hủy", style: "cancel" },
-              { text: "Xóa", onPress: () => deleteTransaction(oldTransaction.id, oldTransaction.walletId).then(() => router.back()), style: "destructive" }
+              { text: "Xóa", onPress: () => deleteTransaction(oldTransaction.id!, oldTransaction.walletId!).then(() => router.back()), style: "destructive" }
             ])}
             style={{ backgroundColor: colors.rose, paddingHorizontal: spacingX._15 }}
           >
@@ -404,9 +414,7 @@ const TransactionModal = () => {
           </Button>
         )}
         <Button onPress={onSubmit} loading={loading} style={{ flex: 1 }}>
-          <Typo color={colors.black} fontWeight={"700"}>
-            {oldTransaction?.id ? "Cập nhật" : "Lưu"}
-          </Typo>
+          <Typo color={colors.black} fontWeight={"700"}>{oldTransaction?.id ? "Cập nhật" : "Lưu"}</Typo>
         </Button>
       </View>
     </ModalWrapper>
@@ -418,37 +426,12 @@ export default TransactionModal;
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: spacingY._20 },
   form: { gap: spacingY._20, paddingVertical: spacingY._15, paddingBottom: spacingY._40 },
-  footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    paddingHorizontal: spacingX._20,
-    gap: scale(12),
-    paddingTop: spacingY._15,
-    borderTopWidth: 1,
-    marginBottom: spacingY._5,
-  },
+  footer: { alignItems: "center", flexDirection: "row", justifyContent: "center", paddingHorizontal: spacingX._20, gap: scale(12), paddingTop: spacingY._15, borderTopWidth: 1, marginBottom: spacingY._5 },
   inputContainer: { gap: spacingY._10 },
   flexRow: { flexDirection: "row", alignItems: "center", gap: spacingX._5 },
-  dateInput: {
-    height: verticalScale(54),
-    alignItems: "center",
-    flexDirection: "row",
-    borderWidth: 1,
-    borderRadius: radius._17,
-    paddingHorizontal: spacingX._15,
-  },
+  dateInput: { height: verticalScale(54), alignItems: "center", flexDirection: "row", borderWidth: 1, borderRadius: radius._17, paddingHorizontal: spacingX._15 },
   datePickerButton: { alignSelf: "flex-end", padding: spacingY._7, marginRight: spacingX._7, paddingHorizontal: spacingY._15, borderRadius: radius._10 },
   dropdownContainer: { height: verticalScale(54), borderWidth: 1, paddingHorizontal: spacingX._15, borderRadius: radius._15 },
   scanIcon: { padding: spacingY._7, borderRadius: radius._10 },
-  aiScanButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacingX._10,
-    borderWidth: 1,
-    borderRadius: radius._15,
-    paddingVertical: spacingY._12,
-    borderStyle: "dashed",
-  },
+  aiScanButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacingX._10, borderWidth: 1, borderRadius: radius._15, paddingVertical: spacingY._12, borderStyle: "dashed" },
 });
