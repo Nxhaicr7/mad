@@ -3,13 +3,13 @@ export const lightColors = {
   primary: "#a3e635",
   primaryLight: "#0ea5e9",
   primaryDark: "#0369a1",
-  rose: "#ef4444", // <-- Thêm lại màu rose vào đây
-  green: "#16a34a", // <-- Thêm lại màu green vào đây
+  rose: "#ef4444",
+  green: "#16a34a",
   background: "#f5f5f5",
   surface: "#ffffff",
   text: "#171717",
-  textLight: "#525252",
-  textLighter: "#d4d4d4",
+  textLight: "#404040",
+  textLighter: "#737373",
   border: "#e5e5e5",
   white: "#fff",
   black: "#000",
@@ -18,21 +18,20 @@ export const lightColors = {
   neutral200: "#e5e5e5",
   neutral300: "#d4d4d4",
   neutral350: "#CCCCCC",
-  neutral400: "#a3a3a3",
-  neutral500: "#737373",
-  neutral600: "#525252",
-  neutral700: "#404040",
-  neutral800: "#262626",
-  neutral900: "#171717",
+  neutral400: "#737373",
+  neutral500: "#525252",
+  neutral600: "#404040",
+  neutral700: "#262626",
+  neutral800: "#171717",
+  neutral900: "#0a0a0a",
 };
 
-// Bảng màu cho Chế độ Tối
 export const darkColors = {
   primary: "#a3e635",
   primaryLight: "#0ea5e9",
   primaryDark: "#0369a1",
-  rose: "#ef4444", // <-- Thêm lại màu rose vào đây
-  green: "#16a34a", // <-- Thêm lại màu green vào đây
+  rose: "#ef4444",
+  green: "#16a34a",
   background: "#171717",
   surface: "#262626",
   text: "#ffffff",

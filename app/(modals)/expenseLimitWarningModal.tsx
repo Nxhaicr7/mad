@@ -6,6 +6,7 @@ import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
 import { colors, radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
+import { useTheme } from "@/contexts/themeContext";
 import useFetchData from "@/hooks/useFetchData";
 import {
   createOrUpdateBudget,
@@ -47,6 +48,7 @@ const periodOrder: Record<ExpenseLimitPeriod, number> = {
 
 const ExpenseLimitWarningModal = () => {
   const { user } = useAuth();
+  const { colors, isDarkMode } = useTheme();
 
   const [selectedWalletId, setSelectedWalletId] = useState("");
   const [budgets, setBudgets] = useState<BudgetType[]>([]);
@@ -71,18 +73,13 @@ const ExpenseLimitWarningModal = () => {
       setBudgets([]);
       return;
     }
-
     const res = await getBudgetByWalletId(walletId);
-    if (!res.success) {
-      Alert.alert("Giới hạn chi tiêu", res.msg);
-      return;
+    if (res.success) {
+      const sortedBudgets = (res.data || []).sort(
+        (a: BudgetType, b: BudgetType) => periodOrder[a.type] - periodOrder[b.type],
+      );
+      setBudgets(sortedBudgets);
     }
-
-    const sortedBudgets = (res.data || []).sort(
-      (a: BudgetType, b: BudgetType) =>
-        periodOrder[a.type] - periodOrder[b.type],
-    );
-    setBudgets(sortedBudgets);
   };
 
   useEffect(() => {
@@ -90,17 +87,11 @@ const ExpenseLimitWarningModal = () => {
   }, [selectedWalletId]);
 
   const onAddBudget = async () => {
-    if (!selectedWalletId) {
-      Alert.alert("Giới hạn chi tiêu", "Vui lòng chọn ví");
-      return;
-    }
-
     const amount = Number(budgetAmount.replace(/[^0-9]/g, ""));
     if (!amount || amount <= 0) {
-      Alert.alert("Giới hạn chi tiêu", "Vui lòng nhập số tiền hợp lệ");
+      Alert.alert("Lỗi", "Vui lòng nhập số tiền hợp lệ");
       return;
     }
-
     setLoading(true);
     const res = await createOrUpdateBudget({
       walletId: selectedWalletId,
@@ -108,38 +99,18 @@ const ExpenseLimitWarningModal = () => {
       amount,
     });
     setLoading(false);
-
-    if (!res.success) {
-      Alert.alert("Giới hạn chi tiêu", res.msg);
-      return;
+    if (res.success) {
+      setShowAddModal(false);
+      setBudgetAmount("");
+      fetchWalletBudgets(selectedWalletId);
     }
-
-    setShowAddModal(false);
-    setBudgetAmount("");
-    setBudgetType("day");
-    fetchWalletBudgets(selectedWalletId);
-  };
-
-  const onDeleteBudget = async (id?: string) => {
-    if (!id) return;
-
-    setLoading(true);
-    const res = await deleteBudget(id);
-    setLoading(false);
-
-    if (!res.success) {
-      Alert.alert("Giới hạn chi tiêu", res.msg);
-      return;
-    }
-
-    fetchWalletBudgets(selectedWalletId);
   };
 
   return (
     <ModalWrapper>
       <View style={styles.container}>
         <Header
-          title="Cảnh báo giới hạn chi tiêu"
+          title="Giới hạn chi tiêu"
           leftIcon={<BackButton />}
           style={{ marginBottom: spacingY._10 }}
         />
@@ -148,154 +119,108 @@ const ExpenseLimitWarningModal = () => {
           contentContainerStyle={styles.form}
           showsVerticalScrollIndicator={false}
         >
+          {/* Chọn ví */}
           <View style={styles.inputContainer}>
-            <Typo color={colors.neutral200} size={16}>
-              Chọn ví
-            </Typo>
-
+            <Typo color={colors.textLight} size={16}>Chọn ví</Typo>
             <Dropdown
-              style={styles.dropdownContainer}
-              activeColor={colors.neutral700}
-              placeholderStyle={styles.dropdownPlaceholder}
-              selectedTextStyle={styles.dropdownSelectedText}
-              iconStyle={styles.dropdownIcon}
-              data={wallets.map((wallet) => ({
-                label: wallet.name,
-                value: wallet.id,
-              }))}
+              style={[styles.dropdownContainer, { borderColor: colors.border }]}
+              activeColor={isDarkMode ? colors.neutral700 : colors.neutral100}
+              placeholderStyle={{ color: colors.textLight }}
+              selectedTextStyle={{ color: colors.text, fontSize: verticalScale(14) }}
+              itemTextStyle={{ color: colors.text }}
+              containerStyle={{ backgroundColor: colors.surface, borderColor: colors.border, borderRadius: radius._15 }}
+              data={wallets.map((wallet) => ({ label: wallet.name, value: wallet.id }))}
               maxHeight={300}
               labelField="label"
               valueField="value"
-              itemTextStyle={styles.dropdownItemText}
-              itemContainerStyle={styles.dropdownItemContainer}
-              containerStyle={styles.dropdownListContainer}
               placeholder="Chọn ví"
               value={selectedWalletId}
-              onChange={(item) => {
-                setSelectedWalletId(item.value || "");
-              }}
+              onChange={(item) => setSelectedWalletId(item.value || "")}
             />
           </View>
 
-          <View style={styles.flexRow}>
-            <Typo color={colors.neutral200} size={16}>
-              Danh sách cảnh báo
-            </Typo>
-          </View>
+          <Typo color={colors.text} size={16} fontWeight="600">Danh sách cảnh báo</Typo>
 
+          {/* Danh sách Item */}
           <View style={styles.warningList}>
             {budgets.map((item) => (
-              <View style={styles.warningItem} key={item.id || item.type}>
-                <Typo size={14} color={colors.neutral100}>
-                  {item.amount.toLocaleString("vi-VN")}đ - Loại:{" "}
-                  {periodLabel[item.type]}
+              <View
+                style={[
+                  styles.warningItem,
+                  { backgroundColor: colors.surface, borderColor: colors.border }
+                ]}
+                key={item.id || item.type}
+              >
+                <Typo size={15} color={colors.text}>
+                  {item.amount.toLocaleString("vi-VN")}đ - {periodLabel[item.type]}
                 </Typo>
 
                 <TouchableOpacity
                   style={styles.deleteIcon}
-                  onPress={() => onDeleteBudget(item.id)}
-                  activeOpacity={0.85}
+                  onPress={() => deleteBudget(item.id!).then(() => fetchWalletBudgets(selectedWalletId))}
                 >
-                  <Icons.Trash
-                    size={verticalScale(14)}
-                    color={colors.white}
-                    weight="bold"
-                  />
+                  <Icons.Trash size={verticalScale(16)} color={colors.white} weight="bold" />
                 </TouchableOpacity>
               </View>
             ))}
 
             {!budgets.length && (
-              <View style={styles.emptyBox}>
-                <Typo color={colors.neutral400} size={14}>
-                  Chưa có cảnh báo nào
-                </Typo>
+              <View style={[styles.emptyBox, { borderColor: colors.border }]}>
+                <Typo color={colors.textLighter} size={14}>Chưa có cảnh báo nào</Typo>
               </View>
             )}
           </View>
         </ScrollView>
       </View>
 
-      <View style={styles.footer}>
-        <Button
-          onPress={() => setShowAddModal(true)}
-          loading={loading}
-          style={{ flex: 1 }}
-        >
-          <Typo color={colors.white} fontWeight={"700"} size={24}>
-            Thêm cảnh báo mới
-          </Typo>
+      <View style={[styles.footer, { borderTopColor: colors.border }]}>
+        <Button onPress={() => setShowAddModal(true)} style={{ flex: 1 }}>
+          <Typo color={colors.black} fontWeight={"700"} size={18}>Thêm cảnh báo mới</Typo>
         </Button>
       </View>
 
-      <Modal
-        visible={showAddModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowAddModal(false)}
-      >
+      {/* --- POPUP MODAL NHỎ --- */}
+      <Modal visible={showAddModal} transparent animationType="fade">
         <View style={styles.overlay}>
-          <View style={styles.addModalCard}>
-            <Typo size={16} fontWeight={"700"}>
-              Thêm giới hạn chi tiêu
-            </Typo>
+          <View style={[styles.addModalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Typo size={18} fontWeight={"700"}>Thêm giới hạn</Typo>
 
             <View style={styles.inputContainer}>
-              <Typo color={colors.neutral300} size={14}>
-                Loại
-              </Typo>
+              <Typo color={colors.textLight} size={14}>Khoảng thời gian</Typo>
               <Dropdown
-                style={styles.dropdownContainer}
-                activeColor={colors.neutral700}
-                selectedTextStyle={styles.dropdownSelectedText}
-                iconStyle={styles.dropdownIcon}
+                style={[styles.dropdownContainer, { borderColor: colors.border }]}
+                activeColor={isDarkMode ? colors.neutral700 : colors.neutral100}
+                selectedTextStyle={{ color: colors.text }}
+                itemTextStyle={{ color: colors.text }}
+                containerStyle={{ backgroundColor: colors.surface, borderColor: colors.border }}
                 data={periodOptions}
-                maxHeight={260}
                 labelField="label"
                 valueField="value"
-                itemTextStyle={styles.dropdownItemText}
-                itemContainerStyle={styles.dropdownItemContainer}
-                containerStyle={styles.dropdownListContainer}
                 value={budgetType}
-                onChange={(item) =>
-                  setBudgetType(item.value as ExpenseLimitPeriod)
-                }
+                onChange={(item) => setBudgetType(item.value as ExpenseLimitPeriod)}
               />
             </View>
 
             <View style={styles.inputContainer}>
-              <Typo color={colors.neutral300} size={14}>
-                Số tiền
-              </Typo>
+              <Typo color={colors.textLight} size={14}>Số tiền tối đa</Typo>
               <Input
                 keyboardType="numeric"
                 placeholder="Nhập số tiền..."
                 value={budgetAmount}
-                onChangeText={(value) =>
-                  setBudgetAmount(value.replace(/[^0-9]/g, ""))
-                }
+                onChangeText={(value) => setBudgetAmount(value.replace(/[^0-9]/g, ""))}
               />
             </View>
 
             <View style={styles.modalActions}>
               <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
+                style={[styles.modalButton, { backgroundColor: colors.neutral200 }]}
                 onPress={() => setShowAddModal(false)}
-                activeOpacity={0.85}
               >
-                <Typo size={14} color={colors.white}>
-                  Hủy
-                </Typo>
+                <Typo size={14} color={colors.text}>Hủy</Typo>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.modalButton, styles.submitButton]}
-                onPress={onAddBudget}
-                activeOpacity={0.85}
-              >
-                <Typo size={14} color={colors.black} fontWeight={"700"}>
-                  Lưu
-                </Typo>
+              <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.primary }]} onPress={onAddBudget}>
+                <Typo size={14} color={colors.black} fontWeight={"700"}>Lưu</Typo>
               </TouchableOpacity>
             </View>
           </View>
@@ -308,130 +233,25 @@ const ExpenseLimitWarningModal = () => {
 export default ExpenseLimitWarningModal;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: spacingY._20,
-  },
-  form: {
-    gap: spacingY._20,
-    paddingVertical: spacingY._15,
-    paddingBottom: spacingY._40,
-  },
-  inputContainer: {
-    gap: spacingY._10,
-  },
-  flexRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  warningList: {
-    gap: spacingY._12,
-  },
+  container: { flex: 1, paddingHorizontal: spacingX._20 },
+  form: { gap: spacingY._20, paddingVertical: spacingY._15, paddingBottom: spacingY._40 },
+  inputContainer: { gap: spacingY._10 },
+  warningList: { gap: spacingY._12 },
   warningItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.neutral800,
     borderRadius: radius._12,
     paddingHorizontal: spacingX._12,
-    paddingVertical: spacingY._10,
-    borderColor: colors.neutral700,
+    paddingVertical: spacingY._12,
     borderWidth: 1,
   },
-  deleteIcon: {
-    height: verticalScale(30),
-    width: verticalScale(30),
-    borderRadius: radius._10,
-    backgroundColor: colors.rose,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  emptyBox: {
-    borderColor: colors.neutral700,
-    borderWidth: 1,
-    borderStyle: "dashed",
-    borderRadius: radius._12,
-    paddingVertical: spacingY._15,
-    alignItems: "center",
-  },
-  footer: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
-    paddingHorizontal: spacingX._20,
-    paddingTop: spacingY._15,
-    borderTopColor: colors.neutral700,
-    borderTopWidth: 1,
-    marginBottom: spacingY._5,
-  },
-  dropdownContainer: {
-    height: verticalScale(54),
-    borderWidth: 1,
-    borderColor: colors.neutral300,
-    paddingHorizontal: spacingX._15,
-    borderRadius: radius._15,
-    borderCurve: "continuous",
-  },
-  dropdownItemText: { color: colors.white },
-  dropdownSelectedText: {
-    color: colors.white,
-    fontSize: verticalScale(14),
-  },
-  dropdownListContainer: {
-    backgroundColor: colors.neutral900,
-    borderRadius: radius._15,
-    borderCurve: "continuous",
-    paddingVertical: spacingY._7,
-    top: 5,
-    borderColor: colors.neutral500,
-    shadowColor: colors.black,
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 1,
-    shadowRadius: 15,
-    elevation: 5,
-  },
-  dropdownPlaceholder: {
-    color: colors.white,
-  },
-  dropdownItemContainer: {
-    borderRadius: radius._15,
-    marginHorizontal: spacingX._7,
-  },
-  dropdownIcon: {
-    height: verticalScale(30),
-    tintColor: colors.neutral300,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    paddingHorizontal: spacingX._20,
-  },
-  addModalCard: {
-    backgroundColor: colors.neutral900,
-    borderRadius: radius._15,
-    padding: spacingX._15,
-    gap: spacingY._15,
-    borderWidth: 1,
-    borderColor: colors.neutral700,
-  },
-  modalActions: {
-    flexDirection: "row",
-    gap: spacingX._10,
-    justifyContent: "flex-end",
-  },
-  modalButton: {
-    minWidth: verticalScale(90),
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacingY._10,
-    borderRadius: radius._10,
-  },
-  cancelButton: {
-    backgroundColor: colors.neutral700,
-  },
-  submitButton: {
-    backgroundColor: colors.primary,
-  },
+  deleteIcon: { height: verticalScale(32), width: verticalScale(32), borderRadius: radius._10, backgroundColor: "#ef4444", alignItems: "center", justifyContent: "center" },
+  emptyBox: { borderStyle: "dashed", borderWidth: 1, borderRadius: radius._12, paddingVertical: spacingY._25, alignItems: "center" },
+  footer: { paddingHorizontal: spacingX._20, paddingTop: spacingY._15, borderTopWidth: 1, marginBottom: spacingY._5 },
+  dropdownContainer: { height: verticalScale(54), borderWidth: 1, paddingHorizontal: spacingX._15, borderRadius: radius._15 },
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", paddingHorizontal: spacingX._20 },
+  addModalCard: { borderRadius: radius._20, padding: spacingX._20, gap: spacingY._20, borderWidth: 1 },
+  modalActions: { flexDirection: "row", gap: spacingX._10, justifyContent: "flex-end", marginTop: 5 },
+  modalButton: { minWidth: verticalScale(80), alignItems: "center", justifyContent: "center", paddingVertical: spacingY._12, borderRadius: radius._12 },
 });

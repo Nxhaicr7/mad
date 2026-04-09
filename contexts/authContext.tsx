@@ -14,7 +14,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import React, { createContext, useContext, useEffect, useState } from "react";
-// Import thư viện Google Sign-in
+
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<UserType>(null);
   const router = useRouter();
 
-  // Cấu hình Google Sign-in khi Provider khởi chạy
+
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: "478282792207-m3fumu4e8rtq0l3fuhti3mvk428cs0g4.apps.googleusercontent.com",
@@ -95,12 +95,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // --- HÀM LOGOUT MỚI CỦA BRO ĐÂY ---
+
   const logout = async () => {
     try {
-      // 1. Đăng xuất khỏi Firebase
+
       await signOut(auth);
-      // 2. Đăng xuất khỏi Google để xóa session cũ
+
       await GoogleSignin.signOut();
 
       console.log("Logged out successfully");
@@ -168,7 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return { success: false, msg: "Lỗi: Không tìm thấy phiên đăng nhập." };
     } catch (error: any) {
       let msg = error.message;
-      // ⚠️ Lưu ý: Firebase có bảo mật 2 lớp. Nếu user đăng nhập quá lâu, nó sẽ không cho đổi pass ngay mà bắt đăng nhập lại.
+
       if (msg.includes("(auth/requires-recent-login)")) {
         msg = "Vì lý do bảo mật, vui lòng đăng xuất và đăng nhập lại trước khi đổi mật khẩu.";
       }

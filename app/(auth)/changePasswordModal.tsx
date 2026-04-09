@@ -55,12 +55,10 @@ const ChangePasswordModal = () => {
                 [
                     {
                         text: "OK",
-                        // 👇 Sửa chỗ này: Thay vì router.back(), mình gọi hàm logout()
+
                         onPress: async () => {
                             await logout();
-                            // Lưu ý: Không cần router.replace('/login') ở đây
-                            // Vì cái hàm onAuthStateChanged trong authContext nó sẽ 
-                            // tự động bắt được sự kiện user bị null và đá bro về màn hình Welcome/Login.
+
                         }
                     }
                 ]
@@ -93,7 +91,7 @@ const ChangePasswordModal = () => {
                         icon={
                             <Icons.LockKey
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }
@@ -104,9 +102,9 @@ const ChangePasswordModal = () => {
                         secureTextEntry
                         onChangeText={(value) => (confirmPasswordRef.current = value)}
                         icon={
-                            <Icons.CheckCircle
+                            <Icons.LockKey
                                 size={verticalScale(26)}
-                                color={colors.neutral300}
+                                color={colors.textLight}
                                 weight="fill"
                             />
                         }

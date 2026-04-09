@@ -1,31 +1,31 @@
-import { radius, spacingX } from "@/constants/theme"; // Bỏ import colors tĩnh
+import { radius, spacingX } from "@/constants/theme";
 import { InputProps } from "@/types";
 import { verticalScale } from "@/utils/styling";
 import React from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { useTheme } from "@/contexts/themeContext"; // Thêm hook theme
+import { useTheme } from "@/contexts/themeContext";
 
 const Input = (props: InputProps) => {
-    const { colors } = useTheme(); // Lấy màu động
+    const { colors } = useTheme();
 
     return (
         <View
             style={[
                 styles.container,
-                { borderColor: colors.border }, // Viền đổi theo theme
+                { borderColor: colors.border },
                 props.containerStyle && props.containerStyle
             ]}
         >
-            {/* Nếu icon truyền vào chưa có màu, bạn có thể bọc logic màu ở đây nếu cần */}
+
             {props.icon && props.icon}
 
             <TextInput
                 style={[
                     styles.input,
-                    { color: colors.text }, // Chữ nhập vào đổi theo theme
+                    { color: colors.text },
                     props.inputStyle
                 ]}
-                placeholderTextColor={colors.textLight} // Màu gợi ý mờ đi
+                placeholderTextColor={colors.textLight}
                 ref={props.inputRef && props.inputRef}
                 {...props}
             />

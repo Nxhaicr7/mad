@@ -45,6 +45,14 @@ export default function TabLayout() {
                     tabBarIcon: ({ color }) => <Icons.User size={26} color={color} weight="fill" />,
                 }}
             />
+
+
+            <Tabs.Screen
+                name="aiSummary"
+                options={{
+                    tabBarIcon: ({ color }) => <Icons.Sparkle size={26} color={color} weight="fill" />,
+                }}
+            />
         </Tabs>
     );
 }
