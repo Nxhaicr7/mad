@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
-import { colors, radius, spacingX, spacingY } from "@/constants/theme";
+import { radius, spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { useTheme } from "@/contexts/themeContext";
 import useFetchData from "@/hooks/useFetchData";
@@ -14,7 +14,7 @@ import {
   getBudgetByWalletId,
 } from "@/services/budgetService";
 import { BudgetType, ExpenseLimitPeriod, WalletType } from "@/types";
-import { verticalScale } from "@/utils/styling";
+import { scale, verticalScale } from "@/utils/styling";
 import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
 import React, { useEffect, useState } from "react";
@@ -103,7 +103,30 @@ const ExpenseLimitWarningModal = () => {
       setShowAddModal(false);
       setBudgetAmount("");
       fetchWalletBudgets(selectedWalletId);
+    } else {
+      Alert.alert("Lỗi", res.msg);
     }
+  };
+
+  const onDeleteBudget = (id?: string) => {
+    if (!id) return;
+    Alert.alert("Xác nhận", "Bạn có chắc muốn xóa cảnh báo này?", [
+      { text: "Hủy", style: "cancel" },
+      {
+        text: "Xóa",
+        style: "destructive",
+        onPress: async () => {
+          setLoading(true);
+          const res = await deleteBudget(id);
+          setLoading(false);
+          if (!res.success) {
+            Alert.alert("Lỗi", res.msg);
+            return;
+          }
+          fetchWalletBudgets(selectedWalletId);
+        },
+      },
+    ]);
   };
 
   return (
@@ -119,7 +142,6 @@ const ExpenseLimitWarningModal = () => {
           contentContainerStyle={styles.form}
           showsVerticalScrollIndicator={false}
         >
-          {/* Chọn ví */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>Chọn ví</Typo>
             <Dropdown
@@ -141,7 +163,6 @@ const ExpenseLimitWarningModal = () => {
 
           <Typo color={colors.text} size={16} fontWeight="600">Danh sách cảnh báo</Typo>
 
-          {/* Danh sách Item */}
           <View style={styles.warningList}>
             {budgets.map((item) => (
               <View
@@ -157,9 +178,10 @@ const ExpenseLimitWarningModal = () => {
 
                 <TouchableOpacity
                   style={styles.deleteIcon}
-                  onPress={() => deleteBudget(item.id!).then(() => fetchWalletBudgets(selectedWalletId))}
+                  onPress={() => onDeleteBudget(item.id)}
+                  activeOpacity={0.8}
                 >
-                  <Icons.Trash size={verticalScale(16)} color={colors.white} weight="bold" />
+                  <Icons.Trash size={verticalScale(16)} color="#fff" weight="bold" />
                 </TouchableOpacity>
               </View>
             ))}
@@ -179,7 +201,6 @@ const ExpenseLimitWarningModal = () => {
         </Button>
       </View>
 
-      {/* --- POPUP MODAL NHỎ --- */}
       <Modal visible={showAddModal} transparent animationType="fade">
         <View style={styles.overlay}>
           <View style={[styles.addModalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -213,7 +234,7 @@ const ExpenseLimitWarningModal = () => {
 
             <View style={styles.modalActions}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: colors.neutral200 }]}
+                style={[styles.modalButton, { backgroundColor: isDarkMode ? colors.neutral700 : colors.neutral200 }]}
                 onPress={() => setShowAddModal(false)}
               >
                 <Typo size={14} color={colors.text}>Hủy</Typo>
@@ -248,7 +269,18 @@ const styles = StyleSheet.create({
   },
   deleteIcon: { height: verticalScale(32), width: verticalScale(32), borderRadius: radius._10, backgroundColor: "#ef4444", alignItems: "center", justifyContent: "center" },
   emptyBox: { borderStyle: "dashed", borderWidth: 1, borderRadius: radius._12, paddingVertical: spacingY._25, alignItems: "center" },
-  footer: { paddingHorizontal: spacingX._20, paddingTop: spacingY._15, borderTopWidth: 1, marginBottom: spacingY._5 },
+
+
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: spacingX._20,
+    paddingTop: spacingY._15,
+    paddingBottom: spacingY._20,
+    borderTopWidth: 1
+  },
+
   dropdownContainer: { height: verticalScale(54), borderWidth: 1, paddingHorizontal: spacingX._15, borderRadius: radius._15 },
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", paddingHorizontal: spacingX._20 },
   addModalCard: { borderRadius: radius._20, padding: spacingX._20, gap: spacingY._20, borderWidth: 1 },

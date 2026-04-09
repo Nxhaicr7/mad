@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Input from "@/components/Input";
 import ModalWrapper from "@/components/ModalWrapper";
 import Typo from "@/components/Typo";
-import { radius, spacingX, spacingY } from "@/constants/theme";
+import { spacingX, spacingY } from "@/constants/theme";
 import { useAuth } from "@/contexts/authContext";
 import { useTheme } from "@/contexts/themeContext";
 import { getProfileImage } from "@/services/imageServices";
@@ -26,7 +26,7 @@ import {
 
 const ProfileModal = () => {
   const { user, updateUserData } = useAuth();
-  const { colors, isDarkMode } = useTheme();
+  const { colors } = useTheme();
   const router = useRouter();
 
   const [userData, setUserData] = useState<UserDataType>({
@@ -78,7 +78,6 @@ const ProfileModal = () => {
         />
 
         <ScrollView contentContainerStyle={styles.form}>
-          {/* Avatar Section */}
           <View style={styles.avatarContainer}>
             <Image
               style={[
@@ -102,7 +101,6 @@ const ProfileModal = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Input Section */}
           <View style={styles.inputContainer}>
             <Typo color={colors.textLight} size={16}>Tên hiển thị</Typo>
             <Input

@@ -569,10 +569,12 @@ export const fetchMonthlyStats = async (uid: string): Promise<ResponseType> => {
   try {
     const db = firestore;
     const today = new Date();
-    const twelveMonthsAgo = new Date(today);
-    twelveMonthsAgo.setMonth(today.getMonth() - 12);
+    const twelveMonthsAgo = new Date(
+      today.getFullYear(),
+      today.getMonth() - 11,
+      1,
+    );
 
-    // Define query to fetch transactions in the last 12 months
     const transactionsQuery = query(
       collection(db, "transactions"),
       where("date", ">=", Timestamp.fromDate(twelveMonthsAgo)),
@@ -582,57 +584,64 @@ export const fetchMonthlyStats = async (uid: string): Promise<ResponseType> => {
     );
 
     const querySnapshot = await getDocs(transactionsQuery);
-    const monthlyData = getLast12Months();
+
+    const monthlyData: any[] = [];
+    // 🛠️ FIX Ở ĐÂY: Đảo vòng lặp để Tháng hiện tại (mới nhất) nằm ngoài cùng bên trái
+    for (let i = 0; i <= 11; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      monthlyData.push({
+        label: `T${d.getMonth() + 1}`,
+        matchKey: `${d.getFullYear()}-${d.getMonth()}`,
+        income: 0,
+        expense: 0,
+      });
+    }
+
     const transactions: TransactionType[] = [];
 
-    // Process transactions to calculate income and expense for each month
     querySnapshot.forEach((doc) => {
       const transaction = doc.data() as TransactionType;
-      transaction.id = doc.id; // Include document ID in transaction data
+      transaction.id = doc.id;
       transactions.push(transaction);
 
-      const transactionDate = (transaction.date as Timestamp).toDate();
+      const transactionDate = getTransactionDate(transaction.date);
+      if (!transactionDate) return;
+
+      const matchKey = `${transactionDate.getFullYear()}-${transactionDate.getMonth()}`;
       const monthData = monthlyData.find(
-        (month) => month.month === getMonthYearKey(transactionDate),
+        (month) => month.matchKey === matchKey,
       );
 
       if (monthData) {
         if (transaction.type === "income") {
-          monthData.income += transaction.amount;
+          monthData.income += transaction.amount || 0;
         } else if (transaction.type === "expense") {
-          monthData.expense += transaction.amount;
+          monthData.expense += transaction.amount || 0;
         }
       }
     });
 
-    // Reformat monthlyData for the bar chart with income and expense entries for each month
     const stats = monthlyData.flatMap((month) => [
       {
         value: month.income,
-        label: month.month,
+        label: month.label,
         spacing: scale(4),
-        labelWidth: scale(46),
-        frontColor: colors.primary, // Income bar color
+        labelWidth: scale(30),
+        frontColor: colors.primary,
       },
       {
         value: month.expense,
-        frontColor: colors.rose, // Expense bar color
+        frontColor: colors.rose,
       },
     ]);
 
     return {
       success: true,
-      data: {
-        stats,
-        transactions, // Include all transaction details
-      },
+      data: { stats, transactions },
     };
   } catch (error) {
     console.error("Error fetching monthly transactions:", error);
-    return {
-      success: false,
-      msg: "Failed to fetch monthly transactions",
-    };
+    return { success: false, msg: "Failed to fetch monthly transactions" };
   }
 };
 
