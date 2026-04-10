@@ -1,4 +1,4 @@
-import { firestore } from "@/config/firebase";
+import { auth, firestore } from "@/config/firebase";
 import { ResponseType, WalletType } from "@/types";
 import {
     collection,
@@ -12,12 +12,19 @@ import {
 } from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageServices";
 
+const removeUndefinedFields = <T extends Record<string, any>>(data: T): T => {
+  return Object.fromEntries(
+    Object.entries(data).filter(([, value]) => value !== undefined),
+  ) as T;
+};
+
 export const createOrUpdateWallet = async (
   walletData: Partial<WalletType>,
 ): Promise<ResponseType> => {
   try {
     let walletToSave = { ...walletData };
     walletToSave.image = walletToSave.image ?? null;
+    walletToSave.uid = walletToSave.uid ?? auth.currentUser?.uid;
 
     if (walletData.image) {
       const imageUploadRes = await uploadFileToCloudinary(
@@ -33,6 +40,12 @@ export const createOrUpdateWallet = async (
       walletToSave.image = imageUploadRes.data;
     }
     if (!walletData?.id) {
+      if (!walletToSave.uid) {
+        return {
+          success: false,
+          msg: "Bạn chưa đăng nhập hoặc phiên đã hết hạn. Vui lòng đăng nhập lại.",
+        };
+      }
       walletToSave.amount = 0;
       walletToSave.totalIncome = 0;
       walletToSave.totalExpenses = 0;
@@ -42,6 +55,7 @@ export const createOrUpdateWallet = async (
     const walletRef = walletData?.id
       ? doc(firestore, "wallets", walletData?.id)
       : doc(collection(firestore, "wallets"));
+    walletToSave = removeUndefinedFields(walletToSave);
     await setDoc(walletRef, walletToSave, { merge: true }); // updates only the data provided
     return { success: true, data: { ...walletToSave, id: walletRef.id } };
   } catch (error: any) {

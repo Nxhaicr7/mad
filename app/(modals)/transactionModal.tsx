@@ -19,11 +19,13 @@ import {
 } from "@/services/transactionService";
 import { TransactionType, WalletType } from "@/types";
 import { scale, verticalScale } from "@/utils/styling";
+import { consumePendingScanResult } from "@/utils/scanInvoiceResultStore";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { orderBy, where } from "firebase/firestore";
 import * as Icons from "phosphor-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Platform,
@@ -172,6 +174,21 @@ const TransactionModal = () => {
       }));
     }
   }, [oldTransaction?.id, oldTransaction?.scanned]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const scanResult = consumePendingScanResult();
+      if (!scanResult) return;
+
+      setTransaction((prev) => ({
+        ...prev,
+        amount: Number(scanResult.totalAmount) || 0,
+        description: scanResult.description || "",
+        category: mapAICategory(scanResult.category || ""),
+        date: parseScannedDate(scanResult.date || ""),
+      }));
+    }, []),
+  );
 
   const onSubmit = async () => {
     const { type, amount, description, category, date, walletId, image } =
