@@ -12,12 +12,32 @@ import {
 } from "firebase/firestore";
 import { uploadFileToCloudinary } from "./imageServices";
 
+/**
+ * Loại bỏ các field có giá trị `undefined` trước khi ghi Firestore
+ * để tránh lưu dữ liệu rỗng ngoài ý muốn.
+ */
 const removeUndefinedFields = <T extends Record<string, any>>(data: T): T => {
   return Object.fromEntries(
     Object.entries(data).filter(([, value]) => value !== undefined),
   ) as T;
 };
 
+/**
+ * Tạo mới hoặc cập nhật một ví trong Firestore.
+ *
+ * Thành phần liên quan:
+ * - UI gọi vào: `app/(modals)/walletModal.tsx`
+ * - Upload ảnh ngoài: `services/imageServices.ts` (Cloudinary)
+ *
+ * Input:
+ * - `walletData.id`:
+ *   - Có: update ví hiện có (dùng `setDoc(..., { merge: true })`)
+ *   - Không: tạo ví mới và khởi tạo các trường tổng hợp
+ * - `walletData.image` (tuỳ chọn): nếu có thì upload Cloudinary trước, lưu URL về Firestore
+ *
+ * Output:
+ * - `ResponseType`: `{ success, data|msg }`
+ */
 export const createOrUpdateWallet = async (
   walletData: Partial<WalletType>,
 ): Promise<ResponseType> => {
@@ -64,12 +84,27 @@ export const createOrUpdateWallet = async (
   }
 };
 
+/**
+ * Xóa ví và toàn bộ giao dịch liên quan.
+ *
+ * API/DB thao tác:
+ * - Firestore: xóa document trong collection `wallets`
+ * - Firestore: xóa các document trong collection `transactions` theo `walletId`
+ *
+ * Lưu ý:
+ * - Đây là "cascading delete" theo `walletId`, vì vậy sẽ làm mất dữ liệu giao dịch liên quan.
+ * - Hàm sẽ trả lỗi nếu xóa transactions thất bại để UI có thể thông báo.
+ */
 export const deleteWallet = async (walletId: string): Promise<ResponseType> => {
   try {
     const walletRef = doc(firestore, "wallets", walletId);
     await deleteDoc(walletRef);
 
-    deleteTransactionsByWalletId(walletId); // delete all transactions related to this wallet
+    // Delete all transactions related to this wallet (best-effort; surfaced to caller if it fails).
+    const deleteTransactionsRes = await deleteTransactionsByWalletId(walletId);
+    if (!deleteTransactionsRes.success) {
+      return deleteTransactionsRes;
+    }
 
     return { success: true, msg: "Ví đã được xóa thành công" };
   } catch (err: any) {
@@ -78,6 +113,14 @@ export const deleteWallet = async (walletId: string): Promise<ResponseType> => {
   }
 };
 
+/**
+ * Xóa tất cả giao dịch thuộc về một ví theo `walletId`.
+ *
+ * Vì Firestore giới hạn số operations trong một batch, nên hàm sẽ:
+ * - Query tất cả transactions có `walletId`
+ * - Xóa theo lô bằng `writeBatch`
+ * - Lặp lại cho đến khi không còn document nào khớp
+ */
 export const deleteTransactionsByWalletId = async (
   walletId: string,
 ): Promise<ResponseType> => {
@@ -114,8 +157,6 @@ export const deleteTransactionsByWalletId = async (
       success: true,
       msg: "Tất cả giao dịch đã được xóa thành công",
     };
-
-    return { success: true, msg: "Wallet deleted successfully" };
   } catch (err: any) {
     console.log("error deleting wallet: ", err);
     return { success: false, msg: err.message };

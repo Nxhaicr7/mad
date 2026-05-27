@@ -13,7 +13,21 @@ import { readAsStringAsync } from "expo-file-system/legacy";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 const OPENAI_RESPONSES_API_URL = "https://api.openai.com/v1/responses";
 const OPENAI_SCAN_MODEL = "gpt-4.1-mini";
+const DEFAULT_HTTP_TIMEOUT_MS = 30000;
 
+/**
+ * Prompt dùng cho tính năng AI quét hóa đơn.
+ *
+ * Hợp đồng output (cực kỳ quan trọng):
+ * - Provider phải trả về DUY NHẤT một JSON object hợp lệ (không markdown, không giải thích),
+ *   đúng schema để UI auto-fill form giao dịch.
+ *
+ * Các field UI cần:
+ * - totalAmount (number)
+ * - date (DD/MM/YYYY)
+ * - description (string)
+ * - category (một trong các nhãn tiếng Việt đã quy định)
+ */
 const SCAN_PROMPT = `Bạn là hệ thống OCR/AI cho app quản lý chi tiêu. Hãy đọc ảnh hóa đơn và trích xuất dữ liệu.
 
 Chỉ trả về DUY NHẤT một JSON object hợp lệ (không markdown, không giải thích) theo đúng schema:
@@ -60,6 +74,12 @@ const normalizeTone = (tone: unknown): "positive" | "warning" | "neutral" => {
   return "neutral";
 };
 
+/**
+ * Cố gắng sửa các lỗi JSON thường gặp từ output AI:
+ * - Có markdown fence ```json
+ * - Có dấu phẩy thừa trước `}` hoặc `]`
+ * - Thiếu dấu đóng object/array hoặc chưa đóng chuỗi
+ */
 const repairIncompleteJson = (text: string) => {
   let cleaned = text
     .replace(/```json|```/g, "")
@@ -118,6 +138,14 @@ const repairIncompleteJson = (text: string) => {
   return cleaned;
 };
 
+/**
+ * Parse JSON theo hướng "chịu lỗi".
+ *
+ * Chiến lược:
+ * - Thử parse nguyên văn sau khi bỏ markdown fence
+ * - Nếu fail, cắt phần từ `{` đầu tiên đến `}` cuối cùng
+ * - Nếu vẫn fail, gọi `repairIncompleteJson()` rồi parse lại
+ */
 const safeParseJSON = (text: string): any | null => {
   const cleanText = text.replace(/```json|```/g, "").trim();
   const parseCandidates: string[] = [];
@@ -150,6 +178,12 @@ const safeParseJSON = (text: string): any | null => {
   return null;
 };
 
+/**
+ * Chuẩn hóa response text từ Gemini.
+ *
+ * Gemini có thể trả nội dung tách thành nhiều `parts`, helper này sẽ join lại thành một chuỗi text
+ * để parse JSON phía sau.
+ */
 const getGeminiTextFromResponse = (data: any): string => {
   const parts = data?.candidates?.[0]?.content?.parts;
   if (Array.isArray(parts)) {
@@ -164,6 +198,15 @@ const getGeminiTextFromResponse = (data: any): string => {
   return typeof text === "string" ? text.trim() : "";
 };
 
+/**
+ * Trích text output từ OpenAI Responses API.
+ *
+ * OpenAI có thể trả:
+ * - `output_text` (đã join sẵn), hoặc
+ * - `output[]` (structured). Helper này sẽ quét và nối các đoạn `output_text`.
+ *
+ * Output trả về dự kiến sẽ là JSON text theo schema của `SCAN_PROMPT`.
+ */
 const getOpenAIOutputTextFromResponse = (data: any): string => {
   if (typeof data?.output_text === "string" && data.output_text.trim()) {
     return data.output_text.trim();
@@ -186,12 +229,24 @@ const getOpenAIOutputTextFromResponse = (data: any): string => {
   return chunks.join("\n").trim();
 };
 
+/**
+ * Quét hóa đơn bằng OpenAI (Responses API).
+ *
+ * API gọi ngoài:
+ * - Endpoint: `https://api.openai.com/v1/responses`
+ * - Model: `gpt-4.1-mini`
+ * - Input: prompt + ảnh (data URL base64)
+ *
+ * Output:
+ * - `ResponseType` với `data: ScanResult` nếu parse thành công
+ */
 const scanInvoiceWithOpenAI = async (imageUri: string): Promise<ResponseType> => {
   try {
     if (!OPENAI_API_KEY) {
       return { success: false, msg: "Thiếu OPENAI_API_KEY. Vui lòng cấu hình lại." };
     }
 
+    // Đọc ảnh local thành base64 để gửi theo dạng data URL cho OpenAI.
     const base64Image = await readAsStringAsync(imageUri, {
       encoding: "base64",
     });
@@ -222,7 +277,7 @@ const scanInvoiceWithOpenAI = async (imageUri: string): Promise<ResponseType> =>
         "Content-Type": "application/json",
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
-      timeout: 30000,
+      timeout: DEFAULT_HTTP_TIMEOUT_MS,
     });
 
     const text = getOpenAIOutputTextFromResponse(response.data);
@@ -397,6 +452,20 @@ export const scanInvoiceWithAI = async (
   imageUri: string,
 ): Promise<ResponseType> => {
   try {
+    /**
+     * Quét hóa đơn bằng AI theo cơ chế ưu tiên OpenAI và fallback Gemini.
+     *
+     * Luồng chọn provider:
+     * - Nếu có `OPENAI_API_KEY`: gọi OpenAI.
+     * - Nếu không có OpenAI key: gọi Gemini (nếu có `GEMINI_API_KEY`).
+     *
+     * API gọi ngoài:
+     * - OpenAI Responses API: `https://api.openai.com/v1/responses`
+     * - Gemini GenerateContent API: `.../models/gemini-2.5-flash:generateContent`
+     *
+     * Output:
+     * - `ResponseType` với `data: ScanResult` nếu parse thành công
+     */
     if (OPENAI_API_KEY) {
       return await scanInvoiceWithOpenAI(imageUri);
     }
@@ -441,7 +510,7 @@ export const scanInvoiceWithAI = async (
 
     const response = await axios.post(GEMINI_API_URL, requestBody, {
       headers: { "Content-Type": "application/json" },
-      timeout: 30000,
+      timeout: DEFAULT_HTTP_TIMEOUT_MS,
     });
 
     const text = getGeminiTextFromResponse(response.data);

@@ -31,6 +31,20 @@ type ScanMode = "capture" | "upload";
 
 const ACCENT = "#00E5FF";
 
+/**
+ * Modal quét hóa đơn (AI Scan Invoice)
+ *
+ * Vai trò:
+ * - Chụp ảnh hoặc tải ảnh hóa đơn (expo-image-picker)
+ * - Gọi AI để trích xuất dữ liệu (services/aiService.ts → `scanInvoiceWithAI`)
+ * - Hiển thị kết quả và cho phép người dùng chỉnh sửa trước khi xác nhận
+ * - Trả kết quả về màn tạo giao dịch thông qua store tạm:
+ *   - set: `utils/scanInvoiceResultStore.ts:setPendingScanResult`
+ *   - get: `utils/scanInvoiceResultStore.ts:consumePendingScanResult` (ở transaction modal)
+ *
+ * API ngoài được gọi gián tiếp:
+ * - OpenAI Responses API hoặc Gemini GenerateContent API (tùy key cấu hình)
+ */
 const ScanInvoiceModal = () => {
   const router = useRouter();
   const [mode, setMode] = useState<ScanMode>("capture");
@@ -78,7 +92,10 @@ const ScanInvoiceModal = () => {
     setShowDatePicker(Platform.OS === "ios");
   };
 
-  // Chụp ảnh bằng camera
+  /**
+   * Mở camera để chụp ảnh hóa đơn.
+   * Nếu người dùng từ chối quyền camera thì dừng luồng và hiện thông báo.
+   */
   const handleCapture = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
@@ -95,7 +112,9 @@ const ScanInvoiceModal = () => {
     }
   };
 
-  // Upload từ thư viện ảnh
+  /**
+   * Mở thư viện ảnh để chọn ảnh hóa đơn có sẵn trên máy.
+   */
   const handleUpload = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({
       quality: 1,
@@ -108,7 +127,13 @@ const ScanInvoiceModal = () => {
     }
   };
 
-  // Gọi AI scan
+  /**
+   * Gọi service AI để quét hóa đơn từ `imageUri`.
+   *
+   * Bảo vệ luồng:
+   * - Không cho scan nếu chưa có ảnh
+   * - Dùng `scanningRef` để chặn bấm nhiều lần liên tiếp khi request đang chạy
+   */
   const handleScan = async () => {
     if (!imageUri) {
       Alert.alert("Chưa có ảnh", "Vui lòng chụp hoặc tải ảnh hóa đơn lên");
@@ -128,7 +153,10 @@ const ScanInvoiceModal = () => {
     }
   };
 
-  // Xác nhận → chuyển sang transactionModal với dữ liệu đã scan
+  /**
+   * Xác nhận kết quả scan.
+   * Kết quả sẽ được lưu vào store tạm và màn hiện tại đóng lại để quay về transaction modal.
+   */
   const handleConfirm = () => {
     if (!result) return;
     setPendingScanResult(result);
