@@ -40,10 +40,10 @@ const Wallet = () => {
                 <View style={styles.balanceView}>
                     <View style={{ alignItems: "center" }}>
                         <Typo size={45} fontWeight={"500"}>
-                            ${getTotalBalance()?.toFixed(2)}
+                            {`${getTotalBalance().toLocaleString("vi-VN")}đ`}
                         </Typo>
                         <Typo size={16} color={colors.neutral300}>
-                            Total Balance
+                            Tổng số dư
                         </Typo>
                     </View>
                 </View>
